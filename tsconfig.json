@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "strictNullChecks": true,
+    "target": "es5",
+    "lib": [
+      "es2017"
+    ],
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "include": [
+    "./src/index.ts",
+    "./src/typings.d.ts"
+  ]
+}

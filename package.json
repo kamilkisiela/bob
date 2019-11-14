@@ -1,0 +1,26 @@
+{
+  "name": "@kamilkisiela/bob",
+  "version": "0.0.2",
+  "main": "dist/index.js",
+  "bin": {
+    "bob": "dist/index.js"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "rollup": "1.27.0",
+    "rollup-plugin-generate-package-json": "3.1.4",
+    "rollup-plugin-typescript2": "0.25.2"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "3.7.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
