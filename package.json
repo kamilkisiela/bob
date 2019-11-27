@@ -3,7 +3,8 @@
   "version": "0.0.2",
   "main": "dist/index.js",
   "bin": {
-    "bob": "dist/index.js"
+    "bob": "dist/index.js",
+    "bob-update-version": "dist/update-version.js"
   },
   "license": "MIT",
   "files": [
@@ -18,6 +19,7 @@
     "build": "tsc"
   },
   "devDependencies": {
+    "@types/node": "^12.12.7",
     "typescript": "3.7.2"
   },
   "publishConfig": {
