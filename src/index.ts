@@ -31,6 +31,7 @@ async function build(pkg: PackageJson) {
           pkg,
           preserved: [],
         }),
+        additionalDependencies: Object.keys(pkg.dependencies),
       }),
     ],
   };
