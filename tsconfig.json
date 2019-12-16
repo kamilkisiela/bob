@@ -2,9 +2,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "strictNullChecks": true,
-    "target": "es5",
+    "target": "esnext",
     "lib": [
-      "es2017"
+      "esnext"
     ],
     "outDir": "dist",
     "declaration": true,
@@ -22,6 +22,7 @@
   ],
   "include": [
     "./src/index.ts",
+    "./src/update-version.ts",
     "./src/typings.d.ts"
   ]
 }
