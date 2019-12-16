@@ -159,6 +159,10 @@ function rewritePackageJson({
   newPkg.main = transformPath(pkg.main);
   newPkg.module = transformPath(pkg.module);
   newPkg.typings = transformPath(pkg.typings);
+  newPkg.typescript = pkg.typescript;
+  if (newPkg.typescript.definition) {
+    newPkg.typescript.definition = transformPath(pkg.typescript.definition);
+  }
 
   if (pkg.bin) {
     newPkg.bin = {};
