@@ -1,6 +1,6 @@
 {
-  "name": "@kamilkisiela/bob",
-  "version": "0.0.2",
+  "name": "bob-the-bundler",
+  "version": "0.2.0",
   "main": "dist/index.js",
   "bin": {
     "bob": "dist/index.js",
@@ -11,16 +11,16 @@
     "dist"
   ],
   "dependencies": {
-    "rollup": "1.27.0",
-    "rollup-plugin-generate-package-json": "3.1.4",
-    "rollup-plugin-typescript2": "0.25.2"
+    "rollup": "1.27.13",
+    "rollup-plugin-generate-package-json": "3.2.0",
+    "rollup-plugin-typescript2": "0.25.3"
   },
   "scripts": {
     "build": "tsc"
   },
   "devDependencies": {
-    "@types/node": "^12.12.7",
-    "typescript": "3.7.2"
+    "@types/node": "12.12.17",
+    "typescript": "3.7.3"
   },
   "publishConfig": {
     "access": "public"
