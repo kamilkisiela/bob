@@ -1,6 +1,16 @@
 {
   "name": "bob-the-bundler",
-  "version": "0.2.0",
+  "version": "0.2.1",
+  "description": "Bob The Bundler!",
+  "author": {
+    "email": "kamil.kisiela@gmail.com",
+    "name": "Kamil Kisiela",
+    "url": "https://github.com/kamilkisiela"
+  },
+  "repository": {
+    "url": "git@github.com:kamilkisiela/bob.git",
+    "type": "git"
+  },
   "main": "dist/index.js",
   "bin": {
     "bob": "dist/index.js",
