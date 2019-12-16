@@ -1,6 +1,6 @@
 {
   "name": "bob-the-bundler",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Bob The Bundler!",
   "author": {
     "email": "kamil.kisiela@gmail.com",
@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "rollup": "1.27.13",
-    "rollup-plugin-generate-package-json": "3.2.0",
+    "rollup-plugin-generate-package-json": "3.1.4",
     "rollup-plugin-typescript2": "0.25.3"
   },
   "scripts": {

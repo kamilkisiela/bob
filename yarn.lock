@@ -264,7 +264,7 @@ pkg-dir@^4.1.0:
   dependencies:
     find-up "^4.0.0"
 
-read-pkg@^5.2.0:
+read-pkg@^5.1.1:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/read-pkg/-/read-pkg-5.2.0.tgz#7bf295438ca5a33e56cd30e053b34ee7250c93cc"
   integrity sha512-Ug69mNOpfvKDAc2Q8DRpMjjzdtrnv9HcSMX+4VsZxD1aZ6ZzrIE7rlzXBtWTyhULSMKg076AW6WR5iZpD0JiOg==
@@ -281,12 +281,12 @@ resolve@1.12.0, resolve@^1.10.0:
   dependencies:
     path-parse "^1.0.6"
 
-rollup-plugin-generate-package-json@3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-generate-package-json/-/rollup-plugin-generate-package-json-3.2.0.tgz#e9c1d358f2be6c58b49853af58205292d45a33ff"
-  integrity sha512-+Kq1kFVr+maxW/mZB+E+XuaieCXVZqjl2tNU9k3TtAMs3NOaeREa5sRHy67qKDmcnFtZZukIQ3dFCcnV+r0xyw==
+rollup-plugin-generate-package-json@3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-generate-package-json/-/rollup-plugin-generate-package-json-3.1.4.tgz#3a89ac8da1aeefda59fca12a0d5e5e85f0de2e20"
+  integrity sha512-Qbb9osMybQdhskm/XRCv6z7X5SDME5bVsXJUeifPOC3M2mcaDM6yldbmd3oMTwZTlNQ6+86G3KY6uGbpbI5I8A==
   dependencies:
-    read-pkg "^5.2.0"
+    read-pkg "^5.1.1"
     write-pkg "^4.0.0"
 
 rollup-plugin-typescript2@0.25.3:
