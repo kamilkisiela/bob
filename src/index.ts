@@ -25,7 +25,9 @@ async function build(pkg: PackageJson) {
   const inputOptions: rollup.RollupOptions = {
     input: options.input,
     plugins: [
-      typescript(),
+      typescript({
+        objectHashIgnoreUnknownHack: true,
+      }),
       generatePackageJson({
         baseContents: rewritePackageJson({
           pkg,
