@@ -34,6 +34,7 @@ async function build(pkg: PackageJson) {
         additionalDependencies: Object.keys(pkg.dependencies),
       }),
     ],
+    inlineDynamicImports: true,
   };
 
   // create a bundle
