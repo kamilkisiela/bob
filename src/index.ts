@@ -5,7 +5,7 @@ import { resolve, basename } from 'path';
 import * as rollup from 'rollup';
 import * as typescript from 'rollup-plugin-typescript2';
 import * as generatePackageJson from 'rollup-plugin-generate-package-json';
-import * as nodeExternals from 'rollup-plugin-node-externals';
+import * as autoExternal from 'rollup-plugin-auto-external';
 
 interface Options {
   input: string;
@@ -29,17 +29,7 @@ async function build(pkg: PackageJson) {
       typescript({
         objectHashIgnoreUnknownHack: true,
       }),
-      nodeExternals({
-        packagePath: resolve(process.cwd(), 'package.json'),      // The path to your package.json (default: process.cwd() which is usally the same dir where rollup.config.js stands)
-        builtins: true,   // make node builtins external (default: true)
-        deps: true,       // make pkg.dependencies external (default: false)
-        devDeps: true,    // make pkg.devDependencies external (default: true)
-        peerDeps: true,   // make pkg.peerDependencies external (default: true)
-        optDeps: true,    // make pkg.optionalDependencies external (default: true)
-        exclude: [],      // deps to exclude from externals (default: [])
-        include: [],      // deps to include in externals (default: [])
-        except: []        // deprecated -- see below
-      }),
+      autoExternal(),
       generatePackageJson({
         baseContents: rewritePackageJson({
           pkg,
