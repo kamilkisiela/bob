@@ -23,7 +23,8 @@
   "dependencies": {
     "rollup": "1.27.13",
     "rollup-plugin-generate-package-json": "3.2.0",
-    "rollup-plugin-typescript2": "0.25.3"
+    "rollup-plugin-typescript2": "0.25.3",
+    "rollup-plugin-auto-external": "2.0.0"
   },
   "scripts": {
     "build": "tsc"

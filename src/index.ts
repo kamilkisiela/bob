@@ -5,6 +5,7 @@ import { resolve, basename } from 'path';
 import * as rollup from 'rollup';
 import * as typescript from 'rollup-plugin-typescript2';
 import * as generatePackageJson from 'rollup-plugin-generate-package-json';
+import * as autoExternal from 'rollup-plugin-auto-external';
 
 interface Options {
   input: string;
@@ -25,7 +26,10 @@ async function build(pkg: PackageJson) {
   const inputOptions: rollup.RollupOptions = {
     input: options.input,
     plugins: [
-      typescript(),
+      typescript({
+        objectHashIgnoreUnknownHack: true,
+      }),
+      autoExternal(),
       generatePackageJson({
         baseContents: rewritePackageJson({
           pkg,
@@ -34,6 +38,7 @@ async function build(pkg: PackageJson) {
         additionalDependencies: Object.keys(pkg.dependencies),
       }),
     ],
+    inlineDynamicImports: true,
   };
 
   // create a bundle
@@ -77,8 +82,12 @@ async function build(pkg: PackageJson) {
         const inputOptions: rollup.RollupOptions = {
           input: options.input,
           plugins: [
-            typescript(),
+            typescript({
+              objectHashIgnoreUnknownHack: true,
+            }),
+            autoExternal(),
           ],
+          inlineDynamicImports: true,
         };
   
         const bundle = await rollup.rollup(inputOptions);
