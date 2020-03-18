@@ -1,26 +1,26 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "strictNullChecks": true,
     "target": "esnext",
     "lib": [
       "esnext"
     ],
+    
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
+    
     "importHelpers": true,
+
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+
     "strict": true,
+    "strictNullChecks": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
-  "include": [
+  "files": [
     "./src/index.ts",
     "./src/update-version.ts",
     "./src/typings.d.ts"
