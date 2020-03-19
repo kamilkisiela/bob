@@ -36,7 +36,7 @@ async function build(pkg: PackageJson) {
           pkg,
           preserved: []
         }),
-        additionalDependencies: Object.keys(pkg.dependencies)
+        additionalDependencies: Object.keys(pkg.dependencies || {})
       })
     ],
     inlineDynamicImports: true
@@ -204,7 +204,7 @@ async function rewriteDeclarations(pkg: PackageJson) {
     return;
   }
 
-  const declarationFiles = await globby("**", {
+  const declarationFiles = await globby(["**/*.d.ts", "**/*.d.ts.map"], {
     absolute: false,
     cwd: resolve(process.cwd(), pathOf(pkg.typings))
   });
@@ -228,11 +228,17 @@ async function rewriteDeclarations(pkg: PackageJson) {
 
   const distPath = pathOf(pkg.typings);
 
+  const baseToRemove =
+    pathOf(indexFile)
+      .split("/")
+      .filter((_, i) => i < lvl)
+      .join("/") + "/";
+
   await Promise.all(
     declarationFiles.map(async filepath => {
       await move(
         resolve(process.cwd(), distPath, filepath),
-        resolve(distPath, basename(filepath))
+        resolve(distPath, filepath.replace(baseToRemove, ""))
       );
     })
   );
@@ -240,7 +246,7 @@ async function rewriteDeclarations(pkg: PackageJson) {
 
 function move(src: string, dest: string) {
   return new Promise((resolve, reject) => {
-    mv(src, dest, err => {
+    mv(src, dest, { mkdirp: true }, err => {
       if (err) {
         reject(err);
       } else {
