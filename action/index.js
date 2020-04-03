@@ -2017,6 +2017,7 @@ function getPackages(ignored) {
     }
     return packages;
 }
+exports.getPackages = getPackages;
 
 
 /***/ }),

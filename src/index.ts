@@ -6,19 +6,18 @@ import { CommandFactory } from "./command";
 import { buildCommand } from "./commands/build";
 import { prepackCommand } from "./commands/prepack";
 import { affectedCommand } from "./commands/affected";
+import { validateCommand } from "./commands/validate";
 
 async function main() {
   const config = await useConfig();
 
-  const root: Argv = yargs
-    .scriptName("bob")
-    .detectLocale(false)
-    .version();
+  const root: Argv = yargs.scriptName("bob").detectLocale(false).version();
 
   const commands: CommandFactory<any, any>[] = [
     buildCommand,
     prepackCommand,
-    affectedCommand
+    affectedCommand,
+    validateCommand,
   ];
 
   const reporter = consola.create({});

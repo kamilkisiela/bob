@@ -244,7 +244,7 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
 
 //
 
-async function readPackageJson(baseDir: string) {
+export async function readPackageJson(baseDir: string) {
   return JSON.parse(
     await fs.readFile(resolve(baseDir, "package.json"), {
       encoding: "utf-8",
@@ -292,7 +292,7 @@ function rewritePackageJson(pkg: Record<string, any>) {
   return newPkg;
 }
 
-function validatePackageJson(pkg: any) {
+export function validatePackageJson(pkg: any) {
   function expect(key: string, expected: string) {
     const received = get(pkg, key);
 

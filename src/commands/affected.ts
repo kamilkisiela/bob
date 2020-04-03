@@ -5,12 +5,12 @@ import minimatch from "minimatch";
 
 import { createCommand } from "../command";
 
-interface Package {
+export interface Package {
   location: string;
   dependencies: string[];
   dirty: boolean;
 }
-type Packages = Record<string, Package>;
+export type Packages = Record<string, Package>;
 
 export const affectedCommand = createCommand<
   {},
@@ -152,7 +152,7 @@ function getChangedFilesList(against: string): string[] {
   return cmd.split("\n").filter(file => Boolean(file));
 }
 
-function getPackages(ignored: string[]) {
+export function getPackages(ignored: string[]): Packages {
   const info = execSync("yarn workspaces info", {
     encoding: "utf-8"
   });
