@@ -2041,14 +2041,6 @@ var isArray = Array.isArray || function (xs) {
 
 /***/ }),
 
-/***/ 922:
-/***/ (function(module) {
-
-module.exports = eval("require")("/Users/kamilkisiela/Repo/kamilkisiela/bob/bob.config.js");
-
-
-/***/ }),
-
 /***/ 960:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
@@ -2064,7 +2056,7 @@ function run() {
         try {
             core.info("Running Bob...");
             core.info("Looking for bob.config.js");
-            const config = __webpack_require__(922);
+            const config = require(path_1.resolve(process.env.GITHUB_WORKSPACE, "bob.config.js"));
             core.info("Checking affected packages");
             const { affected } = affected_1.getAffectedPackages({
                 config,

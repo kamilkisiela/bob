@@ -7,7 +7,10 @@ async function run(): Promise<void> {
     core.info("Running Bob...");
 
     core.info("Looking for bob.config.js");
-    const config = require(resolve(process.cwd(), "bob.config.js"));
+    const config = require(resolve(
+      process.env.GITHUB_WORKSPACE!,
+      "bob.config.js"
+    ));
     core.info("Checking affected packages");
     const { affected } = getAffectedPackages({
       config,
