@@ -12931,15 +12931,22 @@ const affected_1 = __webpack_require__(680);
 function run() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         try {
-            core.debug("Running Bob...");
+            core.info("Running Bob...");
+            core.info("Looking for bob.config.js");
             const config = yield config_1.useConfig();
+            core.info("Checking affected packages");
             const { affected } = affected_1.getAffectedPackages({
                 config,
                 ignored: config.ignore || []
             });
+            core.info([
+                "Affected packages:",
+                affected.map(name => ` - ${name}`).join("\n")
+            ].join("\n"));
             core.setOutput("dirty", affected.length ? "true" : "false");
         }
         catch (error) {
+            console.error(error);
             core.setFailed(error.message);
             core.setOutput("dirty", "true");
         }
