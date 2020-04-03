@@ -1,6 +1,6 @@
 {
   "name": "bob-the-bundler",
-  "version": "0.3.4",
+  "version": "1.0.0-alpha.0",
   "description": "Bob The Bundler!",
   "author": {
     "email": "kamil.kisiela@gmail.com",
@@ -13,28 +13,35 @@
   },
   "main": "dist/index.js",
   "bin": {
-    "bob": "dist/index.js",
-    "bob-update-version": "dist/update-version.js"
+    "bob": "dist/index.js"
   },
   "license": "MIT",
   "files": [
     "dist"
   ],
   "dependencies": {
-    "globby": "11.0.0",
-    "mv": "2.1.1",
-    "rollup": "2.1.0",
+    "@rollup/plugin-node-resolve": "7.1.1",
+    "cosmiconfig": "6.0.0",
+    "minimatch": "3.0.4",
+    "rollup": "2.3.2",
     "rollup-plugin-generate-package-json": "3.2.0",
-    "rollup-plugin-typescript2": "0.26.0",
-    "rollup-plugin-auto-external": "2.0.0"
+    "rollup-plugin-auto-external": "2.0.0",
+    "fs-extra": "9.0.0",
+    "p-limit": "2.2.2",
+    "globby": "11.0.0",
+    "lodash.get": "4.4.2",
+    "yargs": "15.3.1"
   },
   "scripts": {
     "build": "tsc"
   },
   "devDependencies": {
-    "@types/mv": "2.1.0",
-    "@types/node": "12.12.17",
-    "typescript": "3.7.3"
+    "@types/minimatch": "3.0.3",
+    "@types/yargs": "15.0.4",
+    "@types/node": "13.11.0",
+    "@types/lodash.get": "4.4.6",
+    "@types/fs-extra": "8.1.0",
+    "typescript": "3.8.3"
   },
   "publishConfig": {
     "access": "public"

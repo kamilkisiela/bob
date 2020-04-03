@@ -3,9 +3,7 @@
     "module": "commonjs",
     "strictNullChecks": true,
     "target": "esnext",
-    "lib": [
-      "esnext"
-    ],
+    "lib": ["esnext"],
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
@@ -16,13 +14,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
-  "include": [
-    "./src/index.ts",
-    "./src/update-version.ts",
-    "./src/typings.d.ts"
-  ]
+  "exclude": ["node_modules", "dist"],
+  "include": ["./src/index.ts", "./src/typings.d.ts"]
 }
