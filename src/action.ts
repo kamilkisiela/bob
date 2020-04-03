@@ -11,14 +11,11 @@ async function run(): Promise<void> {
       process.env.GITHUB_WORKSPACE!,
       "bob.config.js"
     ));
-    console.log({ config });
     core.info("Checking affected packages");
     const { affected } = getAffectedPackages({
       config,
       ignored: config.ignore || []
     });
-
-    console.log({ affected });
 
     affected.forEach(name => {
       core.info(`- ${name}`);
