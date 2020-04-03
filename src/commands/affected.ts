@@ -1,6 +1,7 @@
 import { BobConfig } from "./../config";
 import { promisify } from "util";
-import { execSync, spawn } from "child_process";
+import { execSync } from "child_process";
+import spawn from 'cross-spawn';
 import minimatch from "minimatch";
 
 import { createCommand } from "../command";
