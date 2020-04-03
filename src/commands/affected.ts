@@ -1,3 +1,4 @@
+import { BobConfig } from "./../config";
 import { promisify } from "util";
 import { execSync, spawn } from "child_process";
 import minimatch from "minimatch";
@@ -41,62 +42,12 @@ export const affectedCommand = createCommand<
         );
       }
 
-      if (!config.track || config.track.length === 0) {
-        throw new Error(`Define files to track`);
-      }
-
-      if (!config.against) {
-        throw new Error(
-          `Define 'against' in config. In most cases set it to 'origin/master`
-        );
-      }
-
-      const packages = getPackages(ignored);
-      const changedFiles = getChangedFilesList(config.against);
-
-      const projectTracks = config.track.filter(file =>
-        file.includes("<project>")
-      );
-      const nonProjectTracks = config.track.filter(
-        file => !file.includes("<project>")
-      );
-      const nonProjectChanges = changedFiles.filter(file =>
-        nonProjectTracks.includes(file)
-      );
-
-      if (!nonProjectChanges.length) {
-        changedFiles.forEach(file => {
-          for (const packageName in packages) {
-            if (packages.hasOwnProperty(packageName)) {
-              const { location } = packages[packageName];
-
-              if (file.includes(location)) {
-                const tracks: string[] = projectTracks.map(path =>
-                  path.replace("<project>", location)
-                );
-
-                if (tracks.some(pattern => minimatch(file, pattern))) {
-                  packages[packageName].dirty = true;
-                }
-              }
-            }
-          }
-        });
-      } else {
-        for (const packageName in packages) {
-          if (packages.hasOwnProperty(packageName)) {
-            packages[packageName].dirty = true;
-          }
-        }
-      }
-
-      const affectedPackages = Object.keys(packages).filter(name => {
-        const { dirty, dependencies } = packages[name];
-
-        return dirty || dependencies.some(dep => packages[dep].dirty);
+      const { affected, packages } = getAffectedPackages({
+        config,
+        ignored
       });
 
-      if (!affectedPackages.length) {
+      if (!affected.length) {
         reporter.success("Nothing is affected");
         return;
       }
@@ -104,14 +55,14 @@ export const affectedCommand = createCommand<
       reporter.info(
         [
           `Affected packages: `,
-          affectedPackages.map(name => ` - ${name}`).join("\n"),
-          "- - - - - - -"
+          affected.map(name => ` - ${name}`).join("\n"),
+          "\n\n"
         ].join("\n")
       );
 
       const input = {
-        names: affectedPackages,
-        paths: affectedPackages.map(name => packages[name].location)
+        names: affected,
+        paths: affected.map(name => packages[name].location)
       };
 
       const [bin, rest] = commandFactory(input);
@@ -123,21 +74,88 @@ export const affectedCommand = createCommand<
   };
 });
 
-function getChangedFilesList(against: string): string[] {
-  const cmd: string = execSync(
-    `git diff --name-only \`git merge-base ${against} HEAD\``,
-    {
-      encoding: "utf-8"
+export function getAffectedPackages({
+  config,
+  ignored
+}: {
+  config: BobConfig;
+  ignored: string[];
+}) {
+  if (!config.track || config.track.length === 0) {
+    throw new Error(`Define files to track`);
+  }
+
+  if (!config.against) {
+    throw new Error(
+      `Define 'against' in config. In most cases set it to 'origin/master`
+    );
+  }
+
+  const packages = getPackages(ignored);
+  const changedFiles = getChangedFilesList(config.against);
+
+  const projectTracks = config.track.filter(file => file.includes("<project>"));
+  const nonProjectTracks = config.track.filter(
+    file => !file.includes("<project>")
+  );
+  // TODO: .concat("bob.config.js");
+  const nonProjectChanges = changedFiles.filter(file =>
+    nonProjectTracks.includes(file)
+  );
+
+  if (!nonProjectChanges.length) {
+    changedFiles.forEach(file => {
+      for (const packageName in packages) {
+        if (packages.hasOwnProperty(packageName)) {
+          const { location } = packages[packageName];
+
+          if (file.includes(location)) {
+            const tracks: string[] = projectTracks.map(path =>
+              path.replace("<project>", location)
+            );
+
+            if (tracks.some(pattern => minimatch(file, pattern))) {
+              packages[packageName].dirty = true;
+            }
+          }
+        }
+      }
+    });
+  } else {
+    for (const packageName in packages) {
+      if (packages.hasOwnProperty(packageName)) {
+        packages[packageName].dirty = true;
+      }
     }
-  ) as any;
+  }
+
+  const affected = Object.keys(packages).filter(name => {
+    const { dirty, dependencies } = packages[name];
+
+    return dirty || dependencies.some(dep => packages[dep].dirty);
+  });
+
+  return {
+    affected,
+    packages
+  };
+}
+
+function getChangedFilesList(against: string): string[] {
+  const revision = execSync(`git merge-base ${against} -- HEAD`, {
+    encoding: "utf-8"
+  });
+  const cmd = execSync(`git diff --name-only ${revision}`, {
+    encoding: "utf-8"
+  });
 
   return cmd.split("\n").filter(file => Boolean(file));
 }
 
 function getPackages(ignored: string[]) {
-  const info: string = execSync("yarn workspaces info", {
+  const info = execSync("yarn workspaces info", {
     encoding: "utf-8"
-  }) as any;
+  });
 
   const startsAt = info.indexOf("{");
   const endsAt = info.lastIndexOf("}");

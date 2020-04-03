@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@actions/core@1.2.3":
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/@actions/core/-/core-1.2.3.tgz#e844b4fa0820e206075445079130868f95bfca95"
+  integrity sha512-Wp4xnyokakM45Uuj4WLUxdsa8fJjKVl1fDTsPbTEcTcuu0Nb26IPQbOtjmnfaCPGcaoPOOqId8H9NapZ8gii4w==
+
 "@babel/code-frame@^7.0.0":
   version "7.5.5"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.5.5.tgz#bc0782f6d69f7b7d49531219699b988f669a8f9d"
@@ -126,6 +131,11 @@
   integrity sha512-9T1auFmbPZoxHz0enUFlUuKRy3it01R+hlggyVUMtnCTQRunsQYifnSGb8hET4Xo8yiC0o0r1paW3ud5+rbURg==
   dependencies:
     "@types/yargs-parser" "*"
+
+"@zeit/ncc@0.22.0":
+  version "0.22.0"
+  resolved "https://registry.yarnpkg.com/@zeit/ncc/-/ncc-0.22.0.tgz#1a4132a375a2ffd1d6d632b0fdd9027154f6141a"
+  integrity sha512-zaS6chwztGSLSEzsTJw9sLTYxQt57bPFBtsYlVtbqGvmDUsfW7xgXPYofzFa1kB9ur2dRop6IxCwPnWLBVCrbQ==
 
 ansi-regex@^5.0.0:
   version "5.0.0"

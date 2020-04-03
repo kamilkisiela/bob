@@ -1,0 +1,12 @@
+name: "Bob The Bundler - Check Affected"
+description: "Checks for affected packages"
+author: "Kamil Kisiela <kamil.kisiela@gmail.com>"
+outputs:
+  dirty:
+    description: "Something affected?"
+runs:
+  using: "node12"
+  main: "action/index.js"
+branding:
+  icon: "target"
+  color: "purple"
