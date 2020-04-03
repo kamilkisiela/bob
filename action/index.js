@@ -2057,13 +2057,11 @@ function run() {
             core.info("Running Bob...");
             core.info("Looking for bob.config.js");
             const config = require(path_1.resolve(process.env.GITHUB_WORKSPACE, "bob.config.js"));
-            console.log({ config });
             core.info("Checking affected packages");
             const { affected } = affected_1.getAffectedPackages({
                 config,
                 ignored: config.ignore || []
             });
-            console.log({ affected });
             affected.forEach(name => {
                 core.info(`- ${name}`);
             });

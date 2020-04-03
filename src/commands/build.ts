@@ -2,6 +2,7 @@ import * as rollup from "rollup";
 import generatePackageJson from "rollup-plugin-generate-package-json";
 import autoExternal from "rollup-plugin-auto-external";
 import resolveNode from "@rollup/plugin-node-resolve";
+import typescript from "rollup-plugin-typescript2";
 import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
@@ -14,30 +15,107 @@ import { Consola } from "consola";
 // TODO: validate tsconfig.json (outDir, paths etc)
 // TODO: validate package.json and main/module etc
 
-export const buildCommand = createCommand(api => {
+const distDir = "dist";
+
+export const buildCommand = createCommand<
+  {},
+  {
+    single?: boolean;
+  }
+>((api) => {
   const { config, reporter } = api;
 
   return {
     command: "build",
     describe: "Build",
-    async handler() {
+    builder(yargs) {
+      return yargs.options({
+        single: {
+          describe: "Single package (THE OPOSITE OF MONOREPO)",
+          type: "boolean",
+        },
+      });
+    },
+    async handler(args) {
+      if (args.single) {
+        await buildSingle();
+        return;
+      }
+
       const limit = pLimit(4);
       const packages = await globby("packages/**/package.json", {
         cwd: process.cwd(),
         absolute: true,
-        ignore: ["**/node_modules/**", `**/${distDir}/**`]
+        ignore: ["**/node_modules/**", `**/${distDir}/**`],
       });
 
       await Promise.all(
-        packages.map(packagePath =>
+        packages.map((packagePath) =>
           limit(() => build(packagePath, config.scope, reporter))
         )
       );
-    }
+    },
   };
 });
 
-const distDir = "dist";
+async function buildSingle() {
+  const cwd = process.cwd();
+  const packagePath = join(process.cwd(), "package.json");
+  const pkg = await readPackageJson(cwd);
+
+  validatePackageJson(pkg);
+
+  const inputOptions = {
+    input: "src/index.ts",
+    plugins: [
+      resolveNode(),
+      autoExternal({
+        packagePath,
+        builtins: true,
+        dependencies: true,
+        peerDependencies: true,
+      }),
+      typescript(),
+      generatePackageJson({
+        baseContents: rewritePackageJson(pkg),
+        additionalDependencies: Object.keys(pkg.dependencies || {}),
+      }),
+    ],
+    inlineDynamicImports: true,
+  };
+
+  // create a bundle
+  const bundle = await rollup.rollup(inputOptions);
+
+  // generates
+
+  const commonOutputOptions = {
+    preferConst: true,
+    sourcemap: true,
+  };
+
+  const generates = [
+    {
+      ...commonOutputOptions,
+      file: join(distDir, "index.cjs.js"),
+      format: "cjs" as const,
+    },
+    {
+      ...commonOutputOptions,
+      file: join(distDir, "index.esm.js"),
+      format: "esm" as const,
+    },
+  ];
+
+  await Promise.all(
+    generates.map(async (outputOptions) => {
+      await bundle.write(outputOptions);
+    })
+  );
+
+  // move README.md and LICENSE
+  await copyToDist(cwd, ['README.md', 'LICENSE']);
+}
 
 async function build(packagePath: string, scope: string, reporter: Consola) {
   const cwd = packagePath.replace("/package.json", "");
@@ -65,14 +143,14 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
         packagePath,
         builtins: true,
         dependencies: true,
-        peerDependencies: true
+        peerDependencies: true,
       }),
       generatePackageJson({
         baseContents: rewritePackageJson(pkg),
-        additionalDependencies: Object.keys(pkg.dependencies || {})
-      })
+        additionalDependencies: Object.keys(pkg.dependencies || {}),
+      }),
     ],
-    inlineDynamicImports: true
+    inlineDynamicImports: true,
   };
 
   // create a bundle
@@ -82,37 +160,37 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
 
   const commonOutputOptions = {
     preferConst: true,
-    sourcemap: true
+    sourcemap: true,
   };
 
   const generates = [
     {
       ...commonOutputOptions,
       file: join(bobProjectDir, "index.cjs.js"),
-      format: "cjs" as const
+      format: "cjs" as const,
     },
     {
       ...commonOutputOptions,
       file: join(bobProjectDir, "index.esm.js"),
-      format: "esm" as const
-    }
+      format: "esm" as const,
+    },
   ];
 
   const declarations = await globby("*.d.ts", {
     cwd: distProjectSrcDir,
-    ignore: ["**/node_modules/**"]
+    ignore: ["**/node_modules/**"],
   });
 
   const limit = pLimit(200);
 
   await Promise.all(
-    generates.map(async outputOptions => {
+    generates.map(async (outputOptions) => {
       await bundle.write(outputOptions);
     })
   );
 
   await Promise.all(
-    declarations.map(file =>
+    declarations.map((file) =>
       limit(() =>
         fs.copy(join(distProjectSrcDir, file), join(bobProjectDir, file))
       )
@@ -121,7 +199,7 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
 
   if (pkg.buildOptions.bin) {
     await Promise.all(
-      Object.keys(pkg.buildOptions.bin).map(async alias => {
+      Object.keys(pkg.buildOptions.bin).map(async (alias) => {
         const options = pkg.buildOptions.bin[alias];
         const binPath = resolve(
           distProjectSrcDir,
@@ -135,10 +213,10 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
               packagePath,
               builtins: true,
               dependencies: true,
-              peerDependencies: true
-            })
+              peerDependencies: true,
+            }),
           ],
-          inlineDynamicImports: true
+          inlineDynamicImports: true,
         };
 
         const bundle = await rollup.rollup(inputOptions);
@@ -148,7 +226,7 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
           preferConst: true,
           sourcemap: options.sourcemap,
           file: join(bobProjectDir, pkg.bin[alias].replace(`${distDir}/`, "")),
-          format: "cjs"
+          format: "cjs",
         });
       })
     );
@@ -158,6 +236,8 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
   await fs.remove(join(cwd, distDir));
   // move bob/<project-name> to <project>/dist
   await fs.move(bobProjectDir, join(cwd, distDir));
+  // move README.md and LICENSE
+  await copyToDist(cwd, ['README.md', 'LICENSE']);
 
   reporter.success(`Built ${pkg.name}`);
 }
@@ -167,7 +247,7 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
 async function readPackageJson(baseDir: string) {
   return JSON.parse(
     await fs.readFile(resolve(baseDir, "package.json"), {
-      encoding: "utf-8"
+      encoding: "utf-8",
     })
   );
 }
@@ -185,10 +265,10 @@ function rewritePackageJson(pkg: Record<string, any>) {
     "keywords",
     "author",
     "license",
-    "engines"
+    "engines",
   ];
 
-  fields.forEach(field => {
+  fields.forEach((field) => {
     if (pkg[field]) {
       newPkg[field] = pkg[field];
     }
@@ -198,7 +278,7 @@ function rewritePackageJson(pkg: Record<string, any>) {
   newPkg.module = "index.esm.js";
   newPkg.typings = "index.d.ts";
   newPkg.typescript = {
-    definition: newPkg.typings
+    definition: newPkg.typings,
   };
 
   if (pkg.bin) {
@@ -227,4 +307,14 @@ function validatePackageJson(pkg: any) {
   expect("module", `${distDir}/index.esm.js`);
   expect("typings", `${distDir}/index.d.ts`);
   expect("typescript.definition", `${distDir}/index.d.ts`);
+}
+
+function copyToDist(cwd: string, files: string[]) {
+  return Promise.all(
+    files.map(async file => {
+      if (await fs.pathExists(join(cwd, file))) {
+        await fs.copyFile(join(cwd, file), join(cwd, distDir, file));
+      }
+    })
+  );
 }

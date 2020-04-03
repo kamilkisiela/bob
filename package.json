@@ -1,6 +1,6 @@
 {
   "name": "bob-the-bundler",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0-rc.1",
   "description": "Bob The Bundler!",
   "author": {
     "email": "kamil.kisiela@gmail.com",
@@ -25,6 +25,7 @@
     "cosmiconfig": "6.0.0",
     "minimatch": "3.0.4",
     "rollup": "2.3.2",
+    "rollup-plugin-typescript2": "0.27.0",
     "rollup-plugin-generate-package-json": "3.2.0",
     "rollup-plugin-auto-external": "2.0.0",
     "fs-extra": "9.0.0",
