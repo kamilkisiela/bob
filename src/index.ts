@@ -1,4 +1,6 @@
+#!/usr/bin/env node
 import yargs, { Argv } from "yargs";
+import consola from "consola";
 import { useConfig } from "./config";
 import { CommandFactory } from "./command";
 import { buildCommand } from "./commands/build";
@@ -19,8 +21,10 @@ async function main() {
     affectedCommand
   ];
 
+  const reporter = consola.create({});
+
   commands
-    .reduce((cli, cmd) => cli.command(cmd({ config })), root)
+    .reduce((cli, cmd) => cli.command(cmd({ config, reporter })), root)
     .help()
     .showHelpOnFail(false).argv;
 }

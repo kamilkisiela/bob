@@ -1,4 +1,4 @@
-import rollup from "rollup";
+import * as rollup from "rollup";
 import generatePackageJson from "rollup-plugin-generate-package-json";
 import autoExternal from "rollup-plugin-auto-external";
 import resolveNode from "@rollup/plugin-node-resolve";
@@ -9,12 +9,13 @@ import { resolve, join } from "path";
 import get from "lodash.get";
 
 import { createCommand } from "../command";
+import { Consola } from "consola";
 
 // TODO: validate tsconfig.json (outDir, paths etc)
 // TODO: validate package.json and main/module etc
 
 export const buildCommand = createCommand(api => {
-  const { config } = api;
+  const { config, reporter } = api;
 
   return {
     command: "build",
@@ -29,7 +30,7 @@ export const buildCommand = createCommand(api => {
 
       await Promise.all(
         packages.map(packagePath =>
-          limit(() => build(packagePath, config.scope))
+          limit(() => build(packagePath, config.scope, reporter))
         )
       );
     }
@@ -38,7 +39,7 @@ export const buildCommand = createCommand(api => {
 
 const distDir = "dist";
 
-async function build(packagePath: string, scope: string) {
+async function build(packagePath: string, scope: string, reporter: Consola) {
   const cwd = packagePath.replace("/package.json", "");
   const pkg = await readPackageJson(cwd);
   const name = pkg.name.replace(`${scope}/`, "");
@@ -67,7 +68,7 @@ async function build(packagePath: string, scope: string) {
         peerDependencies: true
       }),
       generatePackageJson({
-        baseContents: rewritePackageJson,
+        baseContents: rewritePackageJson(pkg),
         additionalDependencies: Object.keys(pkg.dependencies || {})
       })
     ],
@@ -157,6 +158,8 @@ async function build(packagePath: string, scope: string) {
   await fs.remove(join(cwd, distDir));
   // move bob/<project-name> to <project>/dist
   await fs.move(bobProjectDir, join(cwd, distDir));
+
+  reporter.success(`Built ${pkg.name}`);
 }
 
 //

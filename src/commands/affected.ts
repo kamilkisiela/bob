@@ -17,7 +17,7 @@ export const affectedCommand = createCommand<
     command: string;
   }
 >(api => {
-  const { config } = api;
+  const { config, reporter } = api;
 
   return {
     command: "affected <command>",
@@ -32,6 +32,7 @@ export const affectedCommand = createCommand<
     async handler(args) {
       const commandName = args.command;
       const commandFactory = config?.run?.[commandName];
+      const ignored = config.ignore || [];
 
       if (!commandFactory) {
         // Better error - example config
@@ -50,7 +51,7 @@ export const affectedCommand = createCommand<
         );
       }
 
-      const packages = getPackages();
+      const packages = getPackages(ignored);
       const changedFiles = getChangedFilesList(config.against);
 
       const projectTracks = config.track.filter(file =>
@@ -96,14 +97,16 @@ export const affectedCommand = createCommand<
       });
 
       if (!affectedPackages.length) {
-        console.log("Nothing is affected");
+        reporter.success("Nothing is affected");
         return;
       }
 
-      console.log(
-        `Affected packages: ${affectedPackages
-          .map(name => ` - ${name}`)
-          .join("\n")}`
+      reporter.info(
+        [
+          `Affected packages: `,
+          affectedPackages.map(name => ` - ${name}`).join("\n"),
+          "- - - - - - -"
+        ].join("\n")
       );
 
       const input = {
@@ -131,7 +134,7 @@ function getChangedFilesList(against: string): string[] {
   return cmd.split("\n").filter(file => Boolean(file));
 }
 
-function getPackages() {
+function getPackages(ignored: string[]) {
   const info: string = execSync("yarn workspaces info", {
     encoding: "utf-8"
   }) as any;
@@ -156,7 +159,10 @@ function getPackages() {
   }
 
   for (const packageName in workspaces) {
-    if (workspaces.hasOwnProperty(packageName)) {
+    if (
+      workspaces.hasOwnProperty(packageName) &&
+      !ignored.includes(packageName)
+    ) {
       const { location } = workspaces[packageName];
 
       packages[packageName] = {

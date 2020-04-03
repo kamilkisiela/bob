@@ -2,14 +2,14 @@
   "compilerOptions": {
     "module": "commonjs",
     "strictNullChecks": true,
-    "target": "esnext",
+    "target": "es2015",
     "lib": ["esnext"],
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
     "importHelpers": true,
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true

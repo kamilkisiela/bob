@@ -3,6 +3,7 @@ import { isAbsolute, resolve } from "path";
 
 export interface BobConfig {
   scope: string;
+  ignore?: string[];
   track?: string[];
   against?: string;
   run?: {
