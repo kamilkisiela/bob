@@ -18,6 +18,7 @@ export const validateCommand = createCommand((api) => {
       const packages = getPackages(config.ignore || []);
 
       await Promise.all([
+        validateRootPackage(collectError),
         validateGitIngore(collectError),
         validateRootTSConfig(collectError, packages),
         ...Object.keys(packages).map((name) =>
@@ -49,6 +50,17 @@ export const validateCommand = createCommand((api) => {
 });
 
 type OnError = (err: Error) => void;
+
+export async function validateRootPackage(onError: OnError) {
+  const pkg = await readJSON(resolve(process.cwd(), "package.json"));
+
+  shouldEqual(
+    pkg?.scripts?.build,
+    "tsc --project tsconfig.json && bob build",
+    `<root>/package.json: 'scripts.build' should equal 'tsc --project tsconfig.json && bob build'`,
+    onError
+  );
+}
 
 export async function validateGitIngore(onError: OnError) {
   const gitignore = await fs.readFile(
