@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import { useConfig } from "./config";
+import { resolve } from "path";
 import { getAffectedPackages } from "./commands/affected";
 
 async function run(): Promise<void> {
@@ -7,7 +7,7 @@ async function run(): Promise<void> {
     core.info("Running Bob...");
 
     core.info("Looking for bob.config.js");
-    const config = await useConfig();
+    const config = require(resolve(process.cwd(), "bob.config.js"));
     core.info("Checking affected packages");
     const { affected } = getAffectedPackages({
       config,
