@@ -2,27 +2,18 @@
   "compilerOptions": {
     "module": "commonjs",
     "strictNullChecks": true,
-    "target": "esnext",
-    "lib": [
-      "esnext"
-    ],
+    "target": "es2015",
+    "lib": ["esnext"],
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
     "importHelpers": true,
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
-  "include": [
-    "./src/index.ts",
-    "./src/update-version.ts",
-    "./src/typings.d.ts"
-  ]
+  "exclude": ["node_modules", "dist"],
+  "include": ["src/index.ts", "src/typings.d.ts"]
 }
