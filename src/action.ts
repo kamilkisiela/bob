@@ -11,20 +11,24 @@ async function run(): Promise<void> {
       process.env.GITHUB_WORKSPACE!,
       "bob.config.js"
     ));
+    console.log({ config });
     core.info("Checking affected packages");
     const { affected } = getAffectedPackages({
       config,
       ignored: config.ignore || []
     });
 
-    core.info(
-      [
-        "Affected packages:",
-        affected.map(name => ` - ${name}`).join("\n")
-      ].join("\n")
-    );
+    console.log({ affected });
 
-    core.setOutput("dirty", affected.length ? "true" : "false");
+    affected.forEach(name => {
+      core.info(`- ${name}`);
+    });
+
+    if (affected.length === 0) {
+      core.info("No affected packages");
+    }
+
+    core.setOutput("dirty", affected.length > 0 ? "true" : "false");
   } catch (error) {
     console.error(error);
     core.setFailed(error.message);

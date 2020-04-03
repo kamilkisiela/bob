@@ -2057,16 +2057,20 @@ function run() {
             core.info("Running Bob...");
             core.info("Looking for bob.config.js");
             const config = require(path_1.resolve(process.env.GITHUB_WORKSPACE, "bob.config.js"));
+            console.log({ config });
             core.info("Checking affected packages");
             const { affected } = affected_1.getAffectedPackages({
                 config,
                 ignored: config.ignore || []
             });
-            core.info([
-                "Affected packages:",
-                affected.map(name => ` - ${name}`).join("\n")
-            ].join("\n"));
-            core.setOutput("dirty", affected.length ? "true" : "false");
+            console.log({ affected });
+            affected.forEach(name => {
+                core.info(`- ${name}`);
+            });
+            if (affected.length === 0) {
+                core.info("No affected packages");
+            }
+            core.setOutput("dirty", affected.length > 0 ? "true" : "false");
         }
         catch (error) {
             console.error(error);
