@@ -2306,7 +2306,7 @@ module.exports = require("fs");
 
 /***/ }),
 
-/***/ 794:
+/***/ 776:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
@@ -2318,31 +2318,30 @@ const child_process_1 = __webpack_require__(129);
 const cross_spawn_1 = tslib_1.__importDefault(__webpack_require__(20));
 const minimatch_1 = tslib_1.__importDefault(__webpack_require__(93));
 const command_1 = __webpack_require__(281);
-exports.affectedCommand = command_1.createCommand(api => {
+exports.runCommand = command_1.createCommand((api) => {
     const { config, reporter } = api;
     return {
-        command: "affected <command>",
+        command: "run <command>",
         describe: "Runs a command only for affected packages",
         builder(yargs) {
             return yargs.positional("command", {
                 describe: "Name of the command",
                 type: "string",
-                demandOption: true
+                demandOption: true,
             });
         },
         handler(args) {
             var _a;
             return tslib_1.__awaiter(this, void 0, void 0, function* () {
                 const commandName = args.command;
-                const commandFactory = (_a = config === null || config === void 0 ? void 0 : config.run) === null || _a === void 0 ? void 0 : _a[commandName];
-                const ignored = config.ignore || [];
-                if (!commandFactory) {
+                const command = (_a = config === null || config === void 0 ? void 0 : config.commands) === null || _a === void 0 ? void 0 : _a[commandName];
+                if (!command) {
                     // Better error - example config
                     throw new Error(`Command ${commandName} not found. Define it in bob.config.js`);
                 }
                 const { affected, packages } = getAffectedPackages({
                     config,
-                    ignored
+                    filterCommand: commandName,
                 });
                 if (!affected.length) {
                     reporter.success("Nothing is affected");
@@ -2350,42 +2349,54 @@ exports.affectedCommand = command_1.createCommand(api => {
                 }
                 reporter.info([
                     `Affected packages: `,
-                    affected.map(name => ` - ${name}`).join("\n"),
-                    "\n\n"
+                    affected.map((name) => ` - ${name}`).join("\n"),
+                    "\n\n",
                 ].join("\n"));
                 const input = {
                     names: affected,
-                    paths: affected.map(name => packages[name].location)
+                    paths: affected.map((name) => packages[name].location),
                 };
-                const [bin, rest] = commandFactory(input);
+                const [bin, rest] = yield command.run(input);
                 yield util_1.promisify(cross_spawn_1.default)(bin, rest, {
-                    stdio: "inherit"
+                    stdio: "inherit",
                 });
             });
-        }
+        },
     };
 });
-function getAffectedPackages({ config, ignored }) {
+function getAffectedPackages({ config, filterCommand, }) {
     if (!config.track || config.track.length === 0) {
         throw new Error(`Define files to track`);
     }
-    if (!config.against) {
+    if (!config.base) {
         throw new Error(`Define 'against' in config. In most cases set it to 'origin/master`);
     }
-    const packages = getPackages(ignored);
-    const changedFiles = getChangedFilesList(config.against);
-    const projectTracks = config.track.filter(file => file.includes("<project>"));
-    const nonProjectTracks = config.track.filter(file => !file.includes("<project>"));
+    const packages = getPackages(config.ignore);
+    const changedFiles = getChangedFilesList(config.base);
+    const tracks = config.track;
+    if (config.commands) {
+        for (const commandName in config.commands) {
+            if (config.commands.hasOwnProperty(commandName) &&
+                (!filterCommand || commandName === filterCommand)) {
+                const { track } = config.commands[commandName];
+                if (track) {
+                    tracks.push(...track);
+                }
+            }
+        }
+    }
+    const projectTracks = tracks.filter((file) => file.includes("<project>"));
+    const nonProjectTracks = tracks.filter((file) => !file.includes("<project>"));
     // TODO: .concat("bob.config.js");
-    const nonProjectChanges = changedFiles.filter(file => nonProjectTracks.includes(file));
+    const nonProjectChanges = changedFiles.filter((file) => nonProjectTracks.includes(file));
     if (!nonProjectChanges.length) {
-        changedFiles.forEach(file => {
+        changedFiles.forEach((file) => {
             for (const packageName in packages) {
                 if (packages.hasOwnProperty(packageName)) {
                     const { location } = packages[packageName];
                     if (file.includes(location)) {
-                        const tracks = projectTracks.map(path => path.replace("<project>", location));
-                        if (tracks.some(pattern => minimatch_1.default(file, pattern))) {
+                        const tracks = projectTracks.map((path) => path.replace("<project>", location));
+                        if (tracks.some((pattern) => minimatch_1.default(file, pattern))) {
                             packages[packageName].dirty = true;
                         }
                     }
@@ -2400,35 +2411,35 @@ function getAffectedPackages({ config, ignored }) {
             }
         }
     }
-    const affected = Object.keys(packages).filter(name => {
+    const affected = Object.keys(packages).filter((name) => {
         const { dirty, dependencies } = packages[name];
-        return dirty || dependencies.some(dep => packages[dep].dirty);
+        return dirty || dependencies.some((dep) => packages[dep].dirty);
     });
     return {
         affected,
-        packages
+        packages,
     };
 }
 exports.getAffectedPackages = getAffectedPackages;
 function getChangedFilesList(against) {
     const revision = child_process_1.execSync(`git merge-base ${against} -- HEAD`, {
-        encoding: "utf-8"
+        encoding: "utf-8",
     });
     const cmd = child_process_1.execSync(`git diff --name-only ${revision}`, {
-        encoding: "utf-8"
+        encoding: "utf-8",
     });
-    return cmd.split("\n").filter(file => Boolean(file));
+    return cmd.split("\n").filter((file) => Boolean(file));
 }
-function getPackages(ignored) {
+function getPackages(ignored = []) {
     const info = child_process_1.execSync("yarn workspaces info", {
-        encoding: "utf-8"
+        encoding: "utf-8",
     });
     const startsAt = info.indexOf("{");
     const endsAt = info.lastIndexOf("}");
     const workspaces = JSON.parse(info.substr(startsAt, endsAt - startsAt + 1));
     const packages = {};
     function collectDependencies(name, dependencies) {
-        workspaces[name].workspaceDependencies.forEach(dep => {
+        workspaces[name].workspaceDependencies.forEach((dep) => {
             if (!dependencies.includes(dep)) {
                 dependencies.push(dep);
                 collectDependencies(dep, dependencies);
@@ -2442,7 +2453,7 @@ function getPackages(ignored) {
             packages[packageName] = {
                 location,
                 dependencies: [],
-                dirty: false
+                dirty: false,
             };
             collectDependencies(packageName, packages[packageName].dependencies);
             packages[packageName].dependencies = packages[packageName].dependencies.filter((name, i, all) => all.indexOf(name) === i);
@@ -2769,19 +2780,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = __webpack_require__(422);
 const core = tslib_1.__importStar(__webpack_require__(470));
 const path_1 = __webpack_require__(622);
-const affected_1 = __webpack_require__(794);
+const run_1 = __webpack_require__(776);
 function run() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         try {
             core.info("Running Bob...");
             core.info("Looking for bob.config.js");
             const config = require(path_1.resolve(process.env.GITHUB_WORKSPACE, "bob.config.js"));
+            const filterCommand = core.getInput("command");
+            if (filterCommand) {
+                core.info(`Scoping to one command: ${filterCommand}`);
+            }
             core.info("Checking affected packages");
-            const { affected } = affected_1.getAffectedPackages({
+            const { affected } = run_1.getAffectedPackages({
                 config,
-                ignored: config.ignore || []
+                filterCommand,
             });
-            affected.forEach(name => {
+            affected.forEach((name) => {
                 core.info(`- ${name}`);
             });
             if (affected.length === 0) {

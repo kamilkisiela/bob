@@ -1,4 +1,4 @@
-import { Packages } from "./affected";
+import { Packages } from "./run";
 export declare const validateCommand: import("../command").CommandFactory<{}, {}>;
 declare type OnError = (err: Error) => void;
 export declare function validateRootPackage(onError: OnError): Promise<void>;

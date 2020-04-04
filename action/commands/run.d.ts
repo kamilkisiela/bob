@@ -5,7 +5,7 @@ export interface Package {
     dirty: boolean;
 }
 export declare type Packages = Record<string, Package>;
-export declare const affectedCommand: import("../command").CommandFactory<{}, {
+export declare const runCommand: import("../command").CommandFactory<{}, {
     command: string;
 }>;
 export declare function getAffectedPackages({ config, filterCommand, }: {
@@ -16,4 +16,4 @@ export declare function getAffectedPackages({ config, filterCommand, }: {
     packages: Record<string, Package>;
 };
 export declare function getPackages(ignored?: string[]): Packages;
-//# sourceMappingURL=affected.d.ts.map
+//# sourceMappingURL=run.d.ts.map

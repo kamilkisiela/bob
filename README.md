@@ -28,23 +28,28 @@ module.exports = {
     "<project>/src/**",
     "<project>/jest.config.js",
     "<project>/package.json",
-    "<project>/tsconfig.json"
+    "<project>/tsconfig.json",
   ],
-  against: "origin/master", // we need to compare against something
-  run: {
-    test(affected) {
-      // {
-      //   paths: string[] <- ['packages/core', 'packages/cli']
-      //   names: string[] <- ['@foo/core', '@foo/cli']
-      // }
+  base: "origin/master", // we need to compare against something
+  commands: {
+    test: {
+      track: ["<project>/tests/**"],
+      run(affected) {
+        // {
+        //   paths: string[] <- ['packages/core', 'packages/cli']
+        //   names: string[] <- ['@foo/core', '@foo/cli']
+        // }
 
-      // why such a weird syntax? We use spawn, so you have too
-      return [`yarn`, ["test", ...affected.paths]];
+        // why such a weird syntax? We use spawn, so you have too
+        return [`yarn`, ["test", ...affected.paths]];
+      },
     },
-    build() {
-      return [`yarn`, ["build"]];
-    }
-  }
+    build: {
+      run() {
+        return [`yarn`, ["build"]];
+      },
+    },
+  },
 };
 ```
 
