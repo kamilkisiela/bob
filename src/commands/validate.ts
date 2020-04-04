@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import { resolve, join } from "path";
 import { createCommand } from "../command";
-import { getPackages, Packages } from "./affected";
+import { getPackages, Packages } from "./run";
 import { equal } from "assert";
 
 export const validateCommand = createCommand((api) => {
@@ -15,7 +15,7 @@ export const validateCommand = createCommand((api) => {
       const collectError = (err: Error) => {
         errors.push(err);
       };
-      const packages = getPackages(config.ignore || []);
+      const packages = getPackages(config.ignore);
 
       await Promise.all([
         validateRootPackage(collectError),

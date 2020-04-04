@@ -5,7 +5,7 @@ import { useConfig } from "./config";
 import { CommandFactory } from "./command";
 import { buildCommand } from "./commands/build";
 import { prepackCommand } from "./commands/prepack";
-import { affectedCommand } from "./commands/affected";
+import { runCommand } from "./commands/run";
 import { validateCommand } from "./commands/validate";
 
 async function main() {
@@ -16,7 +16,7 @@ async function main() {
   const commands: CommandFactory<any, any>[] = [
     buildCommand,
     prepackCommand,
-    affectedCommand,
+    runCommand,
     validateCommand,
   ];
 

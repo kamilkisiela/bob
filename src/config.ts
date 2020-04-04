@@ -1,16 +1,23 @@
 import { cosmiconfig } from "cosmiconfig";
 import { isAbsolute, resolve } from "path";
 
+type CommandTuple = [string, string[]];
+
+type Command = {
+  track?: string[];
+  run(affected: {
+    names: string[];
+    paths: string[];
+  }): CommandTuple | Promise<CommandTuple>;
+};
+
 export interface BobConfig {
   scope: string;
   ignore?: string[];
   track?: string[];
-  against?: string;
-  run?: {
-    [cmdName: string]: (affected: {
-      names: string[];
-      paths: string[];
-    }) => [string, string[]];
+  base?: string;
+  commands?: {
+    [cmdName: string]: Command;
   };
 }
 
@@ -23,7 +30,7 @@ export async function useConfig(
 ): Promise<BobConfig | never> {
   const cosmi = cosmiconfig("bob", {
     cache: true,
-    searchPlaces: ["bob.config.js"]
+    searchPlaces: ["bob.config.js"],
   });
 
   const config = await (options?.config

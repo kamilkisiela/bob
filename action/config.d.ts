@@ -1,13 +1,18 @@
+declare type CommandTuple = [string, string[]];
+declare type Command = {
+    track?: string[];
+    run(affected: {
+        names: string[];
+        paths: string[];
+    }): CommandTuple | Promise<CommandTuple>;
+};
 export interface BobConfig {
     scope: string;
     ignore?: string[];
     track?: string[];
-    against?: string;
-    run?: {
-        [cmdName: string]: (affected: {
-            names: string[];
-            paths: string[];
-        }) => [string, string[]];
+    base?: string;
+    commands?: {
+        [cmdName: string]: Command;
     };
 }
 interface UseConfigOptions {

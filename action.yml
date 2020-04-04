@@ -1,6 +1,9 @@
 name: "Bob The Bundler - Check Affected"
 description: "Checks for affected packages"
 author: "Kamil Kisiela <kamil.kisiela@gmail.com>"
+inputs:
+  command:
+    description: "Scope it to one command"
 outputs:
   dirty:
     description: "Something affected?"

@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import { resolve } from "path";
-import { getAffectedPackages } from "./commands/affected";
+import { getAffectedPackages } from "./commands/run";
 
 async function run(): Promise<void> {
   try {
@@ -11,13 +11,19 @@ async function run(): Promise<void> {
       process.env.GITHUB_WORKSPACE!,
       "bob.config.js"
     ));
+    const filterCommand = core.getInput("command");
+
+    if (filterCommand) {
+      core.info(`Scoping to one command: ${filterCommand}`);
+    }
+
     core.info("Checking affected packages");
     const { affected } = getAffectedPackages({
       config,
-      ignored: config.ignore || []
+      filterCommand,
     });
 
-    affected.forEach(name => {
+    affected.forEach((name) => {
       core.info(`- ${name}`);
     });
 
