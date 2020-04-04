@@ -197,7 +197,7 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
     )
   );
 
-  if (pkg.buildOptions.bin) {
+  if (pkg.buildOptions?.bin) {
     await Promise.all(
       Object.keys(pkg.buildOptions.bin).map(async (alias) => {
         const options = pkg.buildOptions.bin[alias];
