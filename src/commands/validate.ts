@@ -123,6 +123,7 @@ export async function validateRootTSConfig(
         const { location } = packages[name];
 
         if (
+          !tsconfig.compilerOptions.paths[name] ||
           !tsconfig.compilerOptions.paths[name].includes(
             join(location, "src/index.ts")
           )
