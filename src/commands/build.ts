@@ -176,7 +176,7 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
     },
   ];
 
-  const declarations = await globby("*.d.ts", {
+  const declarations = await globby("**/*.d.ts", {
     cwd: distProjectSrcDir,
     ignore: ["**/node_modules/**"],
   });
