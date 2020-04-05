@@ -114,7 +114,7 @@ async function buildSingle() {
   );
 
   // move README.md and LICENSE
-  await copyToDist(cwd, ['README.md', 'LICENSE']);
+  await copyToDist(cwd, ["README.md", "LICENSE"].concat(pkg.buildOptions?.copy || []));
 }
 
 async function build(packagePath: string, scope: string, reporter: Consola) {
@@ -237,7 +237,10 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
   // move bob/<project-name> to <project>/dist
   await fs.move(bobProjectDir, join(cwd, distDir));
   // move README.md and LICENSE
-  await copyToDist(cwd, ['README.md', 'LICENSE']);
+  await copyToDist(
+    cwd,
+    ["README.md", "LICENSE"].concat(pkg.buildOptions?.copy || [])
+  );
 
   reporter.success(`Built ${pkg.name}`);
 }
@@ -311,7 +314,7 @@ export function validatePackageJson(pkg: any) {
 
 function copyToDist(cwd: string, files: string[]) {
   return Promise.all(
-    files.map(async file => {
+    files.map(async (file) => {
       if (await fs.pathExists(join(cwd, file))) {
         await fs.copyFile(join(cwd, file), join(cwd, distDir, file));
       }
