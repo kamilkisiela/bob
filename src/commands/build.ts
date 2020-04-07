@@ -107,6 +107,14 @@ async function buildSingle() {
     },
   ];
 
+  if (pkg.exports) {
+    generates.push({
+      ...commonOutputOptions,
+      file: join(distDir, "index.mjs"),
+      format: "esm" as const,
+    });
+  }
+
   await Promise.all(
     generates.map(async (outputOptions) => {
       await bundle.write(outputOptions);
@@ -114,7 +122,10 @@ async function buildSingle() {
   );
 
   // move README.md and LICENSE
-  await copyToDist(cwd, ["README.md", "LICENSE"].concat(pkg.buildOptions?.copy || []));
+  await copyToDist(
+    cwd,
+    ["README.md", "LICENSE"].concat(pkg.buildOptions?.copy || [])
+  );
 }
 
 async function build(packagePath: string, scope: string, reporter: Consola) {
@@ -175,6 +186,14 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
       format: "esm" as const,
     },
   ];
+
+  if (pkg.exports) {
+    generates.push({
+      ...commonOutputOptions,
+      file: join(distDir, "index.mjs"),
+      format: "esm" as const,
+    });
+  }
 
   const declarations = await globby("**/*.d.ts", {
     cwd: distProjectSrcDir,
@@ -310,6 +329,11 @@ export function validatePackageJson(pkg: any) {
   expect("module", `${distDir}/index.esm.js`);
   expect("typings", `${distDir}/index.d.ts`);
   expect("typescript.definition", `${distDir}/index.d.ts`);
+
+  if (pkg.exports) {
+    expect("exports.require", pkg.main);
+    expect("exports.default", `${distDir}/index.mjs`);
+  }
 }
 
 function copyToDist(cwd: string, files: string[]) {
