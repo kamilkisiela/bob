@@ -76,7 +76,7 @@ async function buildSingle() {
   const extraInputOptions: Partial<rollup.RollupOptions> = {};
 
   if (buildOptions.external) {
-    extraInputOptions.external = buildOptions.external;
+    extraInputOptions.external = buildOptions.external || {};
   }
 
   const inputOptions = {
