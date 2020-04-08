@@ -53,6 +53,37 @@ module.exports = {
 };
 ```
 
+## Build Options
+
+In your `<project>/package.json`:
+
+```json
+{
+  "buildOptions": {
+    "external": ["simple-git/promise"], // Marks nested imports as external
+    "bin": {
+      "cli": {
+        "input": "src/cli.ts" // Entry point for `cli` command
+      }
+    }
+  }
+}
+```
+
+## Support for Node ES Modules
+
+In your `<project>/package.json`, just add `"exports"` like this:
+
+```json
+{
+  "main": "dist/index.cjs.js",
+  "exports": {
+    "require": "dist/index.cjs.js", // should match "main"
+    "default": "dist/index.mjs" // should ends with ".mjs" extension
+  }
+}
+```
+
 ## Usage
 
 ```bash

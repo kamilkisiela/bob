@@ -15,6 +15,12 @@ import { Consola } from "consola";
 // TODO: validate tsconfig.json (outDir, paths etc)
 // TODO: validate package.json and main/module etc
 
+interface BuildOptions {
+  external?: string[];
+  copy?: string[];
+  bin?: Record<string, { input: string; sourcemap?: boolean }>;
+}
+
 const distDir = "dist";
 
 export const buildCommand = createCommand<
@@ -65,6 +71,14 @@ async function buildSingle() {
 
   validatePackageJson(pkg);
 
+  const buildOptions: BuildOptions = pkg.buildOptions;
+
+  const extraInputOptions: Partial<rollup.RollupOptions> = {};
+
+  if (buildOptions.external) {
+    extraInputOptions.external = buildOptions.external;
+  }
+
   const inputOptions = {
     input: "src/index.ts",
     plugins: [
@@ -82,6 +96,7 @@ async function buildSingle() {
       }),
     ],
     inlineDynamicImports: true,
+    ...extraInputOptions,
   };
 
   // create a bundle
@@ -124,7 +139,7 @@ async function buildSingle() {
   // move README.md and LICENSE
   await copyToDist(
     cwd,
-    ["README.md", "LICENSE"].concat(pkg.buildOptions?.copy || [])
+    ["README.md", "LICENSE"].concat(buildOptions?.copy || [])
   );
 }
 
@@ -140,11 +155,18 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
 
   const bobDir = resolve(process.cwd(), ".bob");
   const bobProjectDir = resolve(bobDir, name);
+  const buildOptions: BuildOptions = pkg.buildOptions || {};
 
   // remove bob/<project-name>
   await fs.remove(bobProjectDir);
 
   const inputFile = resolve(distProjectSrcDir, "index.js");
+
+  const extraInputOptions: Partial<rollup.RollupOptions> = {};
+
+  if (buildOptions.external) {
+    extraInputOptions.external = buildOptions.external;
+  }
 
   const inputOptions = {
     input: inputFile,
@@ -162,6 +184,7 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
       }),
     ],
     inlineDynamicImports: true,
+    ...extraInputOptions,
   };
 
   // create a bundle
@@ -216,10 +239,10 @@ async function build(packagePath: string, scope: string, reporter: Consola) {
     )
   );
 
-  if (pkg.buildOptions?.bin) {
+  if (buildOptions?.bin) {
     await Promise.all(
-      Object.keys(pkg.buildOptions.bin).map(async (alias) => {
-        const options = pkg.buildOptions.bin[alias];
+      Object.keys(buildOptions.bin).map(async (alias) => {
+        const options = buildOptions.bin![alias];
         const binPath = resolve(
           distProjectSrcDir,
           options.input.replace("src/", "").replace(".ts", ".js")
