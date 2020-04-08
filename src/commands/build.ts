@@ -71,12 +71,12 @@ async function buildSingle() {
 
   validatePackageJson(pkg);
 
-  const buildOptions: BuildOptions = pkg.buildOptions;
+  const buildOptions: BuildOptions = pkg.buildOptions || {};
 
   const extraInputOptions: Partial<rollup.RollupOptions> = {};
 
   if (buildOptions.external) {
-    extraInputOptions.external = buildOptions.external || {};
+    extraInputOptions.external = buildOptions.external;
   }
 
   const inputOptions = {
