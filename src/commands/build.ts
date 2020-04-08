@@ -305,6 +305,8 @@ function rewritePackageJson(pkg: Record<string, any>) {
     "description",
     "sideEffects",
     "peerDependencies",
+    "dependencies",
+    "optionalDependencies",
     "repository",
     "homepage",
     "keywords",
