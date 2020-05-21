@@ -7,13 +7,11 @@ import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
 import { resolve, join } from "path";
+import { Consola } from "consola";
 import get from "lodash.get";
 
 import { createCommand } from "../command";
-import { Consola } from "consola";
-
-// TODO: validate tsconfig.json (outDir, paths etc)
-// TODO: validate package.json and main/module etc
+import { BobConfig } from "../config";
 
 interface BuildOptions {
   external?: string[];
@@ -57,7 +55,7 @@ export const buildCommand = createCommand<
 
       await Promise.all(
         packages.map((packagePath) =>
-          limit(() => build(packagePath, config.scope, reporter))
+          limit(() => build(packagePath, config, reporter))
         )
       );
     },
@@ -143,10 +141,22 @@ async function buildSingle() {
   );
 }
 
-async function build(packagePath: string, scope: string, reporter: Consola) {
+async function build(
+  packagePath: string,
+  config: BobConfig,
+  reporter: Consola
+) {
+  const scope = config.scope;
   const cwd = packagePath.replace("/package.json", "");
   const pkg = await readPackageJson(cwd);
-  const name = pkg.name.replace(`${scope}/`, "");
+  const fullName: string = pkg.name;
+
+  if ((config.ignore || []).includes(fullName)) {
+    reporter.warn(`Ignored ${fullName}`);
+    return;
+  }
+
+  const name = fullName.replace(`${scope}/`, "");
 
   validatePackageJson(pkg);
 
@@ -316,7 +326,7 @@ function rewritePackageJson(pkg: Record<string, any>) {
   ];
 
   fields.forEach((field) => {
-    if (typeof pkg[field] !== 'undefined') {
+    if (typeof pkg[field] !== "undefined") {
       newPkg[field] = pkg[field];
     }
   });
