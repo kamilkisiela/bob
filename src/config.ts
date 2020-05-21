@@ -42,11 +42,11 @@ export async function useConfig(
     : cosmi.search());
 
   if (!config) {
-    throw new Error("Config not found");
+    throw new Error("Config not found.");
   }
 
   if (config.isEmpty) {
-    throw new Error("Config is empty");
+    throw new Error("Config is empty.");
   }
 
   return config.config;

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "strictNullChecks": true,
-    "target": "es2015",
+    "target": "es2018",
     "lib": ["esnext"],
     "outDir": "dist",
     "declaration": true,

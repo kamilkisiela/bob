@@ -316,7 +316,7 @@ function rewritePackageJson(pkg: Record<string, any>) {
   ];
 
   fields.forEach((field) => {
-    if (pkg[field]) {
+    if (typeof pkg[field] !== 'undefined') {
       newPkg[field] = pkg[field];
     }
   });

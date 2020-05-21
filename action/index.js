@@ -2330,36 +2330,34 @@ exports.runCommand = command_1.createCommand((api) => {
                 demandOption: true,
             });
         },
-        handler(args) {
+        async handler(args) {
             var _a;
-            return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                const commandName = args.command;
-                const command = (_a = config === null || config === void 0 ? void 0 : config.commands) === null || _a === void 0 ? void 0 : _a[commandName];
-                if (!command) {
-                    // Better error - example config
-                    throw new Error(`Command ${commandName} not found. Define it in bob.config.js`);
-                }
-                const { affected, packages } = getAffectedPackages({
-                    config,
-                    filterCommand: commandName,
-                });
-                if (!affected.length) {
-                    reporter.success("Nothing is affected");
-                    return;
-                }
-                reporter.info([
-                    `Affected packages: `,
-                    affected.map((name) => ` - ${name}`).join("\n"),
-                    "\n\n",
-                ].join("\n"));
-                const input = {
-                    names: affected,
-                    paths: affected.map((name) => packages[name].location),
-                };
-                const [bin, rest] = yield command.run(input);
-                yield util_1.promisify(cross_spawn_1.default)(bin, rest, {
-                    stdio: "inherit",
-                });
+            const commandName = args.command;
+            const command = (_a = config === null || config === void 0 ? void 0 : config.commands) === null || _a === void 0 ? void 0 : _a[commandName];
+            if (!command) {
+                // Better error - example config
+                throw new Error(`Command ${commandName} not found. Define it in bob.config.js`);
+            }
+            const { affected, packages } = getAffectedPackages({
+                config,
+                filterCommand: commandName,
+            });
+            if (!affected.length) {
+                reporter.success("Nothing is affected");
+                return;
+            }
+            reporter.info([
+                `Affected packages: `,
+                affected.map((name) => ` - ${name}`).join("\n"),
+                "\n\n",
+            ].join("\n"));
+            const input = {
+                names: affected,
+                paths: affected.map((name) => packages[name].location),
+            };
+            const [bin, rest] = await command.run(input);
+            await util_1.promisify(cross_spawn_1.default)(bin, rest, {
+                stdio: "inherit",
             });
         },
     };
@@ -2781,35 +2779,33 @@ const tslib_1 = __webpack_require__(422);
 const core = tslib_1.__importStar(__webpack_require__(470));
 const path_1 = __webpack_require__(622);
 const run_1 = __webpack_require__(776);
-function run() {
-    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        try {
-            core.info("Running Bob...");
-            core.info("Looking for bob.config.js");
-            const config = require(path_1.resolve(process.env.GITHUB_WORKSPACE, "bob.config.js"));
-            const filterCommand = core.getInput("command");
-            if (filterCommand) {
-                core.info(`Scoping to one command: ${filterCommand}`);
-            }
-            core.info("Checking affected packages");
-            const { affected } = run_1.getAffectedPackages({
-                config,
-                filterCommand,
-            });
-            affected.forEach((name) => {
-                core.info(`- ${name}`);
-            });
-            if (affected.length === 0) {
-                core.info("No affected packages");
-            }
-            core.setOutput("dirty", affected.length > 0 ? "true" : "false");
+async function run() {
+    try {
+        core.info("Running Bob...");
+        core.info("Looking for bob.config.js");
+        const config = require(path_1.resolve(process.env.GITHUB_WORKSPACE, "bob.config.js"));
+        const filterCommand = core.getInput("command");
+        if (filterCommand) {
+            core.info(`Scoping to one command: ${filterCommand}`);
         }
-        catch (error) {
-            console.error(error);
-            core.setFailed(error.message);
-            core.setOutput("dirty", "true");
+        core.info("Checking affected packages");
+        const { affected } = run_1.getAffectedPackages({
+            config,
+            filterCommand,
+        });
+        affected.forEach((name) => {
+            core.info(`- ${name}`);
+        });
+        if (affected.length === 0) {
+            core.info("No affected packages");
         }
-    });
+        core.setOutput("dirty", affected.length > 0 ? "true" : "false");
+    }
+    catch (error) {
+        console.error(error);
+        core.setFailed(error.message);
+        core.setOutput("dirty", "true");
+    }
 }
 run();
 
