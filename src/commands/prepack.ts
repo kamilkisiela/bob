@@ -3,13 +3,21 @@ import { writeFileSync, readFileSync } from "fs";
 
 import { createCommand } from "../command";
 
-export const prepackCommand = createCommand(() => {
+export const prepackCommand = createCommand((api) => {
+  const { config, reporter } = api;
   return {
     command: "prepack",
     describe: "Prepares a package",
     handler() {
       const cwd = process.cwd();
       const srcPackageJson = readPackageJson(cwd);
+      const fullName: string = srcPackageJson.name;
+
+      if ((config.ignore || []).includes(fullName)) {
+        reporter.warn(`Ignored ${fullName}`);
+        return;
+      }
+
       const distPackageJson = readPackageJson(join(cwd, "./dist"));
 
       distPackageJson.version = srcPackageJson.version;
@@ -35,14 +43,14 @@ export const prepackCommand = createCommand(() => {
         join(cwd, "./dist/package.json"),
         JSON.stringify(distPackageJson, null, 2)
       );
-    }
+    },
   };
 });
 
 function readPackageJson(path: string) {
   return JSON.parse(
     readFileSync(join(path, "./package.json"), {
-      encoding: "utf-8"
+      encoding: "utf-8",
     })
   );
 }
