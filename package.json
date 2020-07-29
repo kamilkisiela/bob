@@ -21,6 +21,7 @@
     "README.md"
   ],
   "dependencies": {
+    "mkdirp": "1.0.4",
     "@rollup/plugin-node-resolve": "7.1.1",
     "consola": "2.11.3",
     "cosmiconfig": "6.0.0",
@@ -41,6 +42,7 @@
     "build": "tsc && ncc build src/action.ts -o action"
   },
   "devDependencies": {
+    "@types/mkdirp": "1.0.1",
     "@actions/core": "1.2.3",
     "@types/cross-spawn": "6.0.1",
     "@types/minimatch": "3.0.3",
