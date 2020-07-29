@@ -6,9 +6,10 @@ import typescript from "rollup-plugin-typescript2";
 import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
-import { resolve, join } from "path";
+import { resolve, join, basename, dirname } from "path";
 import { Consola } from "consola";
 import get from "lodash.get";
+import mkdirp from 'mkdirp';
 
 import { createCommand } from "../command";
 import { BobConfig } from "../config";
@@ -371,11 +372,16 @@ export function validatePackageJson(pkg: any) {
   }
 }
 
-function copyToDist(cwd: string, files: string[]) {
+async function copyToDist(cwd: string, files: string[]) {
+  const allFiles = await globby(files, { cwd });
+
   return Promise.all(
-    files.map(async (file) => {
+    allFiles.map(async (file) => {
       if (await fs.pathExists(join(cwd, file))) {
-        await fs.copyFile(join(cwd, file), join(cwd, distDir, file));
+        const sourcePath = join(cwd, file);
+        const destPath = join(cwd, distDir, file.replace('src/', ''));
+        await mkdirp(dirname(destPath));
+        await fs.copyFile(sourcePath, destPath);
       }
     })
   );
