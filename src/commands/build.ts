@@ -6,7 +6,7 @@ import typescript from "rollup-plugin-typescript2";
 import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
-import { resolve, join, basename, dirname } from "path";
+import { resolve, join, dirname } from "path";
 import { Consola } from "consola";
 import get from "lodash.get";
 import mkdirp from 'mkdirp';
