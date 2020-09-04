@@ -20,7 +20,14 @@ interface BuildOptions {
   bin?: Record<string, { input: string; sourcemap?: boolean }>;
 }
 
-export const distDir = "dist";
+const DIST_DIR = "dist";
+
+interface PackageInfo {
+  packagePath: string;
+  cwd: string;
+  pkg: any;
+  fullName: string;
+}
 
 export const buildCommand = createCommand<
   {},
@@ -42,8 +49,14 @@ export const buildCommand = createCommand<
       });
     },
     async handler(args) {
+      config.dists = config.dists || [
+        {
+          distDir: DIST_DIR,
+          distPath: ''
+        }
+      ];
       if (args.single) {
-        await buildSingle();
+        await buildSingle({ distDir: DIST_DIR });
         return;
       }
 
@@ -51,22 +64,33 @@ export const buildCommand = createCommand<
       const packages = await globby("packages/**/package.json", {
         cwd: process.cwd(),
         absolute: true,
-        ignore: ["**/node_modules/**", `**/${distDir}/**`],
+        ignore: ["**/node_modules/**", ...config.dists.map(({ distDir }) => `**/${distDir}/**`)],
       });
 
-      await Promise.all(
-        packages.map((packagePath) =>
-          limit(() => build(packagePath, config, reporter))
-        )
+      const packageInfoList: PackageInfo[] = await Promise.all(
+          packages.map(packagePath => limit(async () => {
+            const cwd = packagePath.replace("/package.json", "");
+            const pkg = await fs.readJSON(resolve(cwd, 'package.json'));
+            const fullName: string = pkg.name;
+            return { packagePath, cwd, pkg, fullName };
+        }))
       );
+
+      for (const { distDir, distPath } of config.dists) {
+        await Promise.all(
+          packageInfoList.map(({ packagePath, cwd, pkg, fullName }) =>
+            limit(() => build({ packagePath, cwd, pkg, fullName, config, reporter, distDir, distPath, packageInfoList }))
+          )
+        );
+      }
     },
   };
 });
 
-async function buildSingle() {
+async function buildSingle({ distDir, distPath = '' }: { distDir: string; distPath?: string; }) {
   const cwd = process.cwd();
   const packagePath = join(process.cwd(), "package.json");
-  const pkg = await readPackageJson(cwd);
+  const pkg = await fs.readJSON(packagePath);
 
   validatePackageJson(pkg);
 
@@ -87,7 +111,7 @@ async function buildSingle() {
       }),
       typescript(),
       generatePackageJson({
-        baseContents: rewritePackageJson(pkg),
+        baseContents: rewritePackageJson(pkg, distPath),
         additionalDependencies: Object.keys(pkg.dependencies || {}),
       }),
     ],
@@ -135,26 +159,22 @@ async function buildSingle() {
   // move README.md and LICENSE
   await copyToDist(
     cwd,
-    ["README.md", "LICENSE"].concat(buildOptions?.copy || [])
+    ["README.md", "LICENSE"].concat(buildOptions?.copy || []),
+    DIST_DIR + distPath
   );
 }
 
 async function build(
-  packagePath: string,
-  config: BobConfig,
-  reporter: Consola
+{ packagePath, cwd, pkg, fullName, config, reporter, distDir, distPath = '', packageInfoList }: { packagePath: string; cwd: string; pkg: any; fullName: string; config: BobConfig; reporter: Consola; distDir: string; distPath?: string; packageInfoList: PackageInfo[] },
 ) {
   const scope = config.scope;
-  const cwd = packagePath.replace("/package.json", "");
-  const pkg = await readPackageJson(cwd);
-  const fullName: string = pkg.name;
 
   if ((config.ignore || []).includes(fullName)) {
     reporter.warn(`Ignored ${fullName}`);
     return;
   }
 
-  const name = fullName.replace(`${scope}/`, "");
+  const name = fullName.replace(`${scope}/`, distPath);
 
   validatePackageJson(pkg);
 
@@ -184,7 +204,7 @@ async function build(
         packageJSONPath: packagePath,
       }),
       generatePackageJson({
-        baseContents: rewritePackageJson(pkg),
+        baseContents: rewritePackageJson(pkg, distPath),
         additionalDependencies: Object.keys(pkg.dependencies || {}),
       }),
     ],
@@ -218,7 +238,7 @@ async function build(
   if (pkg.exports) {
     generates.push({
       ...commonOutputOptions,
-      file: join(distDir, "index.mjs"),
+      file: join(bobProjectDir, "index.mjs"),
       format: "esm" as const,
     });
   }
@@ -269,7 +289,7 @@ async function build(
           banner: `#!/usr/bin/env node`,
           preferConst: true,
           sourcemap: options.sourcemap,
-          file: join(bobProjectDir, pkg.bin[alias].replace(`${distDir}/`, "")),
+          file: join(bobProjectDir, pkg.bin[alias].replace(`${DIST_DIR}/`, "")),
           format: "cjs",
         });
       })
@@ -277,29 +297,37 @@ async function build(
   }
 
   // remove <project>/dist
-  await fs.remove(join(cwd, distDir));
+  await fs.remove(join(cwd, DIST_DIR + distPath));
+
+  // fix distPath import in extra dists
+  function replaceAll(str: string, from: string, to: string) {
+    return str.split(from).join(to);
+  }
+  if (distPath) {
+    await Promise.all(
+      generates.map(({ file }) => limit(async () => {
+        let content = await fs.readFile(file, 'utf8');
+        for (const { fullName } of packageInfoList) {
+          content = replaceAll(content, `'${fullName}'`, `'${fullName}${distPath}'`);
+        }
+        await fs.writeFile(file, content, { encoding: 'utf8', flag: 'w' });
+      }))
+    )
+  }
+  
   // move bob/<project-name> to <project>/dist
-  await fs.move(bobProjectDir, join(cwd, distDir));
+  await fs.move(bobProjectDir, join(cwd, DIST_DIR + distPath));
   // move README.md and LICENSE
   await copyToDist(
     cwd,
-    ["README.md", "LICENSE"].concat(pkg.buildOptions?.copy || [])
+    ["README.md", "LICENSE"].concat(pkg.buildOptions?.copy || []),
+    DIST_DIR + distPath
   );
 
   reporter.success(`Built ${pkg.name}`);
 }
 
-//
-
-export async function readPackageJson(baseDir: string) {
-  return JSON.parse(
-    await fs.readFile(resolve(baseDir, "package.json"), {
-      encoding: "utf-8",
-    })
-  );
-}
-
-function rewritePackageJson(pkg: Record<string, any>) {
+function rewritePackageJson(pkg: Record<string, any>, distPath: string) {
   const newPkg: Record<string, any> = {};
   const fields = [
     "name",
@@ -323,6 +351,7 @@ function rewritePackageJson(pkg: Record<string, any>) {
     }
   });
 
+  newPkg.name += distPath;
   newPkg.main = "index.cjs.js";
   newPkg.module = "index.esm.js";
   newPkg.typings = "index.d.ts";
@@ -334,7 +363,7 @@ function rewritePackageJson(pkg: Record<string, any>) {
     newPkg.bin = {};
 
     for (const alias in pkg.bin) {
-      newPkg.bin[alias] = pkg.bin[alias].replace(`${distDir}/`, "");
+      newPkg.bin[alias] = pkg.bin[alias].replace(`${DIST_DIR}/`, "");
     }
   }
 
@@ -352,18 +381,18 @@ export function validatePackageJson(pkg: any) {
     }
   }
 
-  expect("main", `${distDir}/index.cjs.js`);
-  expect("module", `${distDir}/index.esm.js`);
-  expect("typings", `${distDir}/index.d.ts`);
-  expect("typescript.definition", `${distDir}/index.d.ts`);
+  expect("main", `${DIST_DIR}/index.cjs.js`);
+  expect("module", `${DIST_DIR}/index.esm.js`);
+  expect("typings", `${DIST_DIR}/index.d.ts`);
+  expect("typescript.definition", `${DIST_DIR}/index.d.ts`);
 
   if (pkg.exports) {
-    expect("exports.require",  `./${pkg.main}`);
-    expect("exports.default", `./${distDir}/index.mjs`);
+    expect("exports.require", pkg.main);
+    expect("exports.default", `${DIST_DIR}/index.mjs`);
   }
 }
 
-async function copyToDist(cwd: string, files: string[]) {
+async function copyToDist(cwd: string, files: string[], distDir: string) {
   const allFiles = await globby(files, { cwd });
 
   return Promise.all(

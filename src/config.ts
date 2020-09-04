@@ -19,6 +19,10 @@ export interface BobConfig {
   commands?: {
     [cmdName: string]: Command;
   };
+  dists?: {
+    distDir: string;
+    distPath?: string;
+  }[]
 }
 
 interface UseConfigOptions {
