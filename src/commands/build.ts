@@ -367,8 +367,8 @@ export function validatePackageJson(pkg: any) {
   expect("typescript.definition", `${distDir}/index.d.ts`);
 
   if (pkg.exports) {
-    expect("exports.require", pkg.main);
-    expect("exports.default", `${distDir}/index.mjs`);
+    expect("exports.require",  `./${pkg.main}`);
+    expect("exports.default", `./${distDir}/index.mjs`);
   }
 }
 
