@@ -1,3 +1,4 @@
+export declare const distDir = "dist";
 export declare const buildCommand: import("../command").CommandFactory<{}, {
     single?: boolean | undefined;
 }>;

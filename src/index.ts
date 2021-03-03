@@ -5,6 +5,7 @@ import { useConfig } from "./config";
 import { CommandFactory } from "./command";
 import { buildCommand } from "./commands/build";
 import { prepackCommand } from "./commands/prepack";
+import { packFlatCommand } from "./commands/pack-flat";
 import { runCommand } from "./commands/run";
 import { validateCommand } from "./commands/validate";
 
@@ -18,6 +19,7 @@ async function main() {
     prepackCommand,
     runCommand,
     validateCommand,
+    packFlatCommand,
   ];
 
   const reporter = consola.create({});

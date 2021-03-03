@@ -20,7 +20,7 @@ interface BuildOptions {
   bin?: Record<string, { input: string; sourcemap?: boolean }>;
 }
 
-const distDir = "dist";
+export const distDir = "dist";
 
 export const buildCommand = createCommand<
   {},
