@@ -82,7 +82,14 @@ async function rewritePackageJson(
   let newPkg: Record<string, any> = {
     bin: "index.js",
   };
-  const fields = ["name", "version", "description", "publishConfig", "registry", "repository"];
+  const fields = [
+    "name",
+    "version",
+    "description",
+    "publishConfig",
+    "registry",
+    "repository",
+  ];
 
   fields.forEach((field) => {
     if (typeof pkg[field] !== "undefined") {
@@ -109,8 +116,8 @@ function isNext(pkg: any): boolean {
 
 async function buildNext(cwd: string) {
   await new Promise((resolve, reject) => {
-    const child = spawn('next', ['build'], {
-      stdio: 'inherit',
+    const child = spawn("next", ["build"], {
+      stdio: "inherit",
       cwd,
     });
     child.on("exit", resolve);
@@ -131,18 +138,24 @@ async function buildNext(cwd: string) {
 }
 
 async function compile(cwd: string, entryPoint: string) {
-  const { code, map } = await ncc(join(cwd, entryPoint), {
+  const { code, map, assets } = await ncc(join(cwd, entryPoint), {
     cache: false,
     sourceMap: true,
   });
 
   await fs.mkdirp(join(cwd, "dist"));
-  await Promise.all([
-    fs.writeFile(join(cwd, "dist/index.js"), code, {
-      encoding: "utf-8",
-    }),
-    fs.writeFile(join(cwd, "dist/index.js.map"), map, {
-      encoding: "utf-8",
-    }),
-  ]);
+  await Promise.all(
+    [
+      fs.writeFile(join(cwd, "dist/index.js"), code, {
+        encoding: "utf-8",
+      }),
+      fs.writeFile(join(cwd, "dist/index.js.map"), map, {
+        encoding: "utf-8",
+      }),
+    ].concat(
+      Object.keys(assets).map((filepath) =>
+        fs.writeFile(join(cwd, filepath), assets[filepath].source)
+      )
+    )
+  );
 }
