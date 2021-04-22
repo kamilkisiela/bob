@@ -1,7 +1,7 @@
 import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
-import { resolve, join } from "path";
+import { resolve, join, dirname } from "path";
 import { Consola } from "consola";
 import ncc from "@vercel/ncc";
 import { spawn } from "child_process";
@@ -132,7 +132,7 @@ async function buildNext(cwd: string) {
       `#!/usr/bin/env node`,
       `process.on('SIGTERM', () => process.exit(0))`,
       `process.on('SIGINT', () => process.exit(0))`,
-      `require('next/dist/cli/next-start').nextStart(process.argv.slice(2))`,
+      `require('next/dist/cli/next-start').nextStart([__dirname])`,
     ].join("\n")
   );
 }
@@ -153,9 +153,16 @@ async function compile(cwd: string, entryPoint: string) {
         encoding: "utf-8",
       }),
     ].concat(
-      Object.keys(assets).map((filepath) =>
-        fs.writeFile(join(cwd, filepath), assets[filepath].source)
-      )
+      Object.keys(assets).map(async (filepath) => {
+        if (filepath.endsWith("package.json")) {
+          return Promise.resolve();
+        }
+        await fs.ensureDir(dirname(join(cwd, "dist", filepath)), {});
+        await fs.writeFile(
+          join(cwd, "dist", filepath),
+          assets[filepath].source
+        );
+      })
     )
   );
 }
