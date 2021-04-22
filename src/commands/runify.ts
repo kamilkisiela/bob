@@ -9,13 +9,11 @@ import { spawn } from "child_process";
 import { createCommand } from "../command";
 import { BobConfig } from "../config";
 
-// adds #!/usr/bin/env node
-// cleans up package.json (removes dependencies etc)
-
 export const distDir = "dist";
 
 interface BuildOptions {
   bin?: string;
+  runify?: boolean;
 }
 
 export const runifyCommand = createCommand<{}, {}>((api) => {
@@ -48,10 +46,9 @@ async function runify(
 ) {
   const cwd = packagePath.replace("/package.json", "");
   const pkg = await readPackageJson(cwd);
-  const fullName: string = pkg.name;
+  const buildOptions: BuildOptions = pkg.buildOptions || {};
 
-  if ((config.ignore || []).includes(fullName)) {
-    reporter.warn(`Ignored ${fullName}`);
+  if (!buildOptions.runify) {
     return;
   }
 
@@ -62,7 +59,6 @@ async function runify(
       dependencies: pkg.dependencies,
     }));
   } else {
-    const buildOptions: BuildOptions = pkg.buildOptions || {};
     await compile(cwd, buildOptions?.bin ?? "src/index.ts");
     await rewritePackageJson(pkg, cwd);
   }
