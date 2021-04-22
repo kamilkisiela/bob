@@ -4,7 +4,7 @@ import fs from "fs-extra";
 import { resolve, join } from "path";
 import { Consola } from "consola";
 import ncc from "@vercel/ncc";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 
 import { createCommand } from "../command";
 import { BobConfig } from "../config";
@@ -59,9 +59,7 @@ async function runify(
     await buildNext(cwd);
     await rewritePackageJson(pkg, cwd, (newPkg) => ({
       ...newPkg,
-      dependencies: {
-        next: pkg.dependencies?.next ?? pkg.devDependencies?.next,
-      },
+      dependencies: pkg.dependencies,
     }));
   } else {
     const buildOptions: BuildOptions = pkg.buildOptions || {};
@@ -88,7 +86,7 @@ async function rewritePackageJson(
   let newPkg: Record<string, any> = {
     bin: "index.js",
   };
-  const fields = ["name", "version", "description"];
+  const fields = ["name", "version", "description", "publishConfig", "registry"];
 
   fields.forEach((field) => {
     if (typeof pkg[field] !== "undefined") {
@@ -115,8 +113,9 @@ function isNext(pkg: any): boolean {
 
 async function buildNext(cwd: string) {
   await new Promise((resolve, reject) => {
-    const child = exec(`cd ${cwd} && next build`, {
-      encoding: "utf-8",
+    const child = spawn('next', ['build'], {
+      stdio: 'inherit',
+      cwd,
     });
     child.on("exit", resolve);
     child.on("error", reject);
