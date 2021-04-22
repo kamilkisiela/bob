@@ -41,7 +41,7 @@ export const runifyCommand = createCommand<{}, {}>((api) => {
 
 async function runify(
   packagePath: string,
-  config: BobConfig,
+  _config: BobConfig,
   reporter: Consola
 ) {
   const cwd = packagePath.replace("/package.json", "");
@@ -82,7 +82,7 @@ async function rewritePackageJson(
   let newPkg: Record<string, any> = {
     bin: "index.js",
   };
-  const fields = ["name", "version", "description", "publishConfig", "registry"];
+  const fields = ["name", "version", "description", "publishConfig", "registry", "repository"];
 
   fields.forEach((field) => {
     if (typeof pkg[field] !== "undefined") {
