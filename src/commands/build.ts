@@ -1,6 +1,6 @@
 import * as rollup from "rollup";
 import generatePackageJson from "rollup-plugin-generate-package-json";
-import autoExternal from "rollup-plugin-auto-external";
+import {autoExternal} from "../rollup-plugins/auto-external";
 import resolveNode from "@rollup/plugin-node-resolve";
 import typescript from "rollup-plugin-typescript2";
 import globby from "globby";
@@ -83,10 +83,7 @@ async function buildSingle() {
     plugins: [
       resolveNode(),
       autoExternal({
-        packagePath,
-        builtins: true,
-        dependencies: true,
-        peerDependencies: true,
+        packageJSONPath: packagePath,
       }),
       typescript(),
       generatePackageJson({
@@ -184,10 +181,7 @@ async function build(
     plugins: [
       resolveNode(),
       autoExternal({
-        packagePath,
-        builtins: true,
-        dependencies: true,
-        peerDependencies: true,
+        packageJSONPath: packagePath,
       }),
       generatePackageJson({
         baseContents: rewritePackageJson(pkg),
@@ -263,10 +257,7 @@ async function build(
           plugins: [
             resolveNode(),
             autoExternal({
-              packagePath,
-              builtins: true,
-              dependencies: true,
-              peerDependencies: true,
+              packageJSONPath: packagePath,
             }),
           ],
           inlineDynamicImports: true,
