@@ -371,10 +371,10 @@ export function validatePackageJson(pkg: any) {
   expect("typescript.definition", `${DIST_DIR}/index.d.ts`);
 
   expect("exports['.'].require", `./${DIST_DIR}/index.js`);
-  expect("exports['.'].default", `./${DIST_DIR}/index.mjs`);
+  expect("exports['.'].import", `./${DIST_DIR}/index.mjs`);
 
   expect("exports['./*'].require", `./${DIST_DIR}/*.js`);
-  expect("exports['./*'].default", `./${DIST_DIR}/*.mjs`);
+  expect("exports['./*'].import", `./${DIST_DIR}/*.mjs`);
 }
 
 async function copyToDist(cwd: string, files: string[], distDir: string) {
