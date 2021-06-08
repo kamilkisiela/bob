@@ -343,6 +343,17 @@ function rewritePackageJson(pkg: Record<string, any>, distPath: string) {
     definition: newPkg.typings,
   };
 
+  newPkg.exports = {
+    ".": {
+      require: "./index.js",
+      import: "./index.mjs",
+    },
+    "./*": {
+      require: "./*.js",
+      import: "./*.mjs",
+    },
+  };
+
   if (pkg.bin) {
     newPkg.bin = {};
 
