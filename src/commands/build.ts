@@ -132,23 +132,15 @@ async function buildSingle({ distDir, distPath = '' }: { distDir: string; distPa
   const generates = [
     {
       ...commonOutputOptions,
-      file: join(distDir, "index.cjs.js"),
+      file: join(distDir, "index.js"),
       format: "cjs" as const,
     },
     {
       ...commonOutputOptions,
-      file: join(distDir, "index.esm.js"),
+      file: join(distDir, "index.mjs"),
       format: "esm" as const,
     },
   ];
-
-  if (pkg.exports) {
-    generates.push({
-      ...commonOutputOptions,
-      file: join(distDir, "index.mjs"),
-      format: "esm" as const,
-    });
-  }
 
   await Promise.all(
     generates.map(async (outputOptions) => {
@@ -225,23 +217,15 @@ async function build(
   const generates = [
     {
       ...commonOutputOptions,
-      file: join(bobProjectDir, "index.cjs.js"),
+      file: join(bobProjectDir, "index.js"),
       format: "cjs" as const,
     },
     {
       ...commonOutputOptions,
-      file: join(bobProjectDir, "index.esm.js"),
+      file: join(bobProjectDir, "index.mjs"),
       format: "esm" as const,
     },
   ];
-
-  if (pkg.exports) {
-    generates.push({
-      ...commonOutputOptions,
-      file: join(bobProjectDir, "index.mjs"),
-      format: "esm" as const,
-    });
-  }
 
   const declarations = await globby("**/*.d.ts", {
     cwd: distProjectSrcDir,
@@ -352,8 +336,8 @@ function rewritePackageJson(pkg: Record<string, any>, distPath: string) {
   });
 
   newPkg.name += distPath;
-  newPkg.main = "index.cjs.js";
-  newPkg.module = "index.esm.js";
+  newPkg.main = "index.js";
+  newPkg.module = "index.mjs";
   newPkg.typings = "index.d.ts";
   newPkg.typescript = {
     definition: newPkg.typings,
@@ -381,8 +365,8 @@ export function validatePackageJson(pkg: any) {
     }
   }
 
-  expect("main", `${DIST_DIR}/index.cjs.js`);
-  expect("module", `${DIST_DIR}/index.esm.js`);
+  expect("main", `${DIST_DIR}/index.js`);
+  expect("module", `${DIST_DIR}/index.mjs`);
   expect("typings", `${DIST_DIR}/index.d.ts`);
   expect("typescript.definition", `${DIST_DIR}/index.d.ts`);
 
