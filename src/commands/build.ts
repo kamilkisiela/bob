@@ -20,7 +20,7 @@ interface BuildOptions {
   bin?: Record<string, { input: string; sourcemap?: boolean }>;
 }
 
-const DIST_DIR = "dist";
+export const DIST_DIR = "dist";
 
 interface PackageInfo {
   packagePath: string;
