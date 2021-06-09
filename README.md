@@ -94,4 +94,6 @@ $ bob affected build
 $ bob build
 $ bob prepack
 
+$ bob runify
+
 ```
