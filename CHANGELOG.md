@@ -2,6 +2,8 @@
 
 ## vNext
 
+## v1.4.1
+
 - fix typo `.msj` (should be `.mjs`)
 
 ## v1.4.0
