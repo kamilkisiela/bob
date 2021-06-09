@@ -120,12 +120,13 @@ async function buildNext(cwd: string) {
       stdio: "inherit",
       cwd,
     });
-    child.on("exit", resolve);
+    child.on("exit", (code) => (code ? reject(code) : resolve(code)));
     child.on("error", reject);
   });
 
   await fs.mkdirp(join(cwd, "dist"));
   await fs.copy(join(cwd, ".next"), join(cwd, "dist/.next"));
+  await fs.copy(join(cwd, "public"), join(cwd, "dist/public"));
   await fs.writeFile(
     join(cwd, "dist/index.js"),
     [
