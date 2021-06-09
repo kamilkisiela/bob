@@ -269,12 +269,14 @@ async function build(
 
         const bundle = await rollup.rollup(inputOptions);
 
+        const file = join(bobProjectDir, pkg.bin[alias].replace(`${DIST_DIR}/`, ""));
+
         await bundle.write({
           banner: `#!/usr/bin/env node`,
           preferConst: true,
           sourcemap: options.sourcemap,
-          file: join(bobProjectDir, pkg.bin[alias].replace(`${DIST_DIR}/`, "")),
-          format: "cjs",
+          file,
+          format: file.endsWith('mjs') ? 'esm' : 'cjs',
         });
       })
     );
