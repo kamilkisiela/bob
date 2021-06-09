@@ -163,14 +163,14 @@ export async function validatePackage({
 
   shouldEqual(
     pkg.main,
-    "dist/index.cjs.js",
-    `${name}: 'main' should equal 'dist/index.cjs.js'`,
+    "dist/index.js",
+    `${name}: 'main' should equal 'dist/index.js'`,
     onError
   );
   shouldEqual(
     pkg.module,
-    "dist/index.esm.js",
-    `${name}: 'module' should equal 'dist/index.esm.js'`,
+    "dist/index.msj",
+    `${name}: 'module' should equal 'dist/index.msj'`,
     onError
   );
   shouldEqual(
@@ -185,6 +185,33 @@ export async function validatePackage({
     `${name}: 'typescript.definition' should equal 'dist/index.d.ts'`,
     onError
   );
+
+  shouldEqual(
+    pkg.exports?.['.']?.require,
+    "./dist/index.js",
+    `${name}: 'exports.['.'].require' should equal './dist/index.js'`,
+    onError
+  );
+  shouldEqual(
+    pkg.exports?.['.']?.import,
+    "./dist/index.mjs",
+    `${name}: 'exports.['.'].import' should equal './dist/index.mjs'`,
+    onError
+  );
+
+  shouldEqual(
+    pkg.exports?.['./*']?.require,
+    "./dist/*.js",
+    `${name}: 'exports.['./*'].import' should equal './dist/*.js'`,
+    onError
+  );
+  shouldEqual(
+    pkg.exports?.['./*']?.import,
+    "./dist/*.mjs",
+    `${name}: 'exports.['./*'].import' should equal './dist/*.mjs'`,
+    onError
+  );
+  
   shouldEqual(
     pkg.scripts?.prepack,
     "bob prepack",

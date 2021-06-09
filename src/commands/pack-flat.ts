@@ -1,6 +1,6 @@
 import globby from "globby";
 import pLimit from "p-limit";
-import fs from "fs-extra";
+import fs, { readJSON } from "fs-extra";
 import { resolve, join } from "path";
 import { execSync } from "child_process";
 import { Consola } from "consola";
@@ -8,7 +8,7 @@ import { paramCase } from "param-case";
 
 import { createCommand } from "../command";
 import { BobConfig } from "../config";
-import { readPackageJson, distDir } from "./build";
+import { DIST_DIR } from "./build";
 
 export const packFlatCommand = createCommand<
   {},
@@ -36,7 +36,7 @@ export const packFlatCommand = createCommand<
       const packages = await globby("packages/**/package.json", {
         cwd: process.cwd(),
         absolute: true,
-        ignore: ["**/node_modules/**", `**/${distDir}/**`],
+        ignore: ["**/node_modules/**", `**/${DIST_DIR}/**`],
       });
 
       await Promise.all(
@@ -50,7 +50,7 @@ export const packFlatCommand = createCommand<
 
 async function pack(packagePath: string, commit: string, config: BobConfig, reporter: Consola) {
   const cwd = packagePath.replace("/package.json", "");
-  const pkg = await readPackageJson(cwd);
+  const pkg = await readJSON(packagePath);
   const fullName: string = pkg.name;
 
   if ((config.ignore || []).includes(fullName)) {
@@ -58,11 +58,11 @@ async function pack(packagePath: string, commit: string, config: BobConfig, repo
     return;
   }
 
-  const projectDistDir = join(cwd, distDir);
+  const projectDistDir = join(cwd, DIST_DIR);
   const bobDir = resolve(process.cwd(), ".bob-packed");
 
   // replace version to 0.0.0-canary-${commit}
-  const distPkg = await readPackageJson(projectDistDir);
+  const distPkg = await readJSON(join(projectDistDir, 'package.json'));
   const version = `0.0.0-canary-${commit}`;
   distPkg.version = version;
   await fs.writeFile(join(projectDistDir, 'package.json'), JSON.stringify(distPkg, null, 2), {

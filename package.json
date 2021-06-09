@@ -41,6 +41,7 @@
     "yargs": "15.3.1"
   },
   "scripts": {
+    "prepublish": "yarn build",
     "build": "tsc && ncc build src/action.ts -o action"
   },
   "devDependencies": {
