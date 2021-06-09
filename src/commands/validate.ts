@@ -169,8 +169,8 @@ export async function validatePackage({
   );
   shouldEqual(
     pkg.module,
-    "dist/index.msj",
-    `${name}: 'module' should equal 'dist/index.msj'`,
+    "dist/index.mjs",
+    `${name}: 'module' should equal 'dist/index.mjs'`,
     onError
   );
   shouldEqual(
