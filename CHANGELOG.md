@@ -2,6 +2,8 @@
 
 ## vNext
 
+## v1.4.0
+
 - Support multiple dist configurations and ESM [#13](https://github.com/kamilkisiela/bob/pull/13)
 
 ## v1.3.0
