@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "@rollup/plugin-node-resolve": "7.1.1",
+    "@vercel/ncc": "0.28.3",
     "builtins": "4.0.0",
     "consola": "2.11.3",
     "cosmiconfig": "6.0.0",
@@ -51,7 +52,6 @@
     "@types/mkdirp": "1.0.1",
     "@types/node": "13.11.0",
     "@types/yargs": "15.0.4",
-    "@zeit/ncc": "0.22.0",
     "typescript": "3.8.3"
   },
   "publishConfig": {

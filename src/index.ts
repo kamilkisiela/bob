@@ -8,6 +8,7 @@ import { prepackCommand } from "./commands/prepack";
 import { packFlatCommand } from "./commands/pack-flat";
 import { runCommand } from "./commands/run";
 import { validateCommand } from "./commands/validate";
+import { runifyCommand } from "./commands/runify";
 
 async function main() {
   const config = await useConfig();
@@ -20,6 +21,7 @@ async function main() {
     runCommand,
     validateCommand,
     packFlatCommand,
+    runifyCommand,
   ];
 
   const reporter = consola.create({});
