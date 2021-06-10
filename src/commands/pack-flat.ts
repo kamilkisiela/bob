@@ -1,6 +1,6 @@
 import globby from "globby";
 import pLimit from "p-limit";
-import fs, { readJSON } from "fs-extra";
+import fs from "fs-extra";
 import { resolve, join } from "path";
 import { execSync } from "child_process";
 import { Consola } from "consola";
@@ -50,7 +50,7 @@ export const packFlatCommand = createCommand<
 
 async function pack(packagePath: string, commit: string, config: BobConfig, reporter: Consola) {
   const cwd = packagePath.replace("/package.json", "");
-  const pkg = await readJSON(packagePath);
+  const pkg = await fs.readJSON(packagePath);
   const fullName: string = pkg.name;
 
   if ((config.ignore || []).includes(fullName)) {
@@ -62,7 +62,7 @@ async function pack(packagePath: string, commit: string, config: BobConfig, repo
   const bobDir = resolve(process.cwd(), ".bob-packed");
 
   // replace version to 0.0.0-canary-${commit}
-  const distPkg = await readJSON(join(projectDistDir, 'package.json'));
+  const distPkg = await fs.readJSON(join(projectDistDir, 'package.json'));
   const version = `0.0.0-canary-${commit}`;
   distPkg.version = version;
   await fs.writeFile(join(projectDistDir, 'package.json'), JSON.stringify(distPkg, null, 2), {
