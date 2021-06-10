@@ -1,5 +1,5 @@
 import type { IsExternal, Plugin } from "rollup";
-import { readJSONSync } from "fs-extra";
+import fs from "fs-extra";
 import getBuiltins from "builtins";
 
 type Options = {
@@ -10,7 +10,7 @@ export function autoExternal({ packageJSONPath }: Options): Plugin {
   const plugin: Plugin = {
     name: "auto-external",
     options(opts) {
-      const pkg = readJSONSync(packageJSONPath);
+      const pkg = fs.readJSONSync(packageJSONPath);
       const externalModules = [];
       if (typeof pkg.dependencies  === "object") {
         externalModules.push(...Object.keys(pkg.dependencies));

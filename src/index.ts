@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import yargs, { Argv } from "yargs";
 import consola from "consola";
 import { useConfig } from "./config";
@@ -10,7 +9,7 @@ import { runCommand } from "./commands/run";
 import { validateCommand } from "./commands/validate";
 import { runifyCommand } from "./commands/runify";
 
-async function main() {
+export async function main() {
   const config = await useConfig();
 
   const root: Argv = yargs.scriptName("bob").detectLocale(false).version();
@@ -32,4 +31,3 @@ async function main() {
     .showHelpOnFail(false).argv;
 }
 
-main();

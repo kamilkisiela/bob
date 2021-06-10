@@ -148,6 +148,29 @@ async function buildSingle({ distDir, distPath = '' }: { distDir: string; distPa
     })
   );
 
+  if (buildOptions?.bin) {
+    await Promise.all(
+      Object.keys(buildOptions.bin).map(async (alias) => {
+        const options = buildOptions.bin![alias];
+        const binInputOptions = {
+          ...inputOptions,
+          ...options,
+        };
+        // create a bundle
+        const binBundle = await rollup.rollup(binInputOptions);
+        const targetPath = pkg.bin![alias];
+        await binBundle.write({
+          ...commonOutputOptions,
+          banner: `#!/usr/bin/env node`,
+          preferConst: true,
+          sourcemap: options.sourcemap,
+          file: targetPath,
+          format: "cjs" as const,
+        });
+      })
+    );
+  }
+
   // move README.md and LICENSE
   await copyToDist(
     cwd,
