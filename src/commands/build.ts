@@ -193,6 +193,7 @@ async function build(
   const inputOptions = {
     input: inputFile,
     plugins: [
+      json(),
       resolveNode(),
       autoExternal({
         packageJSONPath: packagePath,
@@ -261,6 +262,7 @@ async function build(
         const inputOptions = {
           input: binPath,
           plugins: [
+            json(),
             resolveNode(),
             autoExternal({
               packageJSONPath: packagePath,
