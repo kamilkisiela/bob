@@ -3,6 +3,7 @@ import generatePackageJson from "rollup-plugin-generate-package-json";
 import {autoExternal} from "../rollup-plugins/auto-external";
 import resolveNode from "@rollup/plugin-node-resolve";
 import typescript from "rollup-plugin-typescript2";
+import json from '@rollup/plugin-json';
 import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
@@ -105,6 +106,7 @@ async function buildSingle({ distDir, distPath = '' }: { distDir: string; distPa
   const inputOptions = {
     input: "src/index.ts",
     plugins: [
+      json(),
       resolveNode(),
       autoExternal({
         packageJSONPath: packagePath,

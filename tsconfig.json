@@ -12,7 +12,8 @@
     "esModuleInterop": true,
     "strict": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "skipLibCheck": true
   },
   "exclude": ["node_modules", "dist"],
   "include": ["src/index.ts", "src/typings.d.ts"]
