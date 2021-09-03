@@ -1,0 +1,38 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Testing on ${{matrix.os}} and Node ${{matrix.node_version}}
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        node_version: [12, 14, 16]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Use Node ${{matrix.node_version}}
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node_version }}
+      - name: Cache Yarn
+        uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-${{matrix.node_version}}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{matrix.node_version}}-yarn-
+      - name: Cache Jest
+        uses: actions/cache@v2
+        with:
+          path: .cache/jest
+          key: ${{ runner.os }}-${{matrix.node_version}}-jest-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{matrix.node_version}}-jest-
+      - name: Install Dependencies using Yarn
+        run: yarn install
+      - name: Run Tests
+        run: yarn test
