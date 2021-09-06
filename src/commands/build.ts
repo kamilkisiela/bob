@@ -14,6 +14,7 @@ import mkdirp from 'mkdirp';
 
 import { createCommand } from "../command";
 import { BobConfig } from "../config";
+import { rewriteExports } from "../utils/rewrite-exports"
 
 interface BuildOptions {
   external?: string[];
@@ -349,16 +350,21 @@ function rewritePackageJson(pkg: Record<string, any>, distPath: string) {
     definition: newPkg.typings,
   };
 
-  newPkg.exports = {
-    ".": {
-      require: "./index.js",
-      import: "./index.mjs",
-    },
-    "./*": {
-      require: "./*.js",
-      import: "./*.mjs",
-    },
-  };
+  if (pkg.exports) {
+    newPkg.exports = rewriteExports(pkg.exports, DIST_DIR)
+  } else {
+    newPkg.exports = {
+      ".": {
+        require: "./index.js",
+        import: "./index.mjs",
+      },
+      "./*": {
+        require: "./*.js",
+        import: "./*.mjs",
+      },
+      "./package.json": "./package.json"
+    };
+  }
 
   if (pkg.bin) {
     newPkg.bin = {};
