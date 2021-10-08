@@ -86,7 +86,6 @@ async function rewritePackageJson(
     "name",
     "version",
     "description",
-    "publishConfig",
     "registry",
     "repository",
   ];
