@@ -57,7 +57,7 @@ export const runifyCommand = createCommand<
       packageJsons.forEach((pkg, i) => {
         depGraph.addNode(pkg.name, {
           path: packageJsonFiles[i],
-          tags: pkg.buildOptions.tags ?? [],
+          tags: pkg.buildOptions?.tags ?? [],
         });
       });
 
@@ -114,7 +114,7 @@ async function runify(
       dependencies: pkg.dependencies,
     }));
   } else {
-    await compile(cwd, buildOptions?.bin ?? "src/index.ts", buildOptions);
+    await compile(cwd, buildOptions.bin ?? "src/index.ts", buildOptions);
     await rewritePackageJson(pkg, cwd);
   }
 
