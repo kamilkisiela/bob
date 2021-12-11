@@ -25,6 +25,7 @@ export const runifyCommand = createCommand<
   {},
   {
     tag?: string[];
+    single?: boolean;
   }
 >((api) => {
   const { config, reporter } = api;
@@ -39,9 +40,19 @@ export const runifyCommand = createCommand<
           array: true,
           type: "string",
         },
+        single: {
+          describe: "Run only for the package in the current directory",
+          type: "boolean",
+          default: false,
+        },
       });
     },
-    async handler({ tag }) {
+    async handler({ tag, single }) {
+      if (single) {
+        return runify(join(process.cwd(), 'package.json'), config, reporter)
+      }
+
+
       const limit = pLimit(1);
       const packageJsonFiles = await globby("packages/**/package.json", {
         cwd: process.cwd(),
