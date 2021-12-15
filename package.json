@@ -40,7 +40,7 @@
     "rollup-plugin-generate-package-json": "3.2.0",
     "rollup-plugin-typescript2": "0.27.0",
     "tslib": "^1.11.1",
-    "tsup": "^5.4.0",
+    "tsup": "^5.11.5",
     "yargs": "15.3.1"
   },
   "scripts": {

@@ -125,7 +125,7 @@ async function runify(
       dependencies: pkg.dependencies,
     }));
   } else {
-    await compile(cwd, buildOptions.bin ?? "src/index.ts", buildOptions);
+    await compile(cwd, buildOptions.bin ?? "src/index.ts", buildOptions, Object.keys(pkg.dependencies ?? {}));
     await rewritePackageJson(pkg, cwd);
   }
 
@@ -217,7 +217,8 @@ async function buildNext(cwd: string) {
 async function compile(
   cwd: string,
   entryPoint: string,
-  buildOptions: BuildOptions
+  buildOptions: BuildOptions,
+  dependencies: string[],
 ) {
   if (buildOptions.tsup) {
     const out = join(cwd, "dist");
@@ -230,6 +231,8 @@ async function compile(
       splitting: false,
       sourcemap: true,
       clean: true,
+      skipNodeModulesBundle: false,
+      noExternal: dependencies,
       external: buildOptions.external,
     });
 
