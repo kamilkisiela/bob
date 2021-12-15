@@ -1,6 +1,14 @@
 # Changelog
 
-## vNext
+## v1.6.0
+
+- Support tsup in `runify` command
+- Introduce `tag` for `runify` command
+- Support `--single` run for `runify` command
+
+## 1.4.1 - 1.6.0
+
+- a lot of good things
 
 ## v1.4.1
 
