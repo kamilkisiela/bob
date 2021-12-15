@@ -1,9 +1,11 @@
 import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
+import { DepGraph } from "dependency-graph";
 import { resolve, join, dirname } from "path";
 import { Consola } from "consola";
 import ncc from "@vercel/ncc";
+import { build as tsup } from "tsup";
 import { spawn } from "child_process";
 
 import { createCommand } from "../command";
@@ -13,27 +15,91 @@ export const distDir = "dist";
 
 interface BuildOptions {
   bin?: string;
+  tags?: string[];
   runify?: boolean;
+  tsup?: boolean;
+  external?: string[];
 }
 
-export const runifyCommand = createCommand<{}, {}>((api) => {
+export const runifyCommand = createCommand<
+  {},
+  {
+    tag?: string[];
+    single?: boolean;
+  }
+>((api) => {
   const { config, reporter } = api;
 
   return {
     command: "runify",
     describe: "Runify",
-    async handler() {
+    builder(yargs) {
+      return yargs.options({
+        tag: {
+          describe: "Run only for following tags",
+          array: true,
+          type: "string",
+        },
+        single: {
+          describe: "Run only for the package in the current directory",
+          type: "boolean",
+          default: false,
+        },
+      });
+    },
+    async handler({ tag, single }) {
+      if (single) {
+        return runify(join(process.cwd(), 'package.json'), config, reporter)
+      }
+
+
       const limit = pLimit(1);
-      const packages = await globby("packages/**/package.json", {
+      const packageJsonFiles = await globby("packages/**/package.json", {
         cwd: process.cwd(),
         absolute: true,
         ignore: ["**/node_modules/**", `**/${distDir}/**`],
       });
 
+      const packageJsons = await Promise.all(
+        packageJsonFiles.map((packagePath) => fs.readJSON(packagePath))
+      );
+      const depGraph = new DepGraph<{ path: string; tags: string[] }>();
+
+      packageJsons.forEach((pkg, i) => {
+        depGraph.addNode(pkg.name, {
+          path: packageJsonFiles[i],
+          tags: pkg.buildOptions?.tags ?? [],
+        });
+      });
+
+      packageJsons.forEach((pkg) => {
+        [
+          ...Object.keys(pkg.dependencies ?? {}),
+          ...Object.keys(pkg.peerDependencies ?? {}),
+          ...Object.keys(pkg.devDependencies ?? {}),
+        ]
+          .filter((dep) => depGraph.hasNode(dep))
+          .forEach((dep) => {
+            depGraph.addDependency(pkg.name, dep);
+          });
+      });
+
+      const ordered = depGraph.overallOrder();
+
       await Promise.all(
-        packages.map((packagePath) =>
-          limit(() => runify(packagePath, config, reporter))
-        )
+        ordered.map((name) => {
+          const data = depGraph.getNodeData(name);
+
+          if (tag) {
+            if (!data.tags.some((t) => tag.includes(t))) {
+              return;
+            }
+          }
+
+          return limit(() =>
+            runify(depGraph.getNodeData(name).path, config, reporter)
+          );
+        })
       );
     },
   };
@@ -59,7 +125,7 @@ async function runify(
       dependencies: pkg.dependencies,
     }));
   } else {
-    await compile(cwd, buildOptions?.bin ?? "src/index.ts");
+    await compile(cwd, buildOptions.bin ?? "src/index.ts", buildOptions, Object.keys(pkg.dependencies ?? {}));
     await rewritePackageJson(pkg, cwd);
   }
 
@@ -79,8 +145,18 @@ async function rewritePackageJson(
   cwd: string,
   modify?: (pkg: any) => any
 ) {
+  let filename = "index.js";
+
+  // only tsup keep the file name
+  if (pkg.buildOptions.bin && pkg.buildOptions.tsup) {
+    const bits = pkg.buildOptions.bin.split("/");
+    const lastBit = bits[bits.length - 1];
+
+    filename = lastBit.replace(".ts", ".js");
+  }
+
   let newPkg: Record<string, any> = {
-    bin: "index.js",
+    bin: filename,
   };
   const fields = [
     "name",
@@ -138,7 +214,31 @@ async function buildNext(cwd: string) {
   );
 }
 
-async function compile(cwd: string, entryPoint: string) {
+async function compile(
+  cwd: string,
+  entryPoint: string,
+  buildOptions: BuildOptions,
+  dependencies: string[],
+) {
+  if (buildOptions.tsup) {
+    const out = join(cwd, "dist");
+
+    await tsup({
+      entryPoints: [join(cwd, entryPoint)],
+      outDir: out,
+      target: "node16",
+      format: ["cjs"],
+      splitting: false,
+      sourcemap: true,
+      clean: true,
+      skipNodeModulesBundle: false,
+      noExternal: dependencies,
+      external: buildOptions.external,
+    });
+
+    return;
+  }
+
   const { code, map, assets } = await ncc(join(cwd, entryPoint), {
     cache: false,
     sourceMap: true,
