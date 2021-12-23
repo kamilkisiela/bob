@@ -7,7 +7,7 @@ import json from '@rollup/plugin-json';
 import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
-import { resolve, join, dirname } from "path";
+import { resolve, join, dirname, sep } from "path";
 import { Consola } from "consola";
 import get from "lodash.get";
 import mkdirp from 'mkdirp';
@@ -71,7 +71,7 @@ export const buildCommand = createCommand<
 
       const packageInfoList: PackageInfo[] = await Promise.all(
           packages.map(packagePath => limit(async () => {
-            const cwd = packagePath.replace("/package.json", "");
+            const cwd = packagePath.replace(`${sep}package.json`, "");
             const pkg = await fs.readJSON(resolve(cwd, 'package.json'));
             const fullName: string = pkg.name;
             return { packagePath, cwd, pkg, fullName };

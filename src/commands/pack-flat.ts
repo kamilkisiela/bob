@@ -1,7 +1,7 @@
 import globby from "globby";
 import pLimit from "p-limit";
 import fs, { readJSON } from "fs-extra";
-import { resolve, join } from "path";
+import { resolve, join, sep } from "path";
 import { execSync } from "child_process";
 import { Consola } from "consola";
 import { paramCase } from "param-case";
@@ -49,7 +49,7 @@ export const packFlatCommand = createCommand<
 });
 
 async function pack(packagePath: string, commit: string, config: BobConfig, reporter: Consola) {
-  const cwd = packagePath.replace("/package.json", "");
+  const cwd = packagePath.replace(`${sep}package.json`, "");
   const pkg = await readJSON(packagePath);
   const fullName: string = pkg.name;
 

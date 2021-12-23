@@ -2,7 +2,7 @@ import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
 import { DepGraph } from "dependency-graph";
-import { resolve, join, dirname } from "path";
+import { resolve, join, dirname, sep } from "path";
 import { Consola } from "consola";
 import ncc from "@vercel/ncc";
 import { build as tsup } from "tsup";
@@ -110,7 +110,7 @@ async function runify(
   _config: BobConfig,
   reporter: Consola
 ) {
-  const cwd = packagePath.replace("/package.json", "");
+  const cwd = packagePath.replace(`${sep}package.json`, "");
   const pkg = await readPackageJson(cwd);
   const buildOptions: BuildOptions = pkg.buildOptions || {};
 
