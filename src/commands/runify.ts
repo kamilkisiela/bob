@@ -49,9 +49,8 @@ export const runifyCommand = createCommand<
     },
     async handler({ tag, single }) {
       if (single) {
-        return runify(join(process.cwd(), 'package.json'), config, reporter)
+        return runify(join(process.cwd(), "package.json"), config, reporter);
       }
-
 
       const limit = pLimit(1);
       const packageJsonFiles = await globby("packages/**/package.json", {
@@ -125,7 +124,12 @@ async function runify(
       dependencies: pkg.dependencies,
     }));
   } else {
-    await compile(cwd, buildOptions.bin ?? "src/index.ts", buildOptions, Object.keys(pkg.dependencies ?? {}));
+    await compile(
+      cwd,
+      buildOptions.bin ?? "src/index.ts",
+      buildOptions,
+      Object.keys(pkg.dependencies ?? {})
+    );
     await rewritePackageJson(pkg, cwd);
   }
 
@@ -201,24 +205,31 @@ async function buildNext(cwd: string) {
   });
 
   await fs.mkdirp(join(cwd, "dist"));
-  await fs.copy(join(cwd, ".next"), join(cwd, "dist/.next"));
-  await fs.copy(join(cwd, "public"), join(cwd, "dist/public"));
-  await fs.writeFile(
-    join(cwd, "dist/index.js"),
-    [
-      `#!/usr/bin/env node`,
-      `process.on('SIGTERM', () => process.exit(0))`,
-      `process.on('SIGINT', () => process.exit(0))`,
-      `require('next/dist/cli/next-start').nextStart([__dirname])`,
-    ].join("\n")
-  );
+  await Promise.all([
+    fs.copy(join(cwd, ".next"), join(cwd, "dist/.next"), {
+      filter(src) {
+        // copy without webpack cache (it's 900mb...)
+        return src.includes("cache/webpack") === false;
+      },
+    }),
+    fs.copy(join(cwd, "public"), join(cwd, "dist/public")),
+    fs.writeFile(
+      join(cwd, "dist/index.js"),
+      [
+        `#!/usr/bin/env node`,
+        `process.on('SIGTERM', () => process.exit(0))`,
+        `process.on('SIGINT', () => process.exit(0))`,
+        `require('next/dist/cli/next-start').nextStart([__dirname])`,
+      ].join("\n")
+    ),
+  ]);
 }
 
 async function compile(
   cwd: string,
   entryPoint: string,
   buildOptions: BuildOptions,
-  dependencies: string[],
+  dependencies: string[]
 ) {
   if (buildOptions.tsup) {
     const out = join(cwd, "dist");

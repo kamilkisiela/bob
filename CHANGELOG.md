@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.1
+
+- Do not copy `.next/cache/webpack`
+
 ## v1.6.0
 
 - Support tsup in `runify` command
