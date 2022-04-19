@@ -12,7 +12,7 @@ type Command = {
 };
 
 export interface BobConfig {
-  scope: string;
+  scope?: string;
   ignore?: string[];
   track?: string[];
   base?: string;
@@ -45,12 +45,8 @@ export async function useConfig(
       )
     : cosmi.search());
 
-  if (!config) {
-    throw new Error("Config not found.");
-  }
-
-  if (config.isEmpty) {
-    throw new Error("Config is empty.");
+  if (!config || config.isEmpty) {
+    return {};
   }
 
   return config.config;
