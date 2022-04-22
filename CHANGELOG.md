@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.2
+
+- Make config optional
+
 ## v1.6.1
 
 - Do not copy `.next/cache/webpack`

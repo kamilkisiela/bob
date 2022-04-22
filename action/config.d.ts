@@ -7,7 +7,7 @@ declare type Command = {
     }): CommandTuple | Promise<CommandTuple>;
 };
 export interface BobConfig {
-    scope: string;
+    scope?: string;
     ignore?: string[];
     track?: string[];
     base?: string;
