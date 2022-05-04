@@ -248,6 +248,13 @@ async function compile(
       skipNodeModulesBundle: false,
       noExternal: dependencies,
       external: buildOptions.external,
+      banner: useEsm ? {
+        'js': [
+          `// Adds missing require function (reason: node_modules are not transpiled)`,
+          `import { createRequire } from 'module';`,
+          `const require = createRequire(import.meta.url);`
+        ].join('\n'),
+      } : {}
     });
 
     return;

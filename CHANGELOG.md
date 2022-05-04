@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.7.1
+
+- Adds `require` to ESM output (runify with tsup enabled)
+
 ## v1.7.0
 
 - Detect `"type": "module"` in `runify` command to decide on ESM vs CJS output (works only with TSUP enabled).
