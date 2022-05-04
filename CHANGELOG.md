@@ -1,8 +1,8 @@
 # Changelog
 
-## vNext
+## v1.7.0
 
-- Detect `"type": "module"` in `runify` command to decide on ESM vs CJS output.
+- Detect `"type": "module"` in `runify` command to decide on ESM vs CJS output (works only with TSUP enabled).
 - Keep the original value of `type` when rewriting `package.json` (runify command)
 
 ## v1.6.2
