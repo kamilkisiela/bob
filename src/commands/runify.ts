@@ -128,7 +128,8 @@ async function runify(
       cwd,
       buildOptions.bin ?? "src/index.ts",
       buildOptions,
-      Object.keys(pkg.dependencies ?? {})
+      Object.keys(pkg.dependencies ?? {}),
+      pkg.type === "module"
     );
     await rewritePackageJson(pkg, cwd);
   }
@@ -169,6 +170,7 @@ async function rewritePackageJson(
     "publishConfig",
     "registry",
     "repository",
+    "type"
   ];
 
   fields.forEach((field) => {
@@ -229,7 +231,8 @@ async function compile(
   cwd: string,
   entryPoint: string,
   buildOptions: BuildOptions,
-  dependencies: string[]
+  dependencies: string[],
+  useEsm = false,
 ) {
   if (buildOptions.tsup) {
     const out = join(cwd, "dist");
@@ -238,7 +241,7 @@ async function compile(
       entryPoints: [join(cwd, entryPoint)],
       outDir: out,
       target: "node16",
-      format: ["cjs"],
+      format: [useEsm ? "esm" : "cjs"],
       splitting: false,
       sourcemap: true,
       clean: true,
