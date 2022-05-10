@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.7.2
+
+- Do not add `require` automatically (breaking but we use it only internally)
+- Introduce `banner` to add a banner to the generated files (runify + tsup only)
+
 ## v1.7.1
 
 - Adds `require` to ESM output (runify with tsup enabled)

@@ -19,6 +19,7 @@ interface BuildOptions {
   runify?: boolean;
   tsup?: boolean;
   external?: string[];
+  banner?: string;
 }
 
 export const runifyCommand = createCommand<
@@ -170,7 +171,7 @@ async function rewritePackageJson(
     "publishConfig",
     "registry",
     "repository",
-    "type"
+    "type",
   ];
 
   fields.forEach((field) => {
@@ -232,7 +233,7 @@ async function compile(
   entryPoint: string,
   buildOptions: BuildOptions,
   dependencies: string[],
-  useEsm = false,
+  useEsm = false
 ) {
   if (buildOptions.tsup) {
     const out = join(cwd, "dist");
@@ -248,13 +249,15 @@ async function compile(
       skipNodeModulesBundle: false,
       noExternal: dependencies,
       external: buildOptions.external,
-      banner: useEsm ? {
-        'js': [
-          `// Adds missing require function (reason: node_modules are not transpiled)`,
-          `import { createRequire } from 'module';`,
-          `const require = createRequire(import.meta.url);`
-        ].join('\n'),
-      } : {}
+      banner: buildOptions.banner
+        ? {
+            js:
+              buildOptions.banner.includes(".js") ||
+              buildOptions.banner.includes(".mjs")
+                ? await fs.readFile(join(cwd, buildOptions.banner), "utf-8")
+                : buildOptions.banner,
+          }
+        : {},
     });
 
     return;
