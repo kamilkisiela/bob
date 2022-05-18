@@ -222,7 +222,20 @@ async function buildNext(cwd: string) {
         `#!/usr/bin/env node`,
         `process.on('SIGTERM', () => process.exit(0))`,
         `process.on('SIGINT', () => process.exit(0))`,
-        `require('next/dist/cli/next-start').nextStart([__dirname])`,
+        `
+          require('next/dist/server/lib/start-server').startServer({
+            dir: __dirname,
+            hostname: '0.0.0.0',
+            port: parseInt(process.env.PORT)
+          }).then(async (app)=>{
+            const appUrl = 'http://' + app.hostname + ':' + app.port;
+            console.log('started server on '+ app.hostname + ':' + app.port + ', url: ' + appUrl);
+            await app.prepare();
+          }).catch((err)=>{
+            console.error(err);
+            process.exit(1);
+          })
+        `,
       ].join("\n")
     ),
   ]);
