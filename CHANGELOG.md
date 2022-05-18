@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.7.3
+
+- Run `next start` directly from nextjs's lib, not CLI code.
+
 ## v1.7.2
 
 - Do not add `require` automatically (breaking but we use it only internally)
