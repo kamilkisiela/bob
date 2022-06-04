@@ -14,7 +14,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const os = __importStar(__nccwpck_require__(87));
+const os = __importStar(__nccwpck_require__(37));
 const utils_1 = __nccwpck_require__(278);
 /**
  * Commands
@@ -112,8 +112,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const command_1 = __nccwpck_require__(241);
 const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(278);
-const os = __importStar(__nccwpck_require__(87));
-const path = __importStar(__nccwpck_require__(622));
+const os = __importStar(__nccwpck_require__(37));
+const path = __importStar(__nccwpck_require__(17));
 /**
  * The code to exit an action
  */
@@ -348,8 +348,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const fs = __importStar(__nccwpck_require__(747));
-const os = __importStar(__nccwpck_require__(87));
+const fs = __importStar(__nccwpck_require__(147));
+const os = __importStar(__nccwpck_require__(37));
 const utils_1 = __nccwpck_require__(278);
 function issueCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
@@ -695,7 +695,7 @@ var isArray = Array.isArray || function (xs) {
 "use strict";
 
 
-const cp = __nccwpck_require__(129);
+const cp = __nccwpck_require__(81);
 const parse = __nccwpck_require__(855);
 const enoent = __nccwpck_require__(101);
 
@@ -809,7 +809,7 @@ module.exports = {
 "use strict";
 
 
-const path = __nccwpck_require__(622);
+const path = __nccwpck_require__(17);
 const resolveCommand = __nccwpck_require__(274);
 const escape = __nccwpck_require__(48);
 const readShebang = __nccwpck_require__(252);
@@ -961,7 +961,7 @@ module.exports.argument = escapeArgument;
 "use strict";
 
 
-const fs = __nccwpck_require__(747);
+const fs = __nccwpck_require__(147);
 const shebangCommand = __nccwpck_require__(32);
 
 function readShebang(command) {
@@ -992,7 +992,7 @@ module.exports = readShebang;
 "use strict";
 
 
-const path = __nccwpck_require__(622);
+const path = __nccwpck_require__(17);
 const which = __nccwpck_require__(207);
 const pathKey = __nccwpck_require__(539)();
 
@@ -1048,7 +1048,7 @@ module.exports = resolveCommand;
 /***/ 126:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-var fs = __nccwpck_require__(747)
+var fs = __nccwpck_require__(147)
 var core
 if (process.platform === 'win32' || global.TESTING_WINDOWS) {
   core = __nccwpck_require__(1)
@@ -1115,7 +1115,7 @@ function sync (path, options) {
 module.exports = isexe
 isexe.sync = sync
 
-var fs = __nccwpck_require__(747)
+var fs = __nccwpck_require__(147)
 
 function isexe (path, options, cb) {
   fs.stat(path, function (er, stat) {
@@ -1163,7 +1163,7 @@ function checkMode (stat, options) {
 module.exports = isexe
 isexe.sync = sync
 
-var fs = __nccwpck_require__(747)
+var fs = __nccwpck_require__(147)
 
 function checkPathExt (path, options) {
   var pathext = options.pathExt !== undefined ?
@@ -1214,7 +1214,7 @@ minimatch.Minimatch = Minimatch
 
 var path = { sep: '/' }
 try {
-  path = __nccwpck_require__(622)
+  path = __nccwpck_require__(17)
 } catch (er) {}
 
 var GLOBSTAR = minimatch.GLOBSTAR = Minimatch.GLOBSTAR = {}
@@ -2155,7 +2155,7 @@ const pathKey = (options = {}) => {
 
 module.exports = pathKey;
 // TODO: Remove this for the next major release
-module.exports.default = pathKey;
+module.exports["default"] = pathKey;
 
 
 /***/ }),
@@ -2487,7 +2487,7 @@ const isWindows = process.platform === 'win32' ||
     process.env.OSTYPE === 'cygwin' ||
     process.env.OSTYPE === 'msys'
 
-const path = __nccwpck_require__(622)
+const path = __nccwpck_require__(17)
 const COLON = isWindows ? ';' : ':'
 const isexe = __nccwpck_require__(126)
 
@@ -2618,6 +2618,7 @@ which.sync = whichSync
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createCommand = void 0;
 function createCommand(factory) {
     return factory;
 }
@@ -2632,13 +2633,14 @@ exports.createCommand = createCommand;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getPackages = exports.getAffectedPackages = exports.runCommand = void 0;
 const tslib_1 = __nccwpck_require__(351);
-const util_1 = __nccwpck_require__(669);
-const child_process_1 = __nccwpck_require__(129);
+const util_1 = __nccwpck_require__(837);
+const child_process_1 = __nccwpck_require__(81);
 const cross_spawn_1 = tslib_1.__importDefault(__nccwpck_require__(746));
 const minimatch_1 = tslib_1.__importDefault(__nccwpck_require__(973));
 const command_1 = __nccwpck_require__(121);
-exports.runCommand = command_1.createCommand((api) => {
+exports.runCommand = (0, command_1.createCommand)((api) => {
     const { config, reporter } = api;
     return {
         command: "run <command>",
@@ -2676,7 +2678,7 @@ exports.runCommand = command_1.createCommand((api) => {
                 paths: affected.map((name) => packages[name].location),
             };
             const [bin, rest] = await command.run(input);
-            await util_1.promisify(cross_spawn_1.default)(bin, rest, {
+            await (0, util_1.promisify)(cross_spawn_1.default)(bin, rest, {
                 stdio: "inherit",
             });
         },
@@ -2714,7 +2716,7 @@ function getAffectedPackages({ config, filterCommand, }) {
                     const { location } = packages[packageName];
                     if (file.includes(location)) {
                         const tracks = projectTracks.map((path) => path.replace("<project>", location));
-                        if (tracks.some((pattern) => minimatch_1.default(file, pattern))) {
+                        if (tracks.some((pattern) => (0, minimatch_1.default)(file, pattern))) {
                             packages[packageName].dirty = true;
                         }
                     }
@@ -2740,16 +2742,16 @@ function getAffectedPackages({ config, filterCommand, }) {
 }
 exports.getAffectedPackages = getAffectedPackages;
 function getChangedFilesList(against) {
-    const revision = child_process_1.execSync(`git merge-base ${against} -- HEAD`, {
+    const revision = (0, child_process_1.execSync)(`git merge-base ${against} -- HEAD`, {
         encoding: "utf-8",
     });
-    const cmd = child_process_1.execSync(`git diff --name-only ${revision}`, {
+    const cmd = (0, child_process_1.execSync)(`git diff --name-only ${revision}`, {
         encoding: "utf-8",
     });
     return cmd.split("\n").filter((file) => Boolean(file));
 }
 function getPackages(ignored = []) {
-    const info = child_process_1.execSync("yarn workspaces info", {
+    const info = (0, child_process_1.execSync)("yarn workspaces info", {
         encoding: "utf-8",
     });
     const startsAt = info.indexOf("{");
@@ -2784,7 +2786,7 @@ exports.getPackages = getPackages;
 
 /***/ }),
 
-/***/ 129:
+/***/ 81:
 /***/ ((module) => {
 
 "use strict";
@@ -2792,7 +2794,7 @@ module.exports = require("child_process");
 
 /***/ }),
 
-/***/ 747:
+/***/ 147:
 /***/ ((module) => {
 
 "use strict";
@@ -2800,7 +2802,7 @@ module.exports = require("fs");
 
 /***/ }),
 
-/***/ 87:
+/***/ 37:
 /***/ ((module) => {
 
 "use strict";
@@ -2808,7 +2810,7 @@ module.exports = require("os");
 
 /***/ }),
 
-/***/ 622:
+/***/ 17:
 /***/ ((module) => {
 
 "use strict";
@@ -2816,7 +2818,7 @@ module.exports = require("path");
 
 /***/ }),
 
-/***/ 669:
+/***/ 837:
 /***/ ((module) => {
 
 "use strict";
@@ -2871,19 +2873,19 @@ var exports = __webpack_exports__;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const tslib_1 = __nccwpck_require__(351);
 const core = tslib_1.__importStar(__nccwpck_require__(186));
-const path_1 = __nccwpck_require__(622);
+const path_1 = __nccwpck_require__(17);
 const run_1 = __nccwpck_require__(571);
 async function run() {
     try {
         core.info("Running Bob...");
         core.info("Looking for bob.config.js");
-        const config = require(path_1.resolve(process.env.GITHUB_WORKSPACE, "bob.config.js"));
+        const config = require((0, path_1.resolve)(process.env.GITHUB_WORKSPACE, "bob.config.js"));
         const filterCommand = core.getInput("command");
         if (filterCommand) {
             core.info(`Scoping to one command: ${filterCommand}`);
         }
         core.info("Checking affected packages");
-        const { affected } = run_1.getAffectedPackages({
+        const { affected } = (0, run_1.getAffectedPackages)({
             config,
             filterCommand,
         });
@@ -2896,9 +2898,13 @@ async function run() {
         core.setOutput("dirty", affected.length > 0 ? "true" : "false");
     }
     catch (error) {
-        console.error(error);
-        core.setFailed(error.message);
-        core.setOutput("dirty", "true");
+        if (error instanceof Error) {
+            console.error(error);
+            core.setFailed(error.message);
+            core.setOutput("dirty", "true");
+            return;
+        }
+        throw error;
     }
 }
 run();

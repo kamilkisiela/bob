@@ -13,7 +13,7 @@ export declare function getAffectedPackages({ config, filterCommand, }: {
     filterCommand?: string;
 }): {
     affected: string[];
-    packages: Record<string, Package>;
+    packages: Packages;
 };
 export declare function getPackages(ignored?: string[]): Packages;
 //# sourceMappingURL=run.d.ts.map
