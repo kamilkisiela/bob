@@ -33,9 +33,13 @@ async function run(): Promise<void> {
 
     core.setOutput("dirty", affected.length > 0 ? "true" : "false");
   } catch (error) {
-    console.error(error);
-    core.setFailed(error.message);
-    core.setOutput("dirty", "true");
+    if (error instanceof Error) {
+      console.error(error);
+      core.setFailed(error.message);
+      core.setOutput("dirty", "true");
+      return
+    }
+    throw error
   }
 }
 
