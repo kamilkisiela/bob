@@ -29,16 +29,16 @@ export function autoExternal({ packageJSONPath }: Options): Plugin {
         const rootPackageName = maybeScopeOrPackageName.startsWith("@")
           ? `${maybeScopeOrPackageName}/${maybeScopePackageName}`
           : maybeScopeOrPackageName;
-        let result: boolean | null | undefined =
+        let result: boolean | null =
           externalModulesSet.has(rootPackageName);
         if (!result) {
           if (Array.isArray(originalExternal)) {
             result = originalExternal.includes(importPath);
           } else if (typeof originalExternal === "function") {
-            result = originalExternal(importPath, ...rest);
+            result = originalExternal(importPath, ...rest) || false;
           }
         }
-        return result;
+        return result ?? false;
       };
 
       return Object.assign({}, opts, { external });
