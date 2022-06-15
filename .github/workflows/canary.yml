@@ -2,7 +2,8 @@ name: Canary Release
 
 on:
   pull_request:
-    branches: [master]
+    paths:
+      - ".changeset/**/*.md"
 
 jobs:
   changes:
@@ -48,7 +49,7 @@ jobs:
       - name: Cache Yarn
         uses: actions/cache@v3
         with:
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: ${{runner.os}}-16-16-node-modules-${{hashFiles('yarn.lock')}}
           restore-keys: |
             ${{runner.os}}-16-16-node-modules-
@@ -58,10 +59,10 @@ jobs:
       - name: Release Canary
         id: canary
         uses: kamilkisiela/release-canary@master
-        if: github.repository == 'B2o5T/graphql-eslint'
+        if: github.repository == 'kamilkisiela/bob'
         with:
           npm-token: ${{secrets.NODE_AUTH_TOKEN}}
-          npm-script: 'yarn release:canary'
+          npm-script: "yarn release:canary"
           changesets: true
 
       - name: Publish a message

@@ -48,7 +48,12 @@ export const packFlatCommand = createCommand<
   };
 });
 
-async function pack(packagePath: string, commit: string, config: BobConfig, reporter: Consola) {
+async function pack(
+  packagePath: string,
+  commit: string,
+  config: BobConfig,
+  reporter: Consola
+) {
   const cwd = packagePath.replace("/package.json", "");
   const pkg = await readJSON(packagePath);
   const fullName: string = pkg.name;
@@ -62,12 +67,16 @@ async function pack(packagePath: string, commit: string, config: BobConfig, repo
   const bobDir = resolve(process.cwd(), ".bob-packed");
 
   // replace version to 0.0.0-canary-${commit}
-  const distPkg = await readJSON(join(projectDistDir, 'package.json'));
+  const distPkg = await readJSON(join(projectDistDir, "package.json"));
   const version = `0.0.0-canary-${commit}`;
   distPkg.version = version;
-  await fs.writeFile(join(projectDistDir, 'package.json'), JSON.stringify(distPkg, null, 2), {
-    encoding: 'utf-8'
-  });
+  await fs.writeFile(
+    join(projectDistDir, "package.json"),
+    JSON.stringify(distPkg, null, 2),
+    {
+      encoding: "utf-8",
+    }
+  );
 
   // pack
   execSync(`cd ${projectDistDir} && npm pack`, {
@@ -78,6 +87,6 @@ async function pack(packagePath: string, commit: string, config: BobConfig, repo
   const tarballName = paramCase(fullName) + `-${version}.tgz`;
   const tarballPath = join(projectDistDir, tarballName);
   await fs.move(tarballPath, join(bobDir, tarballName));
-  
+
   reporter.success(`Packed flat ${pkg.name}`);
 }
