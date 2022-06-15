@@ -43,12 +43,24 @@ it("can bundle a simple project", async () => {
       },
       \\"exports\\": {
         \\".\\": {
-          \\"require\\": \\"./index.js\\",
-          \\"import\\": \\"./index.mjs\\"
+          \\"require\\": {
+            \\"default\\": \\"./index.js\\",
+            \\"types\\": \\"./index.d.ts\\"
+          },
+          \\"import\\": {
+            \\"default\\": \\"./index.mjs\\",
+            \\"types\\": \\"./index.d.ts\\"
+          }
         },
         \\"./*\\": {
-          \\"require\\": \\"./*.js\\",
-          \\"import\\": \\"./*.mjs\\"
+          \\"require\\": {
+            \\"default\\": \\"./*.js\\",
+            \\"types\\": \\"./*.d.ts\\"
+          },
+          \\"import\\": {
+            \\"default\\": \\"./*.mjs\\",
+            \\"types\\": \\"./*.d.ts\\"
+          }
         },
         \\"./package.json\\": \\"./package.json\\"
       }
@@ -126,12 +138,24 @@ it("can build a monorepo project", async () => {
       },
       \\"exports\\": {
         \\".\\": {
-          \\"require\\": \\"./index.js\\",
-          \\"import\\": \\"./index.mjs\\"
+          \\"require\\": {
+            \\"default\\": \\"./index.js\\",
+            \\"types\\": \\"./index.d.ts\\"
+          },
+          \\"import\\": {
+            \\"default\\": \\"./index.mjs\\",
+            \\"types\\": \\"./index.d.ts\\"
+          }
         },
         \\"./*\\": {
-          \\"require\\": \\"./*.js\\",
-          \\"import\\": \\"./*.mjs\\"
+          \\"require\\": {
+            \\"default\\": \\"./*.js\\",
+            \\"types\\": \\"./*.d.ts\\"
+          },
+          \\"import\\": {
+            \\"default\\": \\"./*.mjs\\",
+            \\"types\\": \\"./*.d.ts\\"
+          }
         },
         \\"./package.json\\": \\"./package.json\\"
       }
@@ -167,12 +191,24 @@ it("can build a monorepo project", async () => {
       },
       \\"exports\\": {
         \\".\\": {
-          \\"require\\": \\"./index.js\\",
-          \\"import\\": \\"./index.mjs\\"
+          \\"require\\": {
+            \\"default\\": \\"./index.js\\",
+            \\"types\\": \\"./index.d.ts\\"
+          },
+          \\"import\\": {
+            \\"default\\": \\"./index.mjs\\",
+            \\"types\\": \\"./index.d.ts\\"
+          }
         },
         \\"./*\\": {
-          \\"require\\": \\"./*.js\\",
-          \\"import\\": \\"./*.mjs\\"
+          \\"require\\": {
+            \\"default\\": \\"./*.js\\",
+            \\"types\\": \\"./*.d.ts\\"
+          },
+          \\"import\\": {
+            \\"default\\": \\"./*.mjs\\",
+            \\"types\\": \\"./*.d.ts\\"
+          }
         },
         \\"./package.json\\": \\"./package.json\\"
       }
