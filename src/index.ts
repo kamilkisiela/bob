@@ -9,11 +9,15 @@ import { packFlatCommand } from "./commands/pack-flat";
 import { runCommand } from "./commands/run";
 import { validateCommand } from "./commands/validate";
 import { runifyCommand } from "./commands/runify";
+import { bootstrapCommand } from "./commands/bootstrap";
 
 async function main() {
   const config = await useConfig();
 
-  const root: Argv = yargs.scriptName("bob").detectLocale(false).version();
+  const root: Argv = yargs
+    .scriptName("bob")
+    .detectLocale(false)
+    .version();
 
   const commands: CommandFactory<any, any>[] = [
     buildCommand,
@@ -22,6 +26,7 @@ async function main() {
     validateCommand,
     packFlatCommand,
     runifyCommand,
+    bootstrapCommand,
   ];
 
   const reporter = consola.create({});
