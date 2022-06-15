@@ -8,6 +8,7 @@ const config = {
       isolatedModules: true,
     },
   },
+  watchPathIgnorePatterns: ["<rootDir>/test/__fixtures__/simple/dist"],
 };
 
 module.exports = config;
