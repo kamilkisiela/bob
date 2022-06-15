@@ -45,7 +45,7 @@
   },
   "scripts": {
     "prepublish": "yarn build",
-    "build": "rimraf dist && tsc && ncc build src/action.ts -o action",
+    "build": "rimraf dist && tsc",
     "test": "jest",
     "prerelease": "yarn build",
     "release": "changeset publish",
