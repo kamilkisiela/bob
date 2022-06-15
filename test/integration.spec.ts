@@ -51,26 +51,38 @@ it("can bundle a simple project", async () => {
     "
   `);
   expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
-    "{
-      \\"name\\": \\"simple\\",
-      \\"main\\": \\"index.js\\",
-      \\"module\\": \\"index.mjs\\",
-      \\"typings\\": \\"index.d.ts\\",
-      \\"typescript\\": {
-        \\"definition\\": \\"index.d.ts\\"
+"{
+  \\"name\\": \\"simple\\",
+  \\"main\\": \\"index.js\\",
+  \\"module\\": \\"index.mjs\\",
+  \\"typings\\": \\"index.d.ts\\",
+  \\"typescript\\": {
+    \\"definition\\": \\"index.d.ts\\"
+  },
+  \\"exports\\": {
+    \\".\\": {
+      \\"require\\": {
+        \\"default\\": \\"./index.js\\",
+        \\"types\\": \\"./index.d.ts\\"
       },
-      \\"exports\\": {
-        \\".\\": {
-          \\"require\\": \\"./index.js\\",
-          \\"import\\": \\"./index.mjs\\"
-        },
-        \\"./*\\": {
-          \\"require\\": \\"./*.js\\",
-          \\"import\\": \\"./*.mjs\\"
-        },
-        \\"./package.json\\": \\"./package.json\\"
+      \\"import\\": {
+        \\"default\\": \\"./index.mjs\\",
+        \\"types\\": \\"./index.d.ts\\"
       }
-    }
-    "
-  `);
+    },
+    \\"./*\\": {
+      \\"require\\": {
+        \\"default\\": \\"./*.js\\",
+        \\"types\\": \\"./*.d.ts\\"
+      },
+      \\"import\\": {
+        \\"default\\": \\"./*.mjs\\",
+        \\"types\\": \\"./*.d.ts\\"
+      }
+    },
+    \\"./package.json\\": \\"./package.json\\"
+  }
+}
+"
+`);
 });
