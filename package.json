@@ -52,22 +52,22 @@
     "release:canary": "node scripts/canary-release.js && yarn build && yarn changeset publish --tag alpha"
   },
   "devDependencies": {
-    "@actions/core": "1.2.6",
+    "@actions/core": "1.9.0",
     "@changesets/cli": "2.22.0",
-    "@jest/types": "27.1.0",
-    "@types/cross-spawn": "6.0.1",
-    "@types/fs-extra": "8.1.0",
-    "@types/jest": "27.0.1",
-    "@types/lodash.get": "4.4.6",
-    "@types/minimatch": "3.0.3",
-    "@types/mkdirp": "1.0.1",
+    "@jest/types": "27.5.1",
+    "@types/cross-spawn": "6.0.2",
+    "@types/fs-extra": "8.1.2",
+    "@types/jest": "27.5.2",
+    "@types/lodash.get": "4.4.7",
+    "@types/minimatch": "3.0.5",
+    "@types/mkdirp": "1.0.2",
     "@types/node": "13.11.0",
-    "@types/yargs": "15.0.4",
+    "@types/yargs": "15.0.14",
     "execa": "5.1.1",
-    "jest": "27.1.0",
+    "jest": "27.5.1",
     "rimraf": "3.0.2",
-    "ts-jest": "27.0.5",
-    "typescript": "3.8.3"
+    "ts-jest": "27.1.5",
+    "typescript": "3.9.10"
   },
   "publishConfig": {
     "access": "public"
