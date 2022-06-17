@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@actions/core": "1.9.0",
-    "@changesets/cli": "2.22.0",
+    "@changesets/cli": "2.23.0",
     "@jest/types": "27.5.1",
     "@types/cross-spawn": "6.0.2",
     "@types/fs-extra": "8.1.2",
