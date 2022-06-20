@@ -1,4 +1,5 @@
 import globby from "globby";
+import * as fse from "fs-extra";
 import pLimit from "p-limit";
 import fs from "fs-extra";
 import { DepGraph } from "dependency-graph";
@@ -26,7 +27,6 @@ export const runifyCommand = createCommand<
   {},
   {
     tag?: string[];
-    single?: boolean;
   }
 >((api) => {
   const { config, reporter } = api;
@@ -41,15 +41,20 @@ export const runifyCommand = createCommand<
           array: true,
           type: "string",
         },
-        single: {
-          describe: "Run only for the package in the current directory",
-          type: "boolean",
-          default: false,
-        },
       });
     },
-    async handler({ tag, single }) {
-      if (single) {
+    async handler({ tag }) {
+      const [rootPackageJSONPath] = await globby("package.json", {
+        cwd: process.cwd(),
+        absolute: true,
+      });
+      const rootPackageJSON: Record<string, unknown> = await fse.readJSON(
+        rootPackageJSONPath
+      );
+      const isSinglePackage =
+        Array.isArray(rootPackageJSON.workspaces) === false;
+
+      if (isSinglePackage) {
         return runify(join(process.cwd(), "package.json"), config, reporter);
       }
 
