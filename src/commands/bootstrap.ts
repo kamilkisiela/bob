@@ -60,14 +60,18 @@ export const bootstrapCommand = createCommand<{}, {}>((api) => {
       const rootPackageJSON: Record<string, unknown> = await fse.readJSON(
         rootPackageJSONPath
       );
-      const isSinglePackage = !!rootPackageJSON.workspaces;
+      const isSinglePackage =
+        Array.isArray(rootPackageJSON.workspaces) === false;
 
       const applyPresetConfig = async (
         packageJSONPath: string,
         packageJSON: Record<string, unknown>
       ) => {
         Object.assign(packageJSON, presetFields);
-        await fse.writeJSON(packageJSONPath, packageJSON);
+        await fse.writeFile(
+          packageJSONPath,
+          JSON.stringify(packageJSON, null, 2)
+        );
       };
 
       if (isSinglePackage) {
