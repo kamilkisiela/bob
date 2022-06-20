@@ -7,8 +7,8 @@ const binaryFolder = path.join(__dirname, "..", "dist", "index.js");
 
 it("can bundle a simple project", async () => {
   await fse.remove(path.resolve(fixturesFolder, "simple", "dist"));
-  const result = await execa("node", [binaryFolder, "build", "--single"], {
-    cwd: path.resolve(fixturesFolder, "simple")
+  const result = await execa("node", [binaryFolder, "build"], {
+    cwd: path.resolve(fixturesFolder, "simple"),
   });
   expect(result.exitCode).toEqual(0);
   const indexJsFilePath = path.resolve(
