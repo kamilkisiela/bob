@@ -1,4 +1,5 @@
 import * as rollup from "rollup";
+import * as assert from "assert";
 import * as fse from "fs-extra";
 import generatePackageJson from "rollup-plugin-generate-package-json";
 import { autoExternal } from "../rollup-plugins/auto-external";
@@ -430,14 +431,16 @@ function rewritePackageJson(pkg: Record<string, any>, distPath: string) {
 }
 
 export function validatePackageJson(pkg: any) {
-  function expect(key: string, expected: string) {
+  function expect(key: string, expected: unknown) {
     const received = get(pkg, key);
 
-    if (expected !== received) {
-      throw new Error(
-        `${pkg.name}: "${key}" equals "${received}", should be "${expected}"`
-      );
-    }
+    assert.deepEqual(
+      received,
+      expected,
+      `${pkg.name}: "${key}" equals "${JSON.stringify(received)}"` +
+        `, should be "${JSON.stringify(expected)}".\n` +
+        `!!! You can run 'bob bootstrap' for fixing your package.json. !!!`
+    );
   }
 
   expect("main", `${DIST_DIR}/index.js`);
@@ -445,11 +448,22 @@ export function validatePackageJson(pkg: any) {
   expect("typings", `${DIST_DIR}/index.d.ts`);
   expect("typescript.definition", `${DIST_DIR}/index.d.ts`);
 
-  expect("exports['.'].require", `./${DIST_DIR}/index.js`);
-  expect("exports['.'].import", `./${DIST_DIR}/index.mjs`);
-
-  expect("exports['./*'].require", `./${DIST_DIR}/*.js`);
-  expect("exports['./*'].import", `./${DIST_DIR}/*.mjs`);
+  expect("exports['.'].require", {
+    default: `./${DIST_DIR}/index.js`,
+    types: `./${DIST_DIR}/index.d.ts`,
+  });
+  expect("exports['.'].import", {
+    default: `./${DIST_DIR}/index.mjs`,
+    types: `./${DIST_DIR}/index.d.ts`,
+  });
+  expect("exports['./*'].require", {
+    default: `./${DIST_DIR}/*.js`,
+    types: `./${DIST_DIR}/*.d.ts`,
+  });
+  expect("exports['./*'].import", {
+    default: `./${DIST_DIR}/*.mjs`,
+    types: `./${DIST_DIR}/*.d.ts`,
+  });
 }
 
 async function copyToDist(cwd: string, files: string[], distDir: string) {
