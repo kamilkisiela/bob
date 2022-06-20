@@ -17,6 +17,7 @@ import mkdirp from "mkdirp";
 import { createCommand } from "../command";
 import { BobConfig } from "../config";
 import { rewriteExports } from "../utils/rewrite-exports";
+import { presetFields } from "./bootstrap";
 
 interface BuildOptions {
   external?: string[];
@@ -406,17 +407,7 @@ function rewritePackageJson(pkg: Record<string, any>, distPath: string) {
   if (pkg.exports) {
     newPkg.exports = rewriteExports(pkg.exports, DIST_DIR);
   } else {
-    newPkg.exports = {
-      ".": {
-        require: "./index.js",
-        import: "./index.mjs",
-      },
-      "./*": {
-        require: "./*.js",
-        import: "./*.mjs",
-      },
-      "./package.json": "./package.json",
-    };
+    newPkg.exports = presetFields.exports;
   }
 
   if (pkg.bin) {
@@ -449,20 +440,28 @@ export function validatePackageJson(pkg: any) {
   expect("typescript.definition", `${DIST_DIR}/index.d.ts`);
 
   expect("exports['.'].require", {
-    default: `./${DIST_DIR}/index.js`,
     types: `./${DIST_DIR}/index.d.ts`,
+    default: `./${DIST_DIR}/index.js`,
   });
   expect("exports['.'].import", {
-    default: `./${DIST_DIR}/index.mjs`,
     types: `./${DIST_DIR}/index.d.ts`,
+    default: `./${DIST_DIR}/index.mjs`,
+  });
+  expect("exports['.'].default", {
+    types: `./${DIST_DIR}/index.d.ts`,
+    default: `./${DIST_DIR}/index.mjs`,
   });
   expect("exports['./*'].require", {
-    default: `./${DIST_DIR}/*.js`,
     types: `./${DIST_DIR}/*.d.ts`,
+    default: `./${DIST_DIR}/*.js`,
   });
   expect("exports['./*'].import", {
-    default: `./${DIST_DIR}/*.mjs`,
     types: `./${DIST_DIR}/*.d.ts`,
+    default: `./${DIST_DIR}/*.mjs`,
+  });
+  expect("exports['./*'].default", {
+    types: `./${DIST_DIR}/*.d.ts`,
+    default: `./${DIST_DIR}/*.mjs`,
   });
 }
 

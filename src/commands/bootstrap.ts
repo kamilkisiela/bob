@@ -3,7 +3,7 @@ import * as fse from "fs-extra";
 import { createCommand } from "../command";
 
 /** The default bob fields that should be within a package.json */
-const presetFields = {
+export const presetFields = Object.freeze({
   main: "dist/index.js",
   module: "dist/index.mjs",
   typings: "dist/index.d.ts",
@@ -13,22 +13,32 @@ const presetFields = {
   exports: {
     ".": {
       require: {
-        default: "./dist/index.js",
         types: "./dist/index.d.ts",
+        default: "./dist/index.js",
       },
       import: {
-        default: "./dist/index.mjs",
         types: "./dist/index.d.ts",
+        default: "./dist/index.mjs",
+      },
+      /** without this default (THAT MUST BE LAST!!!) webpack will have a midlife crisis. */
+      default: {
+        types: "./dist/index.d.ts",
+        default: "./dist/index.mjs",
       },
     },
     "./*": {
       require: {
-        default: "./dist/*.js",
         types: "./dist/*.d.ts",
+        default: "./dist/*.js",
       },
       import: {
-        default: "./dist/*.mjs",
         types: "./dist/*.d.ts",
+        default: "./dist/*.mjs",
+      },
+      /** without this default (THAT MUST BE LAST!!!) webpack will have a midlife crisis. */
+      default: {
+        types: "./dist/*.d.ts",
+        default: "./dist/*.mjs",
       },
     },
     "./package.json": "./package.json",
@@ -37,7 +47,7 @@ const presetFields = {
     directory: "dist",
     access: "public",
   },
-};
+});
 
 export const bootstrapCommand = createCommand<{}, {}>((api) => {
   return {

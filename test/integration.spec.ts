@@ -44,22 +44,30 @@ it("can bundle a simple project", async () => {
       \\"exports\\": {
         \\".\\": {
           \\"require\\": {
-            \\"default\\": \\"./index.js\\",
-            \\"types\\": \\"./index.d.ts\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./index.js\\"
           },
           \\"import\\": {
-            \\"default\\": \\"./index.mjs\\",
-            \\"types\\": \\"./index.d.ts\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./index.mjs\\"
+          },
+          \\"default\\": {
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./index.mjs\\"
           }
         },
         \\"./*\\": {
           \\"require\\": {
-            \\"default\\": \\"./*.js\\",
-            \\"types\\": \\"./*.d.ts\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./*.js\\"
           },
           \\"import\\": {
-            \\"default\\": \\"./*.mjs\\",
-            \\"types\\": \\"./*.d.ts\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./*.mjs\\"
+          },
+          \\"default\\": {
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./*.mjs\\"
           }
         },
         \\"./package.json\\": \\"./package.json\\"
@@ -139,22 +147,30 @@ it("can build a monorepo project", async () => {
       \\"exports\\": {
         \\".\\": {
           \\"require\\": {
-            \\"default\\": \\"./index.js\\",
-            \\"types\\": \\"./index.d.ts\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./index.js\\"
           },
           \\"import\\": {
-            \\"default\\": \\"./index.mjs\\",
-            \\"types\\": \\"./index.d.ts\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./index.mjs\\"
+          },
+          \\"default\\": {
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./index.mjs\\"
           }
         },
         \\"./*\\": {
           \\"require\\": {
-            \\"default\\": \\"./*.js\\",
-            \\"types\\": \\"./*.d.ts\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./*.js\\"
           },
           \\"import\\": {
-            \\"default\\": \\"./*.mjs\\",
-            \\"types\\": \\"./*.d.ts\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./*.mjs\\"
+          },
+          \\"default\\": {
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./*.mjs\\"
           }
         },
         \\"./package.json\\": \\"./package.json\\"
@@ -192,22 +208,30 @@ it("can build a monorepo project", async () => {
       \\"exports\\": {
         \\".\\": {
           \\"require\\": {
-            \\"default\\": \\"./index.js\\",
-            \\"types\\": \\"./index.d.ts\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./index.js\\"
           },
           \\"import\\": {
-            \\"default\\": \\"./index.mjs\\",
-            \\"types\\": \\"./index.d.ts\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./index.mjs\\"
+          },
+          \\"default\\": {
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./index.mjs\\"
           }
         },
         \\"./*\\": {
           \\"require\\": {
-            \\"default\\": \\"./*.js\\",
-            \\"types\\": \\"./*.d.ts\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./*.js\\"
           },
           \\"import\\": {
-            \\"default\\": \\"./*.mjs\\",
-            \\"types\\": \\"./*.d.ts\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./*.mjs\\"
+          },
+          \\"default\\": {
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./*.mjs\\"
           }
         },
         \\"./package.json\\": \\"./package.json\\"
