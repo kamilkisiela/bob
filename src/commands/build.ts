@@ -1,4 +1,5 @@
 import * as rollup from "rollup";
+import * as fse from "fs-extra";
 import generatePackageJson from "rollup-plugin-generate-package-json";
 import { autoExternal } from "../rollup-plugins/auto-external";
 import resolveNode from "@rollup/plugin-node-resolve";
@@ -31,33 +32,34 @@ interface PackageInfo {
   fullName: string;
 }
 
-export const buildCommand = createCommand<
-  {},
-  {
-    single?: boolean;
-  }
->((api) => {
+export const buildCommand = createCommand<{}, {}>((api) => {
   const { config, reporter } = api;
 
   return {
     command: "build",
     describe: "Build",
     builder(yargs) {
-      return yargs.options({
-        single: {
-          describe: "Single package (THE OPOSITE OF MONOREPO)",
-          type: "boolean",
-        },
-      });
+      return yargs.options({});
     },
-    async handler(args) {
+    async handler() {
       config.dists = config.dists || [
         {
           distDir: DIST_DIR,
           distPath: "",
         },
       ];
-      if (args.single) {
+
+      const [rootPackageJSONPath] = await globby("package.json", {
+        cwd: process.cwd(),
+        absolute: true,
+      });
+      const rootPackageJSON: Record<string, unknown> = await fse.readJSON(
+        rootPackageJSONPath
+      );
+      const isSinglePackage =
+        Array.isArray(rootPackageJSON.workspaces) === false;
+
+      if (isSinglePackage) {
         await buildSingle({ distDir: DIST_DIR });
         return;
       }
