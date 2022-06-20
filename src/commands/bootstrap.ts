@@ -4,34 +4,38 @@ import { createCommand } from "../command";
 
 /** The default bob fields that should be within a package.json */
 const presetFields = {
-  main: "index.js",
-  module: "index.mjs",
-  typings: "index.d.ts",
+  main: "dist/index.js",
+  module: "dist/index.mjs",
+  typings: "dist/index.d.ts",
   typescript: {
-    definition: "index.d.ts",
+    definition: "dist/index.d.ts",
   },
   exports: {
     ".": {
       require: {
-        default: "./index.js",
-        types: "./index.d.ts",
+        default: "./dist/index.js",
+        types: "./dist/index.d.ts",
       },
       import: {
-        default: "./index.mjs",
-        types: "./index.d.ts",
+        default: "./dist/index.mjs",
+        types: "./dist/index.d.ts",
       },
     },
     "./*": {
       require: {
-        default: "./*.js",
-        types: "./*.d.ts",
+        default: "./dist/*.js",
+        types: "./dist/*.d.ts",
       },
       import: {
-        default: "./*.mjs",
-        types: "./*.d.ts",
+        default: "./dist/*.mjs",
+        types: "./dist/*.d.ts",
       },
     },
     "./package.json": "./package.json",
+  },
+  publishConfig: {
+    directory: "dist",
+    access: "public",
   },
 };
 
