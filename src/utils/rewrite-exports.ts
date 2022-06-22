@@ -12,38 +12,6 @@ export function rewriteExports(
 ) {
   const newExports = { ...exports };
 
-  newExports["./package.json"] = "./package.json";
-
-  newExports["."] = {
-    require: {
-      types: "./index.d.ts",
-      default: "./index.js",
-    },
-    import: {
-      types: "./index.d.ts",
-      default: "./index.mjs",
-    },
-    default: {
-      types: "./index.d.ts",
-      default: "./index.mjs",
-    },
-  };
-
-  newExports["./*"] = {
-    require: {
-      types: "./*.d.ts",
-      default: "./*.js",
-    },
-    import: {
-      types: "./*.d.ts",
-      default: "./*.mjs",
-    },
-    default: {
-      types: "./*.d.ts",
-      default: "./*.mjs",
-    },
-  };
-
   for (const [key, value] of Object.entries(newExports)) {
     if (!value) continue;
 

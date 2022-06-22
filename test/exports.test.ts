@@ -56,7 +56,6 @@ test("basic exports", () => {
         types: "./*.d.ts",
       },
     },
-    "./package.json": "./package.json",
   });
 });
 
@@ -140,6 +139,5 @@ test("with custom exports", () => {
         types: "./utils/index.d.ts",
       },
     },
-    "./package.json": "./package.json",
   });
 });

@@ -1,11 +1,6 @@
-import * as rollup from "rollup";
 import * as assert from "assert";
+import execa from "execa";
 import * as fse from "fs-extra";
-import generatePackageJson from "rollup-plugin-generate-package-json";
-import { autoExternal } from "../rollup-plugins/auto-external";
-import resolveNode from "@rollup/plugin-node-resolve";
-import typescript from "rollup-plugin-typescript2";
-import json from "@rollup/plugin-json";
 import globby from "globby";
 import pLimit from "p-limit";
 import fs from "fs-extra";
@@ -32,6 +27,33 @@ interface PackageInfo {
   cwd: string;
   pkg: any;
   fullName: string;
+}
+
+async function buildTypeScript(buildPath: string) {
+  const results = await Promise.all([
+    execa("npx", [
+      "tsc",
+      "--module",
+      "es2022",
+      "--outDir",
+      join(buildPath, "esm"),
+    ]),
+    execa("npx", [
+      "tsc",
+      "--module",
+      "commonjs",
+      "--outDir",
+      join(buildPath, "cjs"),
+    ]),
+  ]);
+
+  for (const result of results) {
+    if (result.exitCode !== 0) {
+      console.log("TypeScript compiler exited with non-zero exit code.");
+      console.log(result.stdout);
+      throw new Error("TypeScript compiler exited with non-zero exit code.");
+    }
+  }
 }
 
 export const buildCommand = createCommand<{}, {}>((api) => {
@@ -62,13 +84,34 @@ export const buildCommand = createCommand<{}, {}>((api) => {
         Array.isArray(rootPackageJSON.workspaces) === false;
 
       if (isSinglePackage) {
-        await buildSingle({ distDir: DIST_DIR });
+        const cwd = rootPackageJSONPath.replace("/package.json", "");
+        const buildPath = join(cwd, ".bob");
+
+        await fs.remove(buildPath);
+        await buildTypeScript(buildPath);
+        const pkg = await fs.readJSON(resolve(cwd, "package.json"));
+        const fullName: string = pkg.name;
+
+        const distPath = join(cwd, "dist");
+
+        const getBuildPath = (target: "esm" | "cjs") => join(buildPath, target);
+
+        await build({
+          cwd,
+          pkg,
+          fullName,
+          config,
+          reporter,
+          getBuildPath,
+          distPath,
+        });
         return;
       }
 
       const limit = pLimit(4);
+      const cwd = process.cwd();
       const packages = await globby("packages/**/package.json", {
-        cwd: process.cwd(),
+        cwd,
         absolute: true,
         ignore: [
           "**/node_modules/**",
@@ -87,292 +130,146 @@ export const buildCommand = createCommand<{}, {}>((api) => {
         )
       );
 
-      for (const { distDir, distPath } of config.dists) {
-        await Promise.all(
-          packageInfoList.map(({ packagePath, cwd, pkg, fullName }) =>
-            limit(() =>
-              build({
-                packagePath,
-                cwd,
-                pkg,
-                fullName,
-                config,
-                reporter,
-                distDir,
-                distPath,
-                packageInfoList,
-              })
-            )
-          )
-        );
-      }
+      const bobBuildPath = join(cwd, ".bob");
+      await fs.remove(bobBuildPath);
+      await buildTypeScript(bobBuildPath);
+
+      await Promise.all(
+        packageInfoList.map(({ cwd, pkg, fullName }) =>
+          limit(async () => {
+            const getBuildPath = (target: "esm" | "cjs") =>
+              join(cwd.replace("packages", join(".bob", target)), "src");
+
+            const distPath = join(cwd, "dist");
+
+            await build({
+              cwd,
+              pkg,
+              fullName,
+              config,
+              reporter,
+              getBuildPath,
+              distPath,
+            });
+          })
+        )
+      );
     },
   };
 });
 
-async function buildSingle({
-  distDir,
-  distPath = "",
-}: {
-  distDir: string;
-  distPath?: string;
-}) {
-  const cwd = process.cwd();
-  const packagePath = join(process.cwd(), "package.json");
-  const pkg = await fs.readJSON(packagePath);
-
-  validatePackageJson(pkg);
-
-  const buildOptions: BuildOptions = pkg.buildOptions || {};
-
-  const extraInputOptions: Partial<rollup.RollupOptions> = {};
-
-  if (buildOptions.external) {
-    extraInputOptions.external = buildOptions.external;
-  }
-
-  const inputOptions = {
-    input: "src/index.ts",
-    plugins: [
-      json(),
-      resolveNode(),
-      autoExternal({
-        packageJSONPath: packagePath,
-      }),
-      typescript(),
-      generatePackageJson({
-        baseContents: rewritePackageJson(pkg, distPath),
-        additionalDependencies: Object.keys(pkg.dependencies || {}),
-      }),
-    ],
-    inlineDynamicImports: true,
-    ...extraInputOptions,
-  };
-
-  // create a bundle
-  const bundle = await rollup.rollup(inputOptions);
-
-  // generates
-
-  const commonOutputOptions = {
-    preferConst: true,
-    sourcemap: false,
-  };
-
-  const generates = [
-    {
-      ...commonOutputOptions,
-      file: join(distDir, "index.js"),
-      format: "cjs" as const,
-    },
-    {
-      ...commonOutputOptions,
-      file: join(distDir, "index.mjs"),
-      format: "esm" as const,
-    },
-  ];
-
-  await Promise.all(
-    generates.map(async (outputOptions) => {
-      await bundle.write(outputOptions);
-    })
-  );
-
-  // move README.md and LICENSE
-  await copyToDist(
-    cwd,
-    ["README.md", "LICENSE"].concat(buildOptions?.copy || []),
-    DIST_DIR + distPath
-  );
-}
+const limit = pLimit(20);
 
 async function build({
-  packagePath,
   cwd,
   pkg,
   fullName,
   config,
   reporter,
-  distDir,
-  distPath = "",
-  packageInfoList,
+  getBuildPath,
+  distPath,
 }: {
-  packagePath: string;
   cwd: string;
-  pkg: any;
+  pkg: {
+    name: string;
+    buildOptions: BuildOptions;
+  };
   fullName: string;
   config: BobConfig;
   reporter: Consola;
-  distDir: string;
-  distPath?: string;
-  packageInfoList: PackageInfo[];
+  getBuildPath: (target: "esm" | "cjs") => string;
+  distPath: string;
 }) {
-  const scope = config.scope;
-
-  if ((config.ignore || []).includes(fullName)) {
+  if (config.ignore?.includes(fullName)) {
     reporter.warn(`Ignored ${fullName}`);
     return;
   }
 
-  const name = fullName.replace(`${scope}/`, distPath);
-
   validatePackageJson(pkg);
 
-  const distProjectDir = cwd.replace("packages", distDir);
-  const distProjectSrcDir = resolve(distProjectDir, "src");
+  // remove <project>/dist
+  await fs.remove(distPath);
 
-  const bobDir = resolve(process.cwd(), ".bob");
-  const bobProjectDir = resolve(bobDir, name);
-  const buildOptions: BuildOptions = pkg.buildOptions || {};
-
-  // remove bob/<project-name>
-  await fs.remove(bobProjectDir);
-
-  const inputFile = resolve(distProjectSrcDir, "index.js");
-
-  const extraInputOptions: Partial<rollup.RollupOptions> = {};
-
-  if (buildOptions.external) {
-    extraInputOptions.external = buildOptions.external;
-  }
-
-  const inputOptions = {
-    input: inputFile,
-    plugins: [
-      json(),
-      resolveNode(),
-      autoExternal({
-        packageJSONPath: packagePath,
-      }),
-      generatePackageJson({
-        baseContents: rewritePackageJson(pkg, distPath),
-        additionalDependencies: Object.keys(pkg.dependencies || {}),
-      }),
-    ],
-    inlineDynamicImports: true,
-    ...extraInputOptions,
-  };
-
-  // create a bundle
-  const bundle = await rollup.rollup(inputOptions);
-
-  // generates
-
-  const commonOutputOptions = {
-    preferConst: true,
-    sourcemap: false,
-  };
-
-  const generates = [
-    {
-      ...commonOutputOptions,
-      file: join(bobProjectDir, "index.js"),
-      format: "cjs" as const,
-    },
-    {
-      ...commonOutputOptions,
-      file: join(bobProjectDir, "index.mjs"),
-      format: "esm" as const,
-    },
-  ];
+  // Copy type definitions
+  await fs.ensureDir(join(distPath, "typings"));
 
   const declarations = await globby("**/*.d.ts", {
-    cwd: distProjectSrcDir,
-    ignore: ["**/node_modules/**"],
+    cwd: getBuildPath("esm"),
+    absolute: false,
   });
 
-  const limit = pLimit(200);
-
   await Promise.all(
-    generates.map(async (outputOptions) => {
-      await bundle.write(outputOptions);
-    })
-  );
-
-  await Promise.all(
-    declarations.map((file) =>
+    declarations.map((filePath) =>
       limit(() =>
-        fs.copy(join(distProjectSrcDir, file), join(bobProjectDir, file))
+        fs.copy(
+          join(getBuildPath("esm"), filePath),
+          join(distPath, "typings", filePath)
+        )
       )
     )
   );
 
-  if (buildOptions?.bin) {
-    await Promise.all(
-      Object.keys(buildOptions.bin).map(async (alias) => {
-        const options = buildOptions.bin![alias];
-        const binPath = resolve(
-          distProjectSrcDir,
-          options.input.replace("src/", "").replace(".ts", ".js")
-        );
-        const inputOptions = {
-          input: binPath,
-          plugins: [
-            json(),
-            resolveNode(),
-            autoExternal({
-              packageJSONPath: packagePath,
-            }),
-          ],
-          inlineDynamicImports: true,
-        };
+  // Move ESM to dist/esm
+  await fs.ensureDir(join(distPath, "esm"));
 
-        const bundle = await rollup.rollup(inputOptions);
+  const esmFiles = await globby("**/*.js", {
+    cwd: getBuildPath("esm"),
+    absolute: false,
+  });
 
-        const file = join(
-          bobProjectDir,
-          pkg.bin[alias].replace(`${DIST_DIR}/`, "")
-        );
-
-        await bundle.write({
-          banner: `#!/usr/bin/env node`,
-          preferConst: true,
-          sourcemap: options.sourcemap,
-          file,
-          format: file.endsWith("mjs") ? "esm" : "cjs",
-        });
-      })
-    );
-  }
-
-  // remove <project>/dist
-  await fs.remove(join(cwd, DIST_DIR + distPath));
-
-  // fix distPath import in extra dists
-  function replaceAll(str: string, from: string, to: string) {
-    return str.split(from).join(to);
-  }
-  if (distPath) {
-    await Promise.all(
-      generates.map(({ file }) =>
-        limit(async () => {
-          let content = await fs.readFile(file, "utf8");
-          for (const { fullName } of packageInfoList) {
-            content = replaceAll(
-              content,
-              `'${fullName}'`,
-              `'${fullName}${distPath}'`
-            );
-          }
-          await fs.writeFile(file, content, { encoding: "utf8", flag: "w" });
-        })
+  await Promise.all(
+    esmFiles.map((filePath) =>
+      limit(() =>
+        fs.copy(
+          join(getBuildPath("esm"), filePath),
+          join(distPath, "esm", filePath)
+        )
       )
-    );
-  }
+    )
+  );
 
-  // move bob/<project-name> to <project>/dist
-  await fs.move(bobProjectDir, join(cwd, DIST_DIR + distPath));
-  // move README.md and LICENSE
+  // Transpile ESM to CJS and move CJS to dist/cjs
+  await fs.ensureDir(join(distPath, "cjs"));
+
+  const cjsFiles = await globby("**/*.js", {
+    cwd: getBuildPath("cjs"),
+    absolute: false,
+  });
+
+  await Promise.all(
+    cjsFiles.map((filePath) =>
+      limit(() =>
+        fs.copy(
+          join(getBuildPath("cjs"), filePath),
+          join(distPath, "cjs", filePath)
+        )
+      )
+    )
+  );
+
+  // Add package.json to dist/cjs to ensure files are interpreted as commonjs
+  await fs.writeFile(
+    join(distPath, "cjs", "package.json"),
+    JSON.stringify({ type: "commonjs" })
+  );
+
+  // move the package.json to dist
+  await fs.writeFile(
+    join(distPath, "package.json"),
+    JSON.stringify(rewritePackageJson(pkg), null, 2)
+  );
+
+  // move README.md and LICENSE and other specified files
   await copyToDist(
     cwd,
-    ["README.md", "LICENSE"].concat(pkg.buildOptions?.copy || []),
-    DIST_DIR + distPath
+    ["README.md", "LICENSE", ...(pkg.buildOptions?.copy ?? [])],
+    distPath
   );
 
   reporter.success(`Built ${pkg.name}`);
 }
 
-function rewritePackageJson(pkg: Record<string, any>, distPath: string) {
+function rewritePackageJson(pkg: Record<string, any>) {
   const newPkg: Record<string, any> = {};
   const fields = [
     "name",
@@ -388,6 +285,12 @@ function rewritePackageJson(pkg: Record<string, any>, distPath: string) {
     "author",
     "license",
     "engines",
+    "name",
+    "main",
+    "module",
+    "typings",
+    "typescript",
+    "type",
   ];
 
   fields.forEach((field) => {
@@ -396,25 +299,26 @@ function rewritePackageJson(pkg: Record<string, any>, distPath: string) {
     }
   });
 
-  newPkg.name += distPath;
-  newPkg.main = "index.js";
-  newPkg.module = "index.mjs";
-  newPkg.typings = "index.d.ts";
+  const distDirStr = `${DIST_DIR}/`;
+
+  newPkg.main = newPkg.main.replace(distDirStr, "");
+  newPkg.module = newPkg.module.replace(distDirStr, "");
+  newPkg.typings = newPkg.typings.replace(distDirStr, "");
   newPkg.typescript = {
-    definition: newPkg.typings,
+    definition: newPkg.typescript.definition.replace(distDirStr, ""),
   };
 
-  if (pkg.exports) {
-    newPkg.exports = rewriteExports(pkg.exports, DIST_DIR);
-  } else {
+  if (!pkg.exports) {
     newPkg.exports = presetFields.exports;
   }
+
+  newPkg.exports = rewriteExports(pkg.exports, DIST_DIR);
 
   if (pkg.bin) {
     newPkg.bin = {};
 
     for (const alias in pkg.bin) {
-      newPkg.bin[alias] = pkg.bin[alias].replace(`${DIST_DIR}/`, "");
+      newPkg.bin[alias] = pkg.bin[alias].replace(distDirStr, "");
     }
   }
 
@@ -434,35 +338,17 @@ export function validatePackageJson(pkg: any) {
     );
   }
 
-  expect("main", `${DIST_DIR}/index.js`);
-  expect("module", `${DIST_DIR}/index.mjs`);
-  expect("typings", `${DIST_DIR}/index.d.ts`);
-  expect("typescript.definition", `${DIST_DIR}/index.d.ts`);
+  expect("main", presetFields.main);
+  expect("module", presetFields.module);
+  expect("typings", presetFields.typings);
+  expect("typescript.definition", presetFields.typescript.definition);
 
-  expect("exports['.'].require", {
-    types: `./${DIST_DIR}/index.d.ts`,
-    default: `./${DIST_DIR}/index.js`,
-  });
-  expect("exports['.'].import", {
-    types: `./${DIST_DIR}/index.d.ts`,
-    default: `./${DIST_DIR}/index.mjs`,
-  });
-  expect("exports['.'].default", {
-    types: `./${DIST_DIR}/index.d.ts`,
-    default: `./${DIST_DIR}/index.mjs`,
-  });
-  expect("exports['./*'].require", {
-    types: `./${DIST_DIR}/*.d.ts`,
-    default: `./${DIST_DIR}/*.js`,
-  });
-  expect("exports['./*'].import", {
-    types: `./${DIST_DIR}/*.d.ts`,
-    default: `./${DIST_DIR}/*.mjs`,
-  });
-  expect("exports['./*'].default", {
-    types: `./${DIST_DIR}/*.d.ts`,
-    default: `./${DIST_DIR}/*.mjs`,
-  });
+  expect("exports['.'].require", presetFields.exports["."].require);
+  expect("exports['.'].import", presetFields.exports["."].import);
+  expect("exports['.'].default", presetFields.exports["."].default);
+  expect("exports['./*'].require", presetFields.exports["./*"].require);
+  expect("exports['./*'].import", presetFields.exports["./*"].import);
+  expect("exports['./*'].default", presetFields.exports["./*"].default);
 }
 
 async function copyToDist(cwd: string, files: string[], distDir: string) {
