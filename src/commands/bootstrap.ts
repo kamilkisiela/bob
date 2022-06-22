@@ -54,7 +54,7 @@ export const presetFields = Object.freeze({
 function transformModuleImports(fileContents: string) {
   return fileContents.replace(
     /* this regex should hopefully catch all kind of import/export expressions that are relative. */
-    /((?:import|export)\s+.*\s+from\s+["'])((?:\.\/|\.\.\/)(?:(?!\.js).)+)(["'])/g,
+    /((?:import|export)\s+[\s\w,{}*]*\s+from\s+["'])((?:\.\/|\.\.\/)(?:(?!\.js).)+)(["'])/g,
     (_, importFromPart, modulePath, hyphenEndPart) =>
       `${importFromPart}${modulePath}.js${hyphenEndPart}`
   );
