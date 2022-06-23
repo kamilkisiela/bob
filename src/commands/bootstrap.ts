@@ -106,9 +106,7 @@ export const bootstrapCommand = createCommand<{}, {}>((api) => {
       });
 
       if (rootPackageJSONPath === undefined) {
-        throw new Error(
-          "Must be executed within a npm (monorepo-)package root."
-        );
+        throw new Error("Must be executed within a (monorepo-)package root.");
       }
 
       const rootPackageJSON: Record<string, unknown> = await fse.readJSON(
