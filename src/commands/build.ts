@@ -44,7 +44,7 @@ const filesToExcludeFromDist = [
 ];
 
 const moduleMappings = {
-  esm: "node16",
+  esm: "es2022",
   cjs: "commonjs",
 } as const;
 
