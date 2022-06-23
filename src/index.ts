@@ -9,6 +9,7 @@ import { runCommand } from "./commands/run";
 import { validateCommand } from "./commands/validate";
 import { runifyCommand } from "./commands/runify";
 import { bootstrapCommand } from "./commands/bootstrap";
+import { checkCommand } from "./commands/check";
 
 async function main() {
   const config = await useConfig();
@@ -25,6 +26,7 @@ async function main() {
     packFlatCommand,
     runifyCommand,
     bootstrapCommand,
+    checkCommand,
   ];
 
   const reporter = consola.create({});
