@@ -18,7 +18,8 @@
   "license": "MIT",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "jest-resolver.js"
   ],
   "dependencies": {
     "@rollup/plugin-json": "^4.1.0",
