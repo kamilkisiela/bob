@@ -29,19 +29,56 @@ interface PackageInfo {
   fullName: string;
 }
 
+/**
+ * A list of files that we don't need need within the published package.
+ * Also known as test files :)
+ * This list is derived from scouting various of our repositories.
+ */
+const filesToExcludeFromDist = [
+  "**/test/**",
+  "**/tests/**",
+  "**/*.spec.*",
+  "**/*.test.*",
+  "**/dist",
+  "**/temp",
+];
+
+const moduleMappings = {
+  esm: "node16",
+  cjs: "commonjs",
+} as const;
+
+function typeScriptCompilerOptions(
+  target: "esm" | "cjs"
+): Record<string, unknown> {
+  return {
+    module: moduleMappings[target],
+    sourceMap: false,
+    inlineSourceMap: false,
+  };
+}
+
+function compilerOptionsToArgs(
+  options: Record<string, unknown>
+): Array<string> {
+  const args: Array<string> = [];
+  for (const [key, value] of Object.entries(options)) {
+    args.push(`--${key}`, `${value}`);
+  }
+  return args;
+}
+
 async function buildTypeScript(buildPath: string) {
   const results = await Promise.all([
     execa("npx", [
       "tsc",
-      "--module",
-      "es2022",
+      ...compilerOptionsToArgs(typeScriptCompilerOptions("esm")),
       "--outDir",
       join(buildPath, "esm"),
     ]),
     execa("npx", [
       "tsc",
-      "--module",
-      "commonjs",
+      ...compilerOptionsToArgs(typeScriptCompilerOptions("cjs")),
       "--outDir",
       join(buildPath, "cjs"),
     ]),
@@ -196,6 +233,7 @@ async function build({
   const declarations = await globby("**/*.d.ts", {
     cwd: getBuildPath("esm"),
     absolute: false,
+    ignore: filesToExcludeFromDist,
   });
 
   await Promise.all(
@@ -215,6 +253,7 @@ async function build({
   const esmFiles = await globby("**/*.js", {
     cwd: getBuildPath("esm"),
     absolute: false,
+    ignore: filesToExcludeFromDist,
   });
 
   await Promise.all(
@@ -234,6 +273,7 @@ async function build({
   const cjsFiles = await globby("**/*.js", {
     cwd: getBuildPath("cjs"),
     absolute: false,
+    ignore: filesToExcludeFromDist,
   });
 
   await Promise.all(

@@ -29,7 +29,7 @@ it("can bundle a simple project", async () => {
     "
   `);
   expect(fse.readFileSync(indexMjsFilePath, "utf8")).toMatchInlineSnapshot(`
-    "export var someNumber = 1;
+    "export const someNumber = 1;
     "
   `);
   expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
