@@ -2,13 +2,15 @@ import path from "path";
 import execa from "execa";
 import * as fse from "fs-extra";
 
+jest.setTimeout(10_000);
+
 const fixturesFolder = path.join(__dirname, "__fixtures__");
 const binaryFolder = path.join(__dirname, "..", "dist", "index.js");
 
 it("can bundle a simple project", async () => {
   await fse.remove(path.resolve(fixturesFolder, "simple", "dist"));
   const result = await execa("node", [binaryFolder, "build"], {
-    cwd: path.resolve(fixturesFolder, "simple")
+    cwd: path.resolve(fixturesFolder, "simple"),
   });
   expect(result.exitCode).toEqual(0);
   const baseDistPath = path.resolve(fixturesFolder, "simple", "dist");
@@ -85,7 +87,7 @@ it("can build a monorepo project", async () => {
     path.resolve(fixturesFolder, "simple-monorepo", "b", "dist")
   );
   const result = await execa("node", [binaryFolder, "build"], {
-    cwd: path.resolve(fixturesFolder, "simple-monorepo")
+    cwd: path.resolve(fixturesFolder, "simple-monorepo"),
   });
   expect(result.exitCode).toEqual(0);
   const baseDistAPath = path.resolve(
