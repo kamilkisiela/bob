@@ -212,17 +212,19 @@ async function checkExportsMapIntegrity(args: {
   }
 }
 
+const timeout = `;setTimeout(() => { throw new Error("The Node.js process hangs. There is probably some side-effects. All exports should be free of side effects.") }, 500).unref()`;
+
 function runRequireJSFileCommand(args: {
   cwd: string;
   path: string;
 }): execa.ExecaChildProcess<string> {
-  return execa("node", ["-e", `require('${args.path}')`], {
+  return execa("node", ["-e", `require('${args.path}')${timeout}`], {
     cwd: args.cwd,
   });
 }
 
 function runImportJSFileCommand(args: { cwd: string; path: string }) {
-  return execa("node", ["-e", `import('${args.path}')`], {
+  return execa("node", ["-e", `import('${args.path}')${timeout}`], {
     cwd: args.cwd,
   });
 }
