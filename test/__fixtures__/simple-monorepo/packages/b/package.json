@@ -22,21 +22,24 @@
         "default": "./dist/esm/index.js"
       }
     },
-    "./*": {
+    "./foo": {
       "require": {
-        "types": "./dist/typings/*.d.ts",
-        "default": "./dist/cjs/*.js"
+        "types": "./dist/typings/foo.d.ts",
+        "default": "./dist/cjs/foo.js"
       },
       "import": {
-        "types": "./dist/typings/*.d.ts",
-        "default": "./dist/esm/*.js"
+        "types": "./dist/typings/foo.d.ts",
+        "default": "./dist/esm/foo.js"
       },
       "default": {
-        "types": "./dist/typings/*.d.ts",
-        "default": "./dist/esm/*.js"
+        "types": "./dist/typings/foo.d.ts",
+        "default": "./dist/esm/foo.js"
       }
     },
     "./package.json": "./package.json"
+  },
+  "bin": {
+    "bbb": "dist/cjs/log-the-world.js"
   },
   "buildOptions": {
     "input": "./src/index.ts"

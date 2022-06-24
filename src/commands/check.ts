@@ -24,6 +24,8 @@ const ExportsMapModel = zod.record(
   ])
 );
 
+const BinModel = zod.record(zod.string());
+
 export const checkCommand = createCommand<{}, {}>((api) => {
   return {
     command: "check",
@@ -86,6 +88,7 @@ async function checkExportsMapIntegrity(args: {
   packageJSON: {
     name: string;
     exports: unknown;
+    bin: unknown;
   };
 }) {
   const exportsMapResult = ExportsMapModel.safeParse(
@@ -209,6 +212,50 @@ async function checkExportsMapIntegrity(args: {
       `Require of file '${legacyRequire}' failed with error:\n` +
         legacyImportResult.all
     );
+  }
+
+  if (args.packageJSON.bin) {
+    const result = BinModel.safeParse(args.packageJSON.bin);
+    if (result.success === false) {
+      throw new Error(
+        "Invalid format of bin field in package.json.\n" + result.error.message
+      );
+    }
+
+    const cache = new Set<string>();
+
+    for (const [_binary, filePath] of Object.entries(result.data)) {
+      if (cache.has(filePath)) {
+        continue;
+      }
+      cache.add(filePath);
+
+      const absoluteFilePath = path.join(args.cwd, filePath);
+      await fse.stat(absoluteFilePath).catch(() => {
+        throw new Error(
+          "Could not find binary file '" + absoluteFilePath + "'."
+        );
+      });
+      await fse
+        .access(path.join(args.cwd, filePath), fse.constants.X_OK)
+        .catch(() => {
+          throw new Error(
+            "Binary file '" +
+              absoluteFilePath +
+              "' is not executable.\n" +
+              `Please set the executable bit e.g. by running 'chmod +x "${absoluteFilePath}"'.`
+          );
+        });
+
+      const contents = await fse.readFile(absoluteFilePath, "utf-8");
+      if (contents.startsWith("#!/usr/bin/env node\n") === false) {
+        throw new Error(
+          "Binary file '" +
+            absoluteFilePath +
+            "' does not have a shebang.\n Please add '#!/usr/bin/env node' to the beginning of the file."
+        );
+      }
+    }
   }
 }
 

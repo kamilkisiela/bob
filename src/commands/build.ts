@@ -3,7 +3,6 @@ import execa from "execa";
 import * as fse from "fs-extra";
 import globby from "globby";
 import pLimit from "p-limit";
-import fs from "fs-extra";
 import { resolve, join, dirname } from "path";
 import { Consola } from "consola";
 import get from "lodash.get";
@@ -124,9 +123,9 @@ export const buildCommand = createCommand<{}, {}>((api) => {
         const cwd = rootPackageJSONPath.replace("/package.json", "");
         const buildPath = join(cwd, ".bob");
 
-        await fs.remove(buildPath);
+        await fse.remove(buildPath);
         await buildTypeScript(buildPath);
-        const pkg = await fs.readJSON(resolve(cwd, "package.json"));
+        const pkg = await fse.readJSON(resolve(cwd, "package.json"));
         const fullName: string = pkg.name;
 
         const distPath = join(cwd, "dist");
@@ -160,7 +159,7 @@ export const buildCommand = createCommand<{}, {}>((api) => {
         packages.map((packagePath) =>
           limit(async () => {
             const cwd = packagePath.replace("/package.json", "");
-            const pkg = await fs.readJSON(resolve(cwd, "package.json"));
+            const pkg = await fse.readJSON(resolve(cwd, "package.json"));
             const fullName: string = pkg.name;
             return { packagePath, cwd, pkg, fullName };
           })
@@ -168,7 +167,7 @@ export const buildCommand = createCommand<{}, {}>((api) => {
       );
 
       const bobBuildPath = join(cwd, ".bob");
-      await fs.remove(bobBuildPath);
+      await fse.remove(bobBuildPath);
       await buildTypeScript(bobBuildPath);
 
       await Promise.all(
@@ -210,6 +209,7 @@ async function build({
   pkg: {
     name: string;
     buildOptions: BuildOptions;
+    bin?: Record<string, string>;
   };
   fullName: string;
   config: BobConfig;
@@ -225,10 +225,10 @@ async function build({
   validatePackageJson(pkg);
 
   // remove <project>/dist
-  await fs.remove(distPath);
+  await fse.remove(distPath);
 
   // Copy type definitions
-  await fs.ensureDir(join(distPath, "typings"));
+  await fse.ensureDir(join(distPath, "typings"));
 
   const declarations = await globby("**/*.d.ts", {
     cwd: getBuildPath("esm"),
@@ -239,7 +239,7 @@ async function build({
   await Promise.all(
     declarations.map((filePath) =>
       limit(() =>
-        fs.copy(
+        fse.copy(
           join(getBuildPath("esm"), filePath),
           join(distPath, "typings", filePath)
         )
@@ -248,7 +248,7 @@ async function build({
   );
 
   // Move ESM to dist/esm
-  await fs.ensureDir(join(distPath, "esm"));
+  await fse.ensureDir(join(distPath, "esm"));
 
   const esmFiles = await globby("**/*.js", {
     cwd: getBuildPath("esm"),
@@ -259,7 +259,7 @@ async function build({
   await Promise.all(
     esmFiles.map((filePath) =>
       limit(() =>
-        fs.copy(
+        fse.copy(
           join(getBuildPath("esm"), filePath),
           join(distPath, "esm", filePath)
         )
@@ -268,7 +268,7 @@ async function build({
   );
 
   // Transpile ESM to CJS and move CJS to dist/cjs
-  await fs.ensureDir(join(distPath, "cjs"));
+  await fse.ensureDir(join(distPath, "cjs"));
 
   const cjsFiles = await globby("**/*.js", {
     cwd: getBuildPath("cjs"),
@@ -279,7 +279,7 @@ async function build({
   await Promise.all(
     cjsFiles.map((filePath) =>
       limit(() =>
-        fs.copy(
+        fse.copy(
           join(getBuildPath("cjs"), filePath),
           join(distPath, "cjs", filePath)
         )
@@ -288,13 +288,13 @@ async function build({
   );
 
   // Add package.json to dist/cjs to ensure files are interpreted as commonjs
-  await fs.writeFile(
+  await fse.writeFile(
     join(distPath, "cjs", "package.json"),
     JSON.stringify({ type: "commonjs" })
   );
 
   // move the package.json to dist
-  await fs.writeFile(
+  await fse.writeFile(
     join(distPath, "package.json"),
     JSON.stringify(rewritePackageJson(pkg), null, 2)
   );
@@ -305,6 +305,21 @@ async function build({
     ["README.md", "LICENSE", ...(pkg.buildOptions?.copy ?? [])],
     distPath
   );
+
+  if (pkg.bin) {
+    if (globalThis.process.platform === "win32") {
+      console.warn(
+        "Package includes bin files, but cannot set the executable bit on Windows.\n" +
+          "Please manually set the executable bit on the bin files before publishing."
+      );
+    } else {
+      await Promise.all(
+        Object.values(pkg.bin).map((filePath) =>
+          execa("chmod", ["+x", join(cwd, filePath)])
+        )
+      );
+    }
+  }
 
   reporter.success(`Built ${pkg.name}`);
 }
@@ -378,17 +393,34 @@ export function validatePackageJson(pkg: any) {
     );
   }
 
-  expect("main", presetFields.main);
-  expect("module", presetFields.module);
-  expect("typings", presetFields.typings);
-  expect("typescript.definition", presetFields.typescript.definition);
+  // If the package has NO binary we need to check the exports map.
+  // a package should either
+  // 1. have a bin property
+  // 2. have a exports property
+  // 3. have an exports and bin property
+  if (Object.keys(pkg.bin ?? {}).length === 0) {
+    expect("main", presetFields.main);
+    expect("module", presetFields.module);
+    expect("typings", presetFields.typings);
+    expect("typescript.definition", presetFields.typescript.definition);
+  } else if (
+    pkg.main !== undefined ||
+    pkg.module !== undefined ||
+    pkg.exports !== undefined ||
+    pkg.typings !== undefined ||
+    pkg.typescript !== undefined
+  ) {
+    // if there is no bin property, we NEED to check the exports.
+    expect("main", presetFields.main);
+    expect("module", presetFields.module);
+    expect("typings", presetFields.typings);
+    expect("typescript.definition", presetFields.typescript.definition);
 
-  expect("exports['.'].require", presetFields.exports["."].require);
-  expect("exports['.'].import", presetFields.exports["."].import);
-  expect("exports['.'].default", presetFields.exports["."].default);
-  expect("exports['./*'].require", presetFields.exports["./*"].require);
-  expect("exports['./*'].import", presetFields.exports["./*"].import);
-  expect("exports['./*'].default", presetFields.exports["./*"].default);
+    // For now we enforce a top level exports property
+    expect("exports['.'].require", presetFields.exports["."].require);
+    expect("exports['.'].import", presetFields.exports["."].import);
+    expect("exports['.'].default", presetFields.exports["."].default);
+  }
 }
 
 async function copyToDist(cwd: string, files: string[], distDir: string) {
@@ -396,11 +428,11 @@ async function copyToDist(cwd: string, files: string[], distDir: string) {
 
   return Promise.all(
     allFiles.map(async (file) => {
-      if (await fs.pathExists(join(cwd, file))) {
+      if (await fse.pathExists(join(cwd, file))) {
         const sourcePath = join(cwd, file);
         const destPath = join(cwd, distDir, file.replace("src/", ""));
         await mkdirp(dirname(destPath));
-        await fs.copyFile(sourcePath, destPath);
+        await fse.copyFile(sourcePath, destPath);
       }
     })
   );

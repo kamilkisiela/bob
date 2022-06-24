@@ -254,21 +254,24 @@ it("can build a monorepo project", async () => {
             \\"default\\": \\"./esm/index.js\\"
           }
         },
-        \\"./*\\": {
+        \\"./foo\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
-            \\"default\\": \\"./cjs/*.js\\"
+            \\"types\\": \\"./typings/foo.d.ts\\",
+            \\"default\\": \\"./cjs/foo.js\\"
           },
           \\"import\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
-            \\"default\\": \\"./esm/*.js\\"
+            \\"types\\": \\"./typings/foo.d.ts\\",
+            \\"default\\": \\"./esm/foo.js\\"
           },
           \\"default\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
-            \\"default\\": \\"./esm/*.js\\"
+            \\"types\\": \\"./typings/foo.d.ts\\",
+            \\"default\\": \\"./esm/foo.js\\"
           }
         },
         \\"./package.json\\": \\"./package.json\\"
+      },
+      \\"bin\\": {
+        \\"bbb\\": \\"cjs/log-the-world.js\\"
       }
     }"
   `);
