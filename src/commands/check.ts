@@ -271,7 +271,11 @@ function runRequireJSFileCommand(args: {
 }
 
 function runImportJSFileCommand(args: { cwd: string; path: string }) {
-  return execa("node", ["-e", `import('${args.path}')${timeout}`], {
-    cwd: args.cwd,
-  });
+  return execa(
+    "node",
+    ["-e", `import('${args.path}').then(() => {${timeout}})`],
+    {
+      cwd: args.cwd,
+    }
+  );
 }
