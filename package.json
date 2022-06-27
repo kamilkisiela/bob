@@ -59,7 +59,7 @@
     "@changesets/cli": "2.23.0",
     "@jest/types": "27.5.1",
     "@types/cross-spawn": "6.0.2",
-    "@types/fs-extra": "8.1.2",
+    "@types/fs-extra": "9.0.13",
     "@types/jest": "27.5.2",
     "@types/lodash.get": "4.4.7",
     "@types/minimatch": "3.0.5",
