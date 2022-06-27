@@ -18,6 +18,8 @@ it("can bundle a simple project", async () => {
   const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
   const indexMjsFilePath = path.resolve(baseDistPath, "esm", "index.js");
   const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
+  const readmeFilePath = path.resolve(baseDistPath, "README.md");
+  const fooFilePath = path.resolve(baseDistPath, "foo.json");
 
   expect(fse.readFileSync(indexJsFilePath, "utf8")).toMatchInlineSnapshot(`
     "\\"use strict\\";
@@ -32,6 +34,14 @@ it("can bundle a simple project", async () => {
   `);
   expect(fse.readFileSync(indexMjsFilePath, "utf8")).toMatchInlineSnapshot(`
     "export var someNumber = 1;
+    "
+  `);
+  expect(fse.readFileSync(readmeFilePath, "utf8")).toMatchInlineSnapshot(`
+    "Hello!
+    "
+  `);
+  expect(fse.readFileSync(fooFilePath, "utf8")).toMatchInlineSnapshot(`
+    "{ \\"hi\\": 1 }
     "
   `);
   expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
@@ -77,6 +87,9 @@ it("can bundle a simple project", async () => {
       }
     }"
   `);
+  await execa("node", [binaryFolder, "check"], {
+    cwd: path.resolve(fixturesFolder, "simple")
+  });
 });
 
 it("can build a monorepo project", async () => {
@@ -275,4 +288,8 @@ it("can build a monorepo project", async () => {
       }
     }"
   `);
+
+  await execa("node", [binaryFolder, "check"], {
+    cwd: path.resolve(fixturesFolder, "simple-monorepo")
+  });
 });

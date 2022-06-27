@@ -430,7 +430,7 @@ async function copyToDist(cwd: string, files: string[], distDir: string) {
     allFiles.map(async (file) => {
       if (await fse.pathExists(join(cwd, file))) {
         const sourcePath = join(cwd, file);
-        const destPath = join(cwd, distDir, file.replace("src/", ""));
+        const destPath = join(distDir, file.replace("src/", ""));
         await mkdirp(dirname(destPath));
         await fse.copyFile(sourcePath, destPath);
       }

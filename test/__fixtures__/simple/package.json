@@ -41,5 +41,10 @@
     "directory": "dist",
     "access": "public"
   },
-  "type": "module"
+  "type": "module",
+  "buildOptions": {
+    "copy": [
+      "foo.json"
+    ]
+  }
 }
