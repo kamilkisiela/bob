@@ -64,7 +64,7 @@
     "@types/lodash.get": "4.4.7",
     "@types/minimatch": "3.0.5",
     "@types/mkdirp": "1.0.2",
-    "@types/node": "13.11.0",
+    "@types/node": "16.11.41",
     "@types/yargs": "15.0.14",
     "execa": "5.1.1",
     "jest": "27.5.1",
