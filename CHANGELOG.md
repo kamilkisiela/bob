@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.0
+
+### Major Changes
+
+- ae0b4b2: Require specifying typescript fields in the package.json exports map for typescript modules support.
+  Learn more on the [TypeScript 4.7 release notes](https://devblogs.microsoft.com/typescript/announcing-typescript-4-7/#package-json-exports-imports-and-self-referencing).
+
+### Minor Changes
+
+- 0942e1c: unpin and update dependencies
+- 59ead17: remove the `--single` flag. The value is now derived from the `package.json` `workspaces` property. If your workspace is configured properly this is not a breaking change.
+
 ## v1.7.3
 
 - Run `next start` directly from nextjs's lib, not CLI code.
