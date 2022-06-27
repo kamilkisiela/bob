@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
-    "module": "ESNext"
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "declaration": true,
+    "outDir": "dist"
   }
 }

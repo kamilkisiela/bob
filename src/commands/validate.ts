@@ -186,29 +186,40 @@ export async function validatePackage({
     onError
   );
 
+  const exportsRequire = (path: string) => ({
+    default: `./dist/${path}.js`,
+    types: `./dist/${path}.d.ts`
+  })
+
+  const exportsImport = (path: string) => ({
+    default: `./dist/${path}.mjs`,
+    types: `./dist/${path}.d.ts`
+  })
+
   shouldEqual(
     pkg.exports?.['.']?.require,
-    "./dist/index.js",
-    `${name}: 'exports.['.'].require' should equal './dist/index.js'`,
+    exportsRequire("index"),
+    `${name}: 'exports.['.'].require' should equal ${JSON.stringify(exportsRequire("index"))}`,
     onError
   );
+
   shouldEqual(
     pkg.exports?.['.']?.import,
-    "./dist/index.mjs",
-    `${name}: 'exports.['.'].import' should equal './dist/index.mjs'`,
+    exportsImport("index"),
+    `${name}: 'exports.['.'].import' should equal ${JSON.stringify(exportsImport("index"))}`,
     onError
   );
 
   shouldEqual(
     pkg.exports?.['./*']?.require,
-    "./dist/*.js",
-    `${name}: 'exports.['./*'].import' should equal './dist/*.js'`,
+    exportsRequire("*"),
+    `${name}: 'exports.['./*'].import' should equal ${JSON.stringify(exportsRequire("*"))}`,
     onError
   );
   shouldEqual(
     pkg.exports?.['./*']?.import,
-    "./dist/*.mjs",
-    `${name}: 'exports.['./*'].import' should equal './dist/*.mjs'`,
+    exportsImport("*"),
+    `${name}: 'exports.['./*'].import' should equal ${JSON.stringify(exportsImport("*"))}`,
     onError
   );
   
@@ -236,6 +247,10 @@ function shouldEqual(
   try {
     equal(value, expected, message);
   } catch (error) {
-    onError(error);
+    if (error instanceof Error) {
+     onError(error);
+     return;
+    }
+    throw error
   }
 }
