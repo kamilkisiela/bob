@@ -4,9 +4,7 @@ import consola from "consola";
 import { useConfig } from "./config";
 import { CommandFactory } from "./command";
 import { buildCommand } from "./commands/build";
-import { packFlatCommand } from "./commands/pack-flat";
 import { runCommand } from "./commands/run";
-import { validateCommand } from "./commands/validate";
 import { runifyCommand } from "./commands/runify";
 import { bootstrapCommand } from "./commands/bootstrap";
 import { checkCommand } from "./commands/check";
@@ -22,8 +20,6 @@ async function main() {
   const commands: CommandFactory<any, any>[] = [
     buildCommand,
     runCommand,
-    validateCommand,
-    packFlatCommand,
     runifyCommand,
     bootstrapCommand,
     checkCommand,
