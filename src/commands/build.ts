@@ -8,16 +8,13 @@ import { Consola } from "consola";
 import get from "lodash.get";
 import mkdirp from "mkdirp";
 
+import { getRootPackageJSON } from "../utils/get-root-package-json";
+import { getWorkspaces } from "../utils/get-workspaces";
 import { createCommand } from "../command";
-import { BobConfig } from "../config";
+import { getBobConfig } from "../config";
 import { rewriteExports } from "../utils/rewrite-exports";
 import { presetFields } from "./bootstrap";
-
-interface BuildOptions {
-  external?: string[];
-  copy?: string[];
-  bin?: Record<string, { input: string; sourcemap?: boolean }>;
-}
+import { getWorkspacePackagePaths } from "../utils/get-workspace-package-paths";
 
 export const DIST_DIR = "dist";
 
@@ -93,7 +90,7 @@ async function buildTypeScript(buildPath: string) {
 }
 
 export const buildCommand = createCommand<{}, {}>((api) => {
-  const { config, reporter } = api;
+  const { reporter } = api;
 
   return {
     command: "build",
@@ -102,25 +99,12 @@ export const buildCommand = createCommand<{}, {}>((api) => {
       return yargs.options({});
     },
     async handler() {
-      config.dists = config.dists || [
-        {
-          distDir: DIST_DIR,
-          distPath: "",
-        },
-      ];
-
-      const [rootPackageJSONPath] = await globby("package.json", {
-        cwd: process.cwd(),
-        absolute: true,
-      });
-      const rootPackageJSON: Record<string, unknown> = await fse.readJSON(
-        rootPackageJSONPath
-      );
-      const isSinglePackage =
-        Array.isArray(rootPackageJSON.workspaces) === false;
+      const cwd = process.cwd();
+      const rootPackageJSON = await getRootPackageJSON(cwd);
+      const workspaces = getWorkspaces(rootPackageJSON);
+      const isSinglePackage = workspaces === null;
 
       if (isSinglePackage) {
-        const cwd = rootPackageJSONPath.replace("/package.json", "");
         const buildPath = join(cwd, ".bob");
 
         await fse.remove(buildPath);
@@ -136,7 +120,6 @@ export const buildCommand = createCommand<{}, {}>((api) => {
           cwd,
           pkg,
           fullName,
-          config,
           reporter,
           getBuildPath,
           distPath,
@@ -145,20 +128,15 @@ export const buildCommand = createCommand<{}, {}>((api) => {
       }
 
       const limit = pLimit(4);
-      const cwd = process.cwd();
-      const packages = await globby("packages/**/package.json", {
+      const workspacePackagePaths = await getWorkspacePackagePaths(
         cwd,
-        absolute: true,
-        ignore: [
-          "**/node_modules/**",
-          ...config.dists.map(({ distDir }) => `**/${distDir}/**`),
-        ],
-      });
+        workspaces
+      );
 
       const packageInfoList: PackageInfo[] = await Promise.all(
-        packages.map((packagePath) =>
+        workspacePackagePaths.map((packagePath) =>
           limit(async () => {
-            const cwd = packagePath.replace("/package.json", "");
+            const cwd = packagePath;
             const pkg = await fse.readJSON(resolve(cwd, "package.json"));
             const fullName: string = pkg.name;
             return { packagePath, cwd, pkg, fullName };
@@ -182,7 +160,6 @@ export const buildCommand = createCommand<{}, {}>((api) => {
               cwd,
               pkg,
               fullName,
-              config,
               reporter,
               getBuildPath,
               distPath,
@@ -200,7 +177,6 @@ async function build({
   cwd,
   pkg,
   fullName,
-  config,
   reporter,
   getBuildPath,
   distPath,
@@ -208,17 +184,17 @@ async function build({
   cwd: string;
   pkg: {
     name: string;
-    buildOptions: BuildOptions;
     bin?: Record<string, string>;
   };
   fullName: string;
-  config: BobConfig;
   reporter: Consola;
   getBuildPath: (target: "esm" | "cjs") => string;
   distPath: string;
 }) {
-  if (config.ignore?.includes(fullName)) {
-    reporter.warn(`Ignored ${fullName}`);
+  const config = getBobConfig(pkg);
+
+  if (config === false || config?.build === false) {
+    reporter.warn(`Skip build for '${fullName}'`);
     return;
   }
 
@@ -298,11 +274,10 @@ async function build({
     join(distPath, "package.json"),
     JSON.stringify(rewritePackageJson(pkg), null, 2)
   );
-
   // move README.md and LICENSE and other specified files
   await copyToDist(
     cwd,
-    ["README.md", "LICENSE", ...(pkg.buildOptions?.copy ?? [])],
+    ["README.md", "LICENSE", ...(config?.build?.copy ?? [])],
     distPath
   );
 

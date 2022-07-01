@@ -42,9 +42,16 @@
     "access": "public"
   },
   "type": "module",
-  "buildOptions": {
-    "copy": [
-      "foo.json"
-    ]
+  "bob": {
+    "build": {
+      "copy": [
+        "foo.json"
+      ]
+    },
+    "check": {
+      "skip": [
+        "./file-that-throws"
+      ]
+    }
   }
 }

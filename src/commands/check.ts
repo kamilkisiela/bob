@@ -7,6 +7,10 @@ import { presetFields } from "./bootstrap";
 import path from "path";
 import pLimit from "p-limit";
 import execa from "execa";
+import { getRootPackageJSON } from "../utils/get-root-package-json";
+import { getWorkspaces } from "../utils/get-workspaces";
+import { getWorkspacePackagePaths } from "../utils/get-workspace-package-paths";
+import { getBobConfig } from "../config";
 
 const ExportsMapEntry = zod.object({
   default: zod.string(),
@@ -35,47 +39,55 @@ export const checkCommand = createCommand<{}, {}>((api) => {
       return yargs.options({});
     },
     async handler() {
-      const [rootPackageJSONPath] = await globby("package.json", {
-        cwd: process.cwd(),
-        absolute: true,
-      });
+      const cwd = process.cwd();
+      const rootPackageJSON = await getRootPackageJSON(cwd);
+      const workspaces = getWorkspaces(rootPackageJSON);
+      const isSinglePackage = workspaces === null;
 
-      if (rootPackageJSONPath === undefined) {
-        throw new Error("Must be executed within a (monorepo-)package root.");
-      }
-
-      const rootPackageJSON: Record<string, unknown> = await fse.readJSON(
-        rootPackageJSONPath
-      );
-      let packageJSONPaths: Array<string>;
-
-      const isSinglePackage =
-        Array.isArray(rootPackageJSON.workspaces) === false;
+      let checkConfigs: Array<{
+        cwd: string;
+        packageJSON: Record<string, unknown>;
+      }> = [];
 
       if (isSinglePackage) {
-        packageJSONPaths = await globby("dist/package.json", {
-          cwd: process.cwd(),
-          absolute: true,
+        checkConfigs.push({
+          cwd,
+          packageJSON: rootPackageJSON,
         });
       } else {
-        packageJSONPaths = await globby("packages/**/dist/package.json", {
-          cwd: process.cwd(),
-          absolute: true,
-          ignore: ["**/node_modules/**"],
-        });
-      }
+        const workspacesPaths = await getWorkspacePackagePaths(cwd, workspaces);
+        const limit = pLimit(20);
 
-      if (packageJSONPaths.length === 0) {
-        throw new Error(
-          "No package.json files found. Did you built the packages using 'bob build'?"
+        await Promise.all(
+          workspacesPaths.map((workspacePath) =>
+            limit(async () => {
+              const packageJSONPath = path.join(workspacePath, "package.json");
+              const packageJSON: Record<string, unknown> = await fse.readJSON(
+                packageJSONPath
+              );
+              checkConfigs.push({
+                cwd,
+                packageJSON,
+              });
+            })
+          )
         );
       }
 
-      for (const packageJSONPath of packageJSONPaths) {
-        const packageJSON = await fse.readJSON(packageJSONPath);
+      for (const { cwd, packageJSON } of checkConfigs) {
+        const config = getBobConfig(packageJSON);
+        if (config === false || config?.check === false) {
+          api.reporter.warn(`Skip check for '${packageJSON.name}'`);
+          continue;
+        }
+
+        const distPackageJSONPath = path.join(cwd, "dist", "package.json");
+        const distPackageJSON = await fse.readJSON(distPackageJSONPath);
+
         checkExportsMapIntegrity({
-          cwd: path.dirname(packageJSONPath),
-          packageJSON: packageJSON,
+          cwd: path.join(cwd, "dist"),
+          packageJSON: distPackageJSON,
+          skipExports: new Set<string>(config?.check?.skip ?? []),
         });
         api.reporter.success(`Checked integrity of '${packageJSON.name}'.`);
       }
@@ -90,6 +102,7 @@ async function checkExportsMapIntegrity(args: {
     exports: unknown;
     bin: unknown;
   };
+  skipExports: Set<string>;
 }) {
   const exportsMapResult = ExportsMapModel.safeParse(
     args.packageJSON["exports"]
@@ -105,6 +118,21 @@ async function checkExportsMapIntegrity(args: {
 
   const exportsMap = exportsMapResult["data"];
 
+  const cjsSkipExports = new Set<string>();
+  const esmSkipExports = new Set<string>();
+  for (const definedExport of args.skipExports) {
+    const cjsResult = resolve.resolve(args.packageJSON, definedExport, {
+      require: true,
+    });
+    if (typeof cjsResult === "string") {
+      cjsSkipExports.add(cjsResult);
+    }
+    const esmResult = resolve.resolve(args.packageJSON, definedExport);
+    if (typeof esmResult === "string") {
+      esmSkipExports.add(esmResult);
+    }
+  }
+
   for (const key of Object.keys(exportsMap)) {
     const cjsResult = resolve.resolve(args.packageJSON, key, {
       require: true,
@@ -119,20 +147,28 @@ async function checkExportsMapIntegrity(args: {
     if (cjsResult.match(/.(js|cjs)$/)) {
       const cjsFilePaths = await globby(cjsResult, {
         cwd: args.cwd,
-        absolute: true,
       });
 
       const limit = pLimit(20);
       await Promise.all(
         cjsFilePaths.map((file) =>
           limit(async () => {
+            if (cjsSkipExports.has(file)) {
+              return;
+            }
+
             const result = await runRequireJSFileCommand({
               path: file,
               cwd: args.cwd,
             });
+
             if (result.exitCode !== 0) {
+              console.log(result);
               throw new Error(
-                `Require of file '${file}' failed with error:\n` + result.all!
+                `Require of file '${file}' failed.\n` +
+                  `In case this file is expected to raise an error please add an export to the 'bob.check.skip' field in your 'package.json' file.\n` +
+                  `Error:\n` +
+                  result.stderr
               );
             }
           })
@@ -155,13 +191,15 @@ async function checkExportsMapIntegrity(args: {
     if (esmResult.match(/.(js|mjs)$/)) {
       const esmFilePaths = await globby(esmResult, {
         cwd: args.cwd,
-        absolute: true,
       });
 
       const limit = pLimit(20);
       await Promise.all(
         esmFilePaths.map((file) =>
           limit(async () => {
+            if (esmSkipExports.has(file)) {
+              return;
+            }
             const result = await runImportJSFileCommand({
               path: file,
               cwd: args.cwd,
@@ -195,7 +233,7 @@ async function checkExportsMapIntegrity(args: {
   if (legacyRequireResult.exitCode !== 0) {
     throw new Error(
       `Require of file '${legacyRequire}' failed with error:\n` +
-        legacyRequireResult.all
+        legacyRequireResult.stderr
     );
   }
 
@@ -210,7 +248,7 @@ async function checkExportsMapIntegrity(args: {
   if (legacyImportResult.exitCode !== 0) {
     throw new Error(
       `Require of file '${legacyRequire}' failed with error:\n` +
-        legacyImportResult.all
+        legacyImportResult.stderr
     );
   }
 
@@ -224,7 +262,7 @@ async function checkExportsMapIntegrity(args: {
 
     const cache = new Set<string>();
 
-    for (const [_binary, filePath] of Object.entries(result.data)) {
+    for (const filePath of Object.values(result.data)) {
       if (cache.has(filePath)) {
         continue;
       }
@@ -267,6 +305,7 @@ function runRequireJSFileCommand(args: {
 }): execa.ExecaChildProcess<string> {
   return execa("node", ["-e", `require('${args.path}')${timeout}`], {
     cwd: args.cwd,
+    reject: false,
   });
 }
 
@@ -276,6 +315,7 @@ function runImportJSFileCommand(args: { cwd: string; path: string }) {
     ["-e", `import('${args.path}').then(() => {${timeout}})`],
     {
       cwd: args.cwd,
+      reject: false,
     }
   );
 }

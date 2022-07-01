@@ -1,53 +1,31 @@
-import { cosmiconfig } from "cosmiconfig";
-import { isAbsolute, resolve } from "path";
+import zod from "zod";
 
-type CommandTuple = [string, string[]];
+const BobConfigModel = zod.optional(
+  zod.union([
+    zod.literal(false),
+    zod.object({
+      build: zod.union([
+        zod.literal(false),
+        zod.optional(
+          zod.object({
+            copy: zod.optional(zod.array(zod.string())),
+          })
+        ),
+      ]),
+      check: zod.optional(
+        zod.union([
+          zod.literal(false),
+          zod.object({
+            skip: zod.optional(zod.array(zod.string())),
+          }),
+        ])
+      ),
+    }),
+  ])
+);
 
-type Command = {
-  track?: string[];
-  run(affected: {
-    names: string[];
-    paths: string[];
-  }): CommandTuple | Promise<CommandTuple>;
-};
+export type BobConfig = zod.TypeOf<typeof BobConfigModel>;
 
-export interface BobConfig {
-  scope?: string;
-  ignore?: string[];
-  track?: string[];
-  base?: string;
-  commands?: {
-    [cmdName: string]: Command;
-  };
-  dists?: {
-    distDir: string;
-    distPath?: string;
-  }[]
-}
-
-interface UseConfigOptions {
-  config?: string;
-}
-
-export async function useConfig(
-  options?: UseConfigOptions
-): Promise<BobConfig | never> {
-  const cosmi = cosmiconfig("bob", {
-    cache: true,
-    searchPlaces: ["bob.config.js"],
-  });
-
-  const config = await (options?.config
-    ? cosmi.load(
-        isAbsolute(options.config)
-          ? options.config
-          : resolve(process.cwd(), options.config)
-      )
-    : cosmi.search());
-
-  if (!config || config.isEmpty) {
-    return {};
-  }
-
-  return config.config;
+export function getBobConfig(packageJson: Record<string, unknown>) {
+  return BobConfigModel.parse(packageJson.bob ?? {});
 }

@@ -1,11 +1,9 @@
 import { CommandModule } from "yargs";
-import { BobConfig } from "./config";
 import { Consola } from "consola";
 
 export { CommandModule as Command };
 
 export interface CommandAPI {
-  config: BobConfig;
   reporter: Consola;
 }
 

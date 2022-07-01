@@ -10,7 +10,6 @@ import { build as tsup } from "tsup";
 import { spawn } from "child_process";
 
 import { createCommand } from "../command";
-import { BobConfig } from "../config";
 
 export const distDir = "dist";
 
@@ -29,7 +28,7 @@ export const runifyCommand = createCommand<
     tag?: string[];
   }
 >((api) => {
-  const { config, reporter } = api;
+  const { reporter } = api;
 
   return {
     command: "runify",
@@ -55,7 +54,7 @@ export const runifyCommand = createCommand<
         Array.isArray(rootPackageJSON.workspaces) === false;
 
       if (isSinglePackage) {
-        return runify(join(process.cwd(), "package.json"), config, reporter);
+        return runify(join(process.cwd(), "package.json"), reporter);
       }
 
       const limit = pLimit(1);
@@ -101,20 +100,14 @@ export const runifyCommand = createCommand<
             }
           }
 
-          return limit(() =>
-            runify(depGraph.getNodeData(name).path, config, reporter)
-          );
+          return limit(() => runify(depGraph.getNodeData(name).path, reporter));
         })
       );
     },
   };
 });
 
-async function runify(
-  packagePath: string,
-  _config: BobConfig,
-  reporter: Consola
-) {
+async function runify(packagePath: string, reporter: Consola) {
   const cwd = packagePath.replace("/package.json", "");
   const pkg = await readPackageJson(cwd);
   const buildOptions: BuildOptions = pkg.buildOptions || {};
