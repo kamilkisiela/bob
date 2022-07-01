@@ -83,11 +83,19 @@ export const checkCommand = createCommand<{}, {}>((api) => {
         const distPackageJSONPath = path.join(cwd, "dist", "package.json");
         const distPackageJSON = await fse.readJSON(distPackageJSONPath);
 
-        checkExportsMapIntegrity({
-          cwd: path.join(cwd, "dist"),
-          packageJSON: distPackageJSON,
-          skipExports: new Set<string>(config?.check?.skip ?? []),
-        });
+        try {
+          checkExportsMapIntegrity({
+            cwd: path.join(cwd, "dist"),
+            packageJSON: distPackageJSON,
+            skipExports: new Set<string>(config?.check?.skip ?? []),
+          });
+        } catch (err) {
+          api.reporter.error(
+            `Integrity check of '${packageJSON.name}' failed.`
+          );
+
+          throw err;
+        }
         api.reporter.success(`Checked integrity of '${packageJSON.name}'.`);
       }
     },
@@ -162,7 +170,6 @@ async function checkExportsMapIntegrity(args: {
             });
 
             if (result.exitCode !== 0) {
-              console.log(result);
               throw new Error(
                 `Require of file '${file}' failed.\n` +
                   `In case this file is expected to raise an error please add an export to the 'bob.check.skip' field in your 'package.json' file.\n` +
@@ -205,7 +212,7 @@ async function checkExportsMapIntegrity(args: {
             });
             if (result.exitCode !== 0) {
               throw new Error(
-                `Import of file '${file}' failed with error:\n` + result.all
+                `Import of file '${file}' failed with error:\n` + result.stderr
               );
             }
           })
