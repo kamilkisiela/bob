@@ -84,7 +84,7 @@ export const checkCommand = createCommand<{}, {}>((api) => {
         const distPackageJSON = await fse.readJSON(distPackageJSONPath);
 
         try {
-          checkExportsMapIntegrity({
+          await checkExportsMapIntegrity({
             cwd: path.join(cwd, "dist"),
             packageJSON: distPackageJSON,
             skipExports: new Set<string>(config?.check?.skip ?? []),
