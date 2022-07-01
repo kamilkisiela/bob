@@ -6,7 +6,7 @@ Remove the global config. Please add `bob: false` to the individual `package.jso
 
 This is the new config format for bob.
 
-````ts
+```ts
 type BobConfig =
   /** completely disable bob for this package. */
   | false
@@ -26,5 +26,4 @@ type BobConfig =
             skip?: Array<string>;
           };
     };
-    ```
-````
+```
