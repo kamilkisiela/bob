@@ -57,7 +57,6 @@ export const checkCommand = createCommand<{}, {}>((api) => {
       } else {
         const workspacesPaths = await getWorkspacePackagePaths(cwd, workspaces);
         const limit = pLimit(20);
-
         await Promise.all(
           workspacesPaths.map((workspacePath) =>
             limit(async () => {
@@ -66,7 +65,7 @@ export const checkCommand = createCommand<{}, {}>((api) => {
                 packageJSONPath
               );
               checkConfigs.push({
-                cwd,
+                cwd: workspacePath,
                 packageJSON,
               });
             })
