@@ -8,12 +8,12 @@ export async function getWorkspacePackagePaths(
   workspaces: Array<string>
 ) {
   const packageJSONPaths = await globby(
-    workspaces.map((workspacePattern) =>
-      path.join(workspacePattern, "package.json")
-    ),
+    workspaces
+      /** We are only interested in workspaces that are packages (for now.) */
+      .filter((workspacePattern) => workspacePattern.startsWith("packages/"))
+      .map((workspacePattern) => path.join(workspacePattern, "package.json")),
     {
       cwd,
-      absolute: true,
       ignore: ["**/node_modules/**", ...buildArtifactDirectories],
     }
   );
