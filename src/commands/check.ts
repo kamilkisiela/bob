@@ -73,31 +73,37 @@ export const checkCommand = createCommand<{}, {}>((api) => {
         );
       }
 
-      for (const { cwd, packageJSON } of checkConfigs) {
-        const config = getBobConfig(packageJSON);
-        if (config === false || config?.check === false) {
-          api.reporter.warn(`Skip check for '${packageJSON.name}'`);
-          continue;
-        }
+      const limit = pLimit(20);
 
-        const distPackageJSONPath = path.join(cwd, "dist", "package.json");
-        const distPackageJSON = await fse.readJSON(distPackageJSONPath);
+      await Promise.allSettled(
+        checkConfigs.map(({ cwd, packageJSON }) =>
+          limit(async () => {
+            const config = getBobConfig(packageJSON);
+            if (config === false || config?.check === false) {
+              api.reporter.warn(`Skip check for '${packageJSON.name}'.`);
+              return;
+            }
 
-        try {
-          await checkExportsMapIntegrity({
-            cwd: path.join(cwd, "dist"),
-            packageJSON: distPackageJSON,
-            skipExports: new Set<string>(config?.check?.skip ?? []),
-          });
-        } catch (err) {
-          api.reporter.error(
-            `Integrity check of '${packageJSON.name}' failed.`
-          );
+            const distPackageJSONPath = path.join(cwd, "dist", "package.json");
+            const distPackageJSON = await fse.readJSON(distPackageJSONPath);
 
-          throw err;
-        }
-        api.reporter.success(`Checked integrity of '${packageJSON.name}'.`);
-      }
+            try {
+              await checkExportsMapIntegrity({
+                cwd: path.join(cwd, "dist"),
+                packageJSON: distPackageJSON,
+                skipExports: new Set<string>(config?.check?.skip ?? []),
+              });
+            } catch (err) {
+              api.reporter.error(
+                `Integrity check of '${packageJSON.name}' failed.`
+              );
+
+              throw err;
+            }
+            api.reporter.success(`Checked integrity of '${packageJSON.name}'.`);
+          })
+        )
+      );
     },
   };
 });
