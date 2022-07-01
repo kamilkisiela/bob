@@ -75,6 +75,7 @@ export const checkCommand = createCommand<{}, {}>((api) => {
 
       const limit = pLimit(20);
 
+      let didFail = false;
       await Promise.allSettled(
         checkConfigs.map(({ cwd, packageJSON }) =>
           limit(async () => {
@@ -97,13 +98,17 @@ export const checkCommand = createCommand<{}, {}>((api) => {
               api.reporter.error(
                 `Integrity check of '${packageJSON.name}' failed.`
               );
-
-              throw err;
+              api.reporter.log(err);
+              didFail = true;
+              return;
             }
             api.reporter.success(`Checked integrity of '${packageJSON.name}'.`);
           })
         )
       );
+      if (didFail) {
+        throw new Error("One ore more integrity checks failed.");
+      }
     },
   };
 });
