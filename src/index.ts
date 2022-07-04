@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import yargs, { Argv } from "yargs";
 import consola from "consola";
-import { useConfig } from "./config";
 import { CommandFactory } from "./command";
 import { buildCommand } from "./commands/build";
 import { runifyCommand } from "./commands/runify";
@@ -9,8 +8,6 @@ import { bootstrapCommand } from "./commands/bootstrap";
 import { checkCommand } from "./commands/check";
 
 async function main() {
-  const config = await useConfig();
-
   const root: Argv = yargs
     .scriptName("bob")
     .detectLocale(false)
@@ -26,7 +23,7 @@ async function main() {
   const reporter = consola.create({});
 
   commands
-    .reduce((cli, cmd) => cli.command(cmd({ config, reporter })), root)
+    .reduce((cli, cmd) => cli.command(cmd({ reporter })), root)
     .help()
     .showHelpOnFail(false).argv;
 }

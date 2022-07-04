@@ -1,85 +1,67 @@
-# Bob (The Bundler)
+# Bob (The ~~Bundler~~ Butler)
 
-There's no documentation yet but you can check [GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator) repository to see how to use Bob.
+Bob is the TypeScript build, bundle and verification tool used by almost all [The Guild](https://the-guild.dev) open source projects.
+
+Scope:
+
+- **Build**: Build ESM and CommonJS compatible npm packages
+- **Verify**: Ensure all ESM and CommonJS imports within a npm package are usable
+- **Bundle**: Build a single executable for an application (experimental)
 
 ## Requirements
 
-- Supports only scoped packages (same scope)
-- Yarn Workspaces
-- TypeScript with Paths
+- Yarn workspace or single package project
+- TypeScript
 - It's so strict you shouldn't use it!
+
+## Setup
+
+Setting up bob is currently undocumented. You can check [GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator) repository (or any other The Guild repository).
 
 ## Configuration
 
-Bob only accepts `bob.config.js` in root directory:
+You can add a `bob` key to each `package.json`.
+
+**Disable bob for a single package**
 
 ```js
-module.exports = {
-  scope: "@graphql-codegen", // Scope of organization
-  ignore: ["@graphql-codegen/website", "@graphql-codegen/live-demo"], // ignored packages
-  track: [
-    // files in root that mark the entire workspace as dirty
-    "bob.config.js", // we could include it in Bob itself but we decided to turn your life into hell :)
-    "jest.config.js",
-    "jest-project.js",
-    "package.json",
-    "tsconfig.json",
-    // files in packages that mark the package as dirty
-    "<project>/src/**",
-    "<project>/jest.config.js",
-    "<project>/package.json",
-    "<project>/tsconfig.json",
-  ],
-  base: "origin/master", // we need to compare against something
-  commands: {
-    test: {
-      track: ["<project>/tests/**"],
-      run(affected) {
-        // {
-        //   paths: string[] <- ['packages/core', 'packages/cli']
-        //   names: string[] <- ['@foo/core', '@foo/cli']
-        // }
-
-        // why such a weird syntax? We use spawn, so you have too
-        return [`yarn`, ["test", ...affected.paths]];
-      },
-    },
-    build: {
-      run() {
-        return [`yarn`, ["build"]];
-      },
-    },
-  },
-};
+{
+  "name": "graphql-lfg",
+  "bob": false // exclude a single package from all things bob related
+}
 ```
 
-## Build Options
+**Disable build for a single package**
 
-In your `<project>/package.json`:
-
-```json
+```js
 {
-  "buildOptions": {
-    "external": ["simple-git/promise"], // Marks nested imports as external
-    "bin": {
-      "cli": {
-        "input": "src/cli.ts" // Entry point for `cli` command
-      }
-    }
+  "name": "graphql-lfg",
+  "bob": {
+    "build": false
   }
 }
 ```
 
-## Support for Node ES Modules
+**Disable check for a single package**
 
-In your `<project>/package.json`, just add `"exports"` like this:
-
-```json
+```js
 {
-  "main": "dist/index.cjs.js",
-  "exports": {
-    "require": "dist/index.cjs.js", // should match "main"
-    "default": "dist/index.mjs" // should ends with ".mjs" extension
+  "name": "graphql-lfg",
+  "bob": {
+    "check": false
+  }
+}
+```
+
+**Disable check for a single export in a package**
+
+```js
+{
+  "name": "graphql-lfg",
+  "bob": {
+    "check": {
+      "skip": ["./foo"]
+    }
   }
 }
 ```
@@ -88,12 +70,10 @@ In your `<project>/package.json`, just add `"exports"` like this:
 
 ```bash
 
-$ bob affected test
-$ bob affected build
-
 $ bob build
-$ bob prepack
+$ bob check
 
+# only use this command if you know the secret sauce
 $ bob runify
 
 ```

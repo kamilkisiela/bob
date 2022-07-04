@@ -1,7 +1,12 @@
 import globby from "globby";
 import pLimit from "p-limit";
+import * as path from "path";
 import * as fse from "fs-extra";
 import { createCommand } from "../command";
+import { buildArtifactDirectories } from "../constants";
+import { getRootPackageJSON } from "../utils/get-root-package-json";
+import { getWorkspaces } from "../utils/get-workspaces";
+import { getWorkspacePackagePaths } from "../utils/get-workspace-package-paths";
 
 /** The default bob fields that should be within a package.json */
 export const presetFields = Object.freeze({
@@ -60,11 +65,11 @@ function transformModuleImports(fileContents: string) {
   );
 }
 
-async function applyESMModuleTransform(distDirs: Array<string>) {
+async function applyESMModuleTransform(cwd: string) {
   const files = await globby("**/*.ts", {
-    cwd: process.cwd(),
+    cwd,
     absolute: true,
-    ignore: ["**/node_modules/**", ...distDirs],
+    ignore: ["**/node_modules/**", ...buildArtifactDirectories],
   });
 
   const limit = pLimit(20);
@@ -89,7 +94,7 @@ async function applyPackageJSONPresetConfig(
 
 const limit = pLimit(20);
 
-export const bootstrapCommand = createCommand<{}, {}>((api) => {
+export const bootstrapCommand = createCommand<{}, {}>(() => {
   return {
     command: "bootstrap",
     describe:
@@ -98,48 +103,35 @@ export const bootstrapCommand = createCommand<{}, {}>((api) => {
       return yargs.options({});
     },
     async handler() {
-      const { config } = api;
-
-      const [rootPackageJSONPath] = await globby("package.json", {
-        cwd: process.cwd(),
-        absolute: true,
-      });
-
-      if (rootPackageJSONPath === undefined) {
-        throw new Error("Must be executed within a (monorepo-)package root.");
-      }
-
-      const rootPackageJSON: Record<string, unknown> = await fse.readJSON(
-        rootPackageJSONPath
-      );
-      const isSinglePackage =
-        Array.isArray(rootPackageJSON.workspaces) === false;
-
-      const distDirs =
-        config.dists?.map(({ distDir }) => `**/${distDir}/**`) ?? [];
+      const cwd = process.cwd();
+      const rootPackageJSON = await getRootPackageJSON(cwd);
+      const workspaces = getWorkspaces(rootPackageJSON);
+      const isSinglePackage = workspaces === null;
 
       // Make sure all modules are converted to ESM
-      await applyESMModuleTransform(distDirs);
 
       if (isSinglePackage) {
+        await applyESMModuleTransform(cwd);
         await applyPackageJSONPresetConfig(
-          rootPackageJSONPath,
+          path.join(cwd, "package.json"),
           rootPackageJSON
         );
         return;
       }
 
-      const packageJSONPaths = await globby("packages/**/package.json", {
-        cwd: process.cwd(),
-        absolute: true,
-        ignore: ["**/node_modules/**", ...distDirs],
-      });
+      const workspacePackagePaths = await getWorkspacePackagePaths(
+        cwd,
+        workspaces
+      );
+
       await Promise.all(
-        packageJSONPaths.map((packageJSONPath) =>
+        workspacePackagePaths.map((packagePath) =>
           limit(async () => {
+            const packageJSONPath = path.join(packagePath, "package.json");
             const packageJSON: Record<string, unknown> = await fse.readJSON(
               packageJSONPath
             );
+            await applyESMModuleTransform(packagePath);
             await applyPackageJSONPresetConfig(packageJSONPath, packageJSON);
           })
         )
