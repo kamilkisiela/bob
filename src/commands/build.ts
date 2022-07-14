@@ -64,29 +64,32 @@ function compilerOptionsToArgs(
   return args;
 }
 
+function assertTypeScriptBuildResult(result: execa.ExecaReturnValue<string>) {
+  if (result.exitCode !== 0) {
+    console.log("TypeScript compiler exited with non-zero exit code.");
+    console.log(result.stdout);
+    throw new Error("TypeScript compiler exited with non-zero exit code.");
+  }
+}
+
 async function buildTypeScript(buildPath: string) {
-  const results = await Promise.all([
-    execa("npx", [
+  assertTypeScriptBuildResult(
+    await execa("npx", [
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("esm")),
       "--outDir",
       join(buildPath, "esm"),
-    ]),
-    execa("npx", [
+    ])
+  );
+
+  assertTypeScriptBuildResult(
+    await execa("npx", [
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("cjs")),
       "--outDir",
       join(buildPath, "cjs"),
-    ]),
-  ]);
-
-  for (const result of results) {
-    if (result.exitCode !== 0) {
-      console.log("TypeScript compiler exited with non-zero exit code.");
-      console.log(result.stdout);
-      throw new Error("TypeScript compiler exited with non-zero exit code.");
-    }
-  }
+    ])
+  );
 }
 
 export const buildCommand = createCommand<{}, {}>((api) => {
