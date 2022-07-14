@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.1
+
+### Patch Changes
+
+- 086c1a8: Run typescript tsc commands in sequence instead of in parallel to avoid race conditions where the `.bob/cjs` or `.bob/esm` folder is missing.
+
 ## 3.0.0
 
 ### Major Changes
