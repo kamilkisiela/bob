@@ -9,6 +9,12 @@ it("ignores module import statement", () => {
   expect(result).toEqual("import foo from 'foo';");
 });
 
+it("handles type statements", () => {
+  const fixture = "import type foo from 'foo'";
+  const result = rewriteCodeImports(fixture, fixturePath);
+  expect(result).toEqual("import type foo from 'foo';");
+});
+
 it("rewrites relative import statement", () => {
   const fixture = "import foo from './bar'";
   const result = rewriteCodeImports(fixture, fixturePath);
