@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.3
+
+### Patch Changes
+
+- 0c36290: Support type imports/exports.
+
 ## 3.0.2
 
 ### Patch Changes
