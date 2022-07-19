@@ -33,6 +33,7 @@ export function rewriteCodeImports(
 ): string {
   const ast = parse(fileContents, {
     sourceType: "module",
+    plugins: ["typescript"],
   });
 
   const relativeDirname = path.dirname(absoluteFilePath);
