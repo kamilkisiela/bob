@@ -1,6 +1,3 @@
-import { parse } from "@babel/parser";
-import generate from "@babel/generator";
-import traverse from "@babel/traverse";
 import * as fse from "fs-extra";
 import * as path from "path";
 
@@ -31,32 +28,15 @@ export function rewriteCodeImports(
   fileContents: string,
   absoluteFilePath: string
 ): string {
-  const ast = parse(fileContents, {
-    sourceType: "module",
-    plugins: ["typescript"],
-  });
-
   const relativeDirname = path.dirname(absoluteFilePath);
 
-  traverse(ast, {
-    ImportDeclaration(nodePath) {
-      nodePath.node.source.value = rewriteSourceValue(
-        nodePath.node.source.value,
-        relativeDirname
-      );
-    },
-    ExportDeclaration(nodePath) {
-      if (
-        nodePath.node.type !== "ExportDefaultDeclaration" &&
-        nodePath.node.source
-      ) {
-        nodePath.node.source.value = rewriteSourceValue(
-          nodePath.node.source.value,
-          relativeDirname
-        );
-      }
-    },
-  });
-
-  return generate(ast).code;
+  return fileContents.replace(
+    /* this regex should hopefully catch all kind of import/export expressions that are relative. */
+    /((?:import|export)\s+[\s\w,{}*]*\s+from\s+["'])((?:\.\/|\.\.\/)(?:(?!\.js).)+)(["'])/g,
+    (_, importFromPart, modulePath, hyphenEndPart) => {
+      console.log(`${importFromPart}${modulePath}`);
+      const sourcePath = rewriteSourceValue(modulePath, relativeDirname);
+      return `${importFromPart}${sourcePath}${hyphenEndPart}`;
+    }
+  );
 }
