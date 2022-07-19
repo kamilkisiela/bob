@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.2
+
+### Patch Changes
+
+- b6976a9: Use a more reliable import/export transform for the bootstrap command
+
 ## 3.0.1
 
 ### Patch Changes
