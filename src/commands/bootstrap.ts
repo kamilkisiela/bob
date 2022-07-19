@@ -7,6 +7,7 @@ import { buildArtifactDirectories } from "../constants";
 import { getRootPackageJSON } from "../utils/get-root-package-json";
 import { getWorkspaces } from "../utils/get-workspaces";
 import { getWorkspacePackagePaths } from "../utils/get-workspace-package-paths";
+import { rewriteCodeImports } from "../utils/rewrite-code-imports";
 
 /** The default bob fields that should be within a package.json */
 export const presetFields = Object.freeze({
@@ -56,17 +57,8 @@ export const presetFields = Object.freeze({
   },
 });
 
-function transformModuleImports(fileContents: string) {
-  return fileContents.replace(
-    /* this regex should hopefully catch all kind of import/export expressions that are relative. */
-    /((?:import|export)\s+[\s\w,{}*]*\s+from\s+["'])((?:\.\/|\.\.\/)(?:(?!\.js).)+)(["'])/g,
-    (_, importFromPart, modulePath, hyphenEndPart) =>
-      `${importFromPart}${modulePath}.js${hyphenEndPart}`
-  );
-}
-
 async function applyESMModuleTransform(cwd: string) {
-  const files = await globby("**/*.ts", {
+  const filePaths = await globby("**/*.ts", {
     cwd,
     absolute: true,
     ignore: ["**/node_modules/**", ...buildArtifactDirectories],
@@ -75,10 +67,10 @@ async function applyESMModuleTransform(cwd: string) {
   const limit = pLimit(20);
 
   await Promise.all(
-    files.map((file) =>
+    filePaths.map((filePath) =>
       limit(async () => {
-        const contents = await fse.readFile(file, "utf-8");
-        await fse.writeFile(file, transformModuleImports(contents));
+        const contents = await fse.readFile(filePath, "utf-8");
+        await fse.writeFile(filePath, rewriteCodeImports(contents, filePath));
       })
     )
   );
