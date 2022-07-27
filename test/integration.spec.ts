@@ -294,3 +294,50 @@ it("can build a monorepo project", async () => {
     cwd: path.resolve(fixturesFolder, "simple-monorepo")
   });
 });
+
+it("can build an esm only project", async () => {
+  await fse.remove(path.resolve(fixturesFolder, "simple-esm-only", "dist"));
+  const result = await execa("node", [binaryFolder, "build"], {
+    cwd: path.resolve(fixturesFolder, "simple-esm-only")
+  });
+  expect(result.exitCode).toEqual(0);
+
+  const baseDistPath = path.resolve(fixturesFolder, "simple-esm-only", "dist");
+  const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
+  const indexJsFilePath = path.resolve(baseDistPath, "esm", "index.js");
+  const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
+  expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
+    "{
+      \\"name\\": \\"simple-esm-only\\",
+      \\"main\\": \\"esm/index.js\\",
+      \\"module\\": \\"esm/index.js\\",
+      \\"typings\\": \\"typings/index.d.ts\\",
+      \\"typescript\\": {
+        \\"definition\\": \\"typings/index.d.ts\\"
+      },
+      \\"type\\": \\"module\\",
+      \\"exports\\": {
+        \\".\\": {
+          \\"import\\": {
+            \\"types\\": \\"./typings/index.d.ts\\",
+            \\"default\\": \\"./esm/index.js\\"
+          },
+          \\"default\\": {
+            \\"types\\": \\"./typings/index.d.ts\\",
+            \\"default\\": \\"./esm/index.js\\"
+          }
+        },
+        \\"./package.json\\": \\"./package.json\\"
+      }
+    }"
+  `);
+
+  expect(fse.readFileSync(indexJsFilePath, "utf8")).toMatchInlineSnapshot(`
+    "export var someNumber = 1;
+    "
+  `);
+  expect(fse.readFileSync(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
+    "export declare const someNumber = 1;
+    "
+  `);
+});

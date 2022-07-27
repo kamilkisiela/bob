@@ -21,7 +21,7 @@ const ExportsMapModel = zod.record(
   zod.union([
     zod.string(),
     zod.object({
-      require: ExportsMapEntry,
+      require: zod.optional(ExportsMapEntry),
       import: ExportsMapEntry,
       default: ExportsMapEntry,
     }),
@@ -93,6 +93,7 @@ export const checkCommand = createCommand<{}, {}>((api) => {
                 cwd: path.join(cwd, "dist"),
                 packageJSON: distPackageJSON,
                 skipExports: new Set<string>(config?.check?.skip ?? []),
+                includesCommonJS: config?.commonjs ?? true,
               });
             } catch (err) {
               api.reporter.error(
@@ -121,6 +122,7 @@ async function checkExportsMapIntegrity(args: {
     bin: unknown;
   };
   skipExports: Set<string>;
+  includesCommonJS: boolean;
 }) {
   const exportsMapResult = ExportsMapModel.safeParse(
     args.packageJSON["exports"]
@@ -139,11 +141,13 @@ async function checkExportsMapIntegrity(args: {
   const cjsSkipExports = new Set<string>();
   const esmSkipExports = new Set<string>();
   for (const definedExport of args.skipExports) {
-    const cjsResult = resolve.resolve(args.packageJSON, definedExport, {
-      require: true,
-    });
-    if (typeof cjsResult === "string") {
-      cjsSkipExports.add(cjsResult);
+    if (args.includesCommonJS) {
+      const cjsResult = resolve.resolve(args.packageJSON, definedExport, {
+        require: true,
+      });
+      if (typeof cjsResult === "string") {
+        cjsSkipExports.add(cjsResult);
+      }
     }
     const esmResult = resolve.resolve(args.packageJSON, definedExport);
     if (typeof esmResult === "string") {
@@ -152,49 +156,51 @@ async function checkExportsMapIntegrity(args: {
   }
 
   for (const key of Object.keys(exportsMap)) {
-    const cjsResult = resolve.resolve(args.packageJSON, key, {
-      require: true,
-    });
-
-    if (!cjsResult) {
-      throw new Error(
-        `Could not resolve CommonJS import '${key}' for '${args.packageJSON.name}'.`
-      );
-    }
-
-    if (cjsResult.match(/.(js|cjs)$/)) {
-      const cjsFilePaths = await globby(cjsResult, {
-        cwd: args.cwd,
+    if (args.includesCommonJS) {
+      const cjsResult = resolve.resolve(args.packageJSON, key, {
+        require: true,
       });
 
-      const limit = pLimit(20);
-      await Promise.all(
-        cjsFilePaths.map((file) =>
-          limit(async () => {
-            if (cjsSkipExports.has(file)) {
-              return;
-            }
+      if (!cjsResult) {
+        throw new Error(
+          `Could not resolve CommonJS import '${key}' for '${args.packageJSON.name}'.`
+        );
+      }
 
-            const result = await runRequireJSFileCommand({
-              path: file,
-              cwd: args.cwd,
-            });
+      if (cjsResult.match(/.(js|cjs)$/)) {
+        const cjsFilePaths = await globby(cjsResult, {
+          cwd: args.cwd,
+        });
 
-            if (result.exitCode !== 0) {
-              throw new Error(
-                `Require of file '${file}' failed.\n` +
-                  `In case this file is expected to raise an error please add an export to the 'bob.check.skip' field in your 'package.json' file.\n` +
-                  `Error:\n` +
-                  result.stderr
-              );
-            }
-          })
-        )
-      );
-    } else {
-      // package.json or other files
-      // for now we just make sure they exists
-      await fse.stat(path.join(args.cwd, cjsResult));
+        const limit = pLimit(20);
+        await Promise.all(
+          cjsFilePaths.map((file) =>
+            limit(async () => {
+              if (cjsSkipExports.has(file)) {
+                return;
+              }
+
+              const result = await runRequireJSFileCommand({
+                path: file,
+                cwd: args.cwd,
+              });
+
+              if (result.exitCode !== 0) {
+                throw new Error(
+                  `Require of file '${file}' failed.\n` +
+                    `In case this file is expected to raise an error please add an export to the 'bob.check.skip' field in your 'package.json' file.\n` +
+                    `Error:\n` +
+                    result.stderr
+                );
+              }
+            })
+          )
+        );
+      } else {
+        // package.json or other files
+        // for now we just make sure they exists
+        await fse.stat(path.join(args.cwd, cjsResult));
+      }
     }
 
     const esmResult = resolve.resolve({ exports: exportsMap }, key);
@@ -242,16 +248,31 @@ async function checkExportsMapIntegrity(args: {
   if (!legacyRequire || typeof legacyRequire !== "string") {
     throw new Error(`Could not resolve legacy CommonJS entrypoint.`);
   }
-  const legacyRequireResult = await runRequireJSFileCommand({
-    path: legacyRequire,
-    cwd: args.cwd,
-  });
 
-  if (legacyRequireResult.exitCode !== 0) {
-    throw new Error(
-      `Require of file '${legacyRequire}' failed with error:\n` +
-        legacyRequireResult.stderr
-    );
+  if (args.includesCommonJS) {
+    const legacyRequireResult = await runRequireJSFileCommand({
+      path: legacyRequire,
+      cwd: args.cwd,
+    });
+
+    if (legacyRequireResult.exitCode !== 0) {
+      throw new Error(
+        `Require of file '${legacyRequire}' failed with error:\n` +
+          legacyRequireResult.stderr
+      );
+    }
+  } else {
+    const legacyRequireResult = await runImportJSFileCommand({
+      path: legacyRequire,
+      cwd: args.cwd,
+    });
+
+    if (legacyRequireResult.exitCode !== 0) {
+      throw new Error(
+        `Require of file '${legacyRequire}' failed with error:\n` +
+          legacyRequireResult.stderr
+      );
+    }
   }
 
   const legacyImport = resolve.legacy(args.packageJSON);
