@@ -194,7 +194,7 @@ async function checkExportsMapIntegrity(args: {
     } else {
       // package.json or other files
       // for now we just make sure they exists
-      await fse.stat(cjsResult);
+      await fse.stat(path.join(args.cwd, cjsResult));
     }
 
     const esmResult = resolve.resolve({ exports: exportsMap }, key);
@@ -232,7 +232,7 @@ async function checkExportsMapIntegrity(args: {
     } else {
       // package.json or other files
       // for now we just make sure they exists
-      await fse.stat(esmResult);
+      await fse.stat(path.join(args.cwd, esmResult));
     }
   }
 

@@ -35,7 +35,8 @@
         "default": "./dist/esm/*.js"
       }
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./style.css": "./style.css"
   },
   "publishConfig": {
     "directory": "dist",
@@ -45,7 +46,8 @@
   "bob": {
     "build": {
       "copy": [
-        "foo.json"
+        "foo.json",
+        "src/style.css"
       ]
     },
     "check": {
