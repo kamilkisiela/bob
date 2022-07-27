@@ -13,7 +13,7 @@ import { getWorkspaces } from "../utils/get-workspaces";
 import { createCommand } from "../command";
 import { getBobConfig } from "../config";
 import { rewriteExports } from "../utils/rewrite-exports";
-import { presetFields } from "./bootstrap";
+import { presetFields, presetFieldsESM } from "./bootstrap";
 import { getWorkspacePackagePaths } from "../utils/get-workspace-package-paths";
 
 export const DIST_DIR = "dist";
@@ -201,7 +201,7 @@ async function build({
     return;
   }
 
-  validatePackageJson(pkg);
+  validatePackageJson(pkg, config?.commonjs ?? true);
 
   // remove <project>/dist
   await fse.remove(distPath);
@@ -246,31 +246,33 @@ async function build({
     )
   );
 
-  // Transpile ESM to CJS and move CJS to dist/cjs
-  await fse.ensureDir(join(distPath, "cjs"));
+  if (config?.commonjs === undefined) {
+    // Transpile ESM to CJS and move CJS to dist/cjs
+    await fse.ensureDir(join(distPath, "cjs"));
 
-  const cjsFiles = await globby("**/*.js", {
-    cwd: getBuildPath("cjs"),
-    absolute: false,
-    ignore: filesToExcludeFromDist,
-  });
+    const cjsFiles = await globby("**/*.js", {
+      cwd: getBuildPath("cjs"),
+      absolute: false,
+      ignore: filesToExcludeFromDist,
+    });
 
-  await Promise.all(
-    cjsFiles.map((filePath) =>
-      limit(() =>
-        fse.copy(
-          join(getBuildPath("cjs"), filePath),
-          join(distPath, "cjs", filePath)
+    await Promise.all(
+      cjsFiles.map((filePath) =>
+        limit(() =>
+          fse.copy(
+            join(getBuildPath("cjs"), filePath),
+            join(distPath, "cjs", filePath)
+          )
         )
       )
-    )
-  );
+    );
 
-  // Add package.json to dist/cjs to ensure files are interpreted as commonjs
-  await fse.writeFile(
-    join(distPath, "cjs", "package.json"),
-    JSON.stringify({ type: "commonjs" })
-  );
+    // Add package.json to dist/cjs to ensure files are interpreted as commonjs
+    await fse.writeFile(
+      join(distPath, "cjs", "package.json"),
+      JSON.stringify({ type: "commonjs" })
+    );
+  }
 
   // move the package.json to dist
   await fse.writeFile(
@@ -358,7 +360,7 @@ function rewritePackageJson(pkg: Record<string, any>) {
   return newPkg;
 }
 
-export function validatePackageJson(pkg: any) {
+export function validatePackageJson(pkg: any, includesCommonJS: boolean) {
   function expect(key: string, expected: unknown) {
     const received = get(pkg, key);
 
@@ -366,8 +368,7 @@ export function validatePackageJson(pkg: any) {
       received,
       expected,
       `${pkg.name}: "${key}" equals "${JSON.stringify(received)}"` +
-        `, should be "${JSON.stringify(expected)}".\n` +
-        `!!! You can run 'bob bootstrap' for fixing your package.json. !!!`
+        `, should be "${JSON.stringify(expected)}".`
     );
   }
 
@@ -376,11 +377,18 @@ export function validatePackageJson(pkg: any) {
   // 1. have a bin property
   // 2. have a exports property
   // 3. have an exports and bin property
-  if (Object.keys(pkg.bin ?? {}).length === 0) {
-    expect("main", presetFields.main);
-    expect("module", presetFields.module);
-    expect("typings", presetFields.typings);
-    expect("typescript.definition", presetFields.typescript.definition);
+  if (Object.keys(pkg.bin ?? {}).length > 0) {
+    if (includesCommonJS === true) {
+      expect("main", presetFields.main);
+      expect("module", presetFields.module);
+      expect("typings", presetFields.typings);
+      expect("typescript.definition", presetFields.typescript.definition);
+    } else {
+      expect("main", presetFieldsESM.main);
+      expect("module", presetFieldsESM.module);
+      expect("typings", presetFieldsESM.typings);
+      expect("typescript.definition", presetFieldsESM.typescript.definition);
+    }
   } else if (
     pkg.main !== undefined ||
     pkg.module !== undefined ||
@@ -388,16 +396,26 @@ export function validatePackageJson(pkg: any) {
     pkg.typings !== undefined ||
     pkg.typescript !== undefined
   ) {
-    // if there is no bin property, we NEED to check the exports.
-    expect("main", presetFields.main);
-    expect("module", presetFields.module);
-    expect("typings", presetFields.typings);
-    expect("typescript.definition", presetFields.typescript.definition);
+    if (includesCommonJS === true) {
+      // if there is no bin property, we NEED to check the exports.
+      expect("main", presetFields.main);
+      expect("module", presetFields.module);
+      expect("typings", presetFields.typings);
+      expect("typescript.definition", presetFields.typescript.definition);
 
-    // For now we enforce a top level exports property
-    expect("exports['.'].require", presetFields.exports["."].require);
-    expect("exports['.'].import", presetFields.exports["."].import);
-    expect("exports['.'].default", presetFields.exports["."].default);
+      // For now we enforce a top level exports property
+      expect("exports['.'].require", presetFields.exports["."].require);
+      expect("exports['.'].import", presetFields.exports["."].import);
+      expect("exports['.'].default", presetFields.exports["."].default);
+    } else {
+      expect("main", presetFieldsESM.main);
+      expect("module", presetFieldsESM.module);
+      expect("typings", presetFieldsESM.typings);
+      expect("typescript.definition", presetFieldsESM.typescript.definition);
+
+      // For now we enforce a top level exports property
+      expect("exports['.']", presetFieldsESM.exports["."]);
+    }
   }
 }
 

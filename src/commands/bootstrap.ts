@@ -34,19 +34,32 @@ export const presetFields = Object.freeze({
         default: "./dist/esm/index.js",
       },
     },
-    "./*": {
-      require: {
-        types: "./dist/typings/*.d.ts",
-        default: "./dist/cjs/*.js",
-      },
+    "./package.json": "./package.json",
+  },
+  publishConfig: {
+    directory: "dist",
+    access: "public",
+  },
+});
+
+export const presetFieldsESM = {
+  type: "module",
+  main: "dist/esm/index.js",
+  module: "dist/esm/index.js",
+  typings: "dist/typings/index.d.ts",
+  typescript: {
+    definition: "dist/typings/index.d.ts",
+  },
+  exports: {
+    ".": {
       import: {
-        types: "./dist/typings/*.d.ts",
-        default: "./dist/esm/*.js",
+        types: "./dist/typings/index.d.ts",
+        default: "./dist/esm/index.js",
       },
       /** without this default (THAT MUST BE LAST!!!) webpack will have a midlife crisis. */
       default: {
-        types: "./dist/typings/*.d.ts",
-        default: "./dist/esm/*.js",
+        types: "./dist/typings/index.d.ts",
+        default: "./dist/esm/index.js",
       },
     },
     "./package.json": "./package.json",
@@ -55,7 +68,7 @@ export const presetFields = Object.freeze({
     directory: "dist",
     access: "public",
   },
-});
+};
 
 async function applyESMModuleTransform(cwd: string) {
   const filePaths = await globby("**/*.ts", {

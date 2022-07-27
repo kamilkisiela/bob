@@ -4,6 +4,9 @@ const BobConfigModel = zod.optional(
   zod.union([
     zod.literal(false),
     zod.object({
+      commonjs: zod.optional(zod.literal(false), {
+        description: "Omit CommonJS output.",
+      }),
       build: zod.union([
         zod.literal(false),
         zod.optional(

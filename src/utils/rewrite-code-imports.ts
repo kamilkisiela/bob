@@ -34,7 +34,6 @@ export function rewriteCodeImports(
     /* this regex should hopefully catch all kind of import/export expressions that are relative. */
     /((?:import|export)\s+[\s\w,{}*]*\s+from\s+["'])((?:\.\/|\.\.\/)(?:(?!\.js).)+)(["'])/g,
     (_, importFromPart, modulePath, hyphenEndPart) => {
-      console.log(`${importFromPart}${modulePath}`);
       const sourcePath = rewriteSourceValue(modulePath, relativeDirname);
       return `${importFromPart}${sourcePath}${hyphenEndPart}`;
     }
