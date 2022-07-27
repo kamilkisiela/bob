@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.5
+
+### Patch Changes
+
+- 16952de: Use correct path for checking file existence in exports map.
+
 ## 3.0.4
 
 ### Patch Changes
