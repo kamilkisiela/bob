@@ -33,6 +33,8 @@ interface PackageInfo {
 const filesToExcludeFromDist = [
   "**/test/**",
   "**/tests/**",
+  "**/__tests__/**",
+  "**/__testUtils__/**",
   "**/*.spec.*",
   "**/*.test.*",
   "**/dist",
