@@ -1,20 +1,20 @@
 {
   "name": "simple-esm-only",
-  "main": "dist/esm/index.js",
-  "module": "dist/esm/index.js",
-  "typings": "dist/typings/index.d.ts",
+  "main": "dist/_esm/index.js",
+  "module": "dist/_esm/index.js",
+  "typings": "dist/index.d.ts",
   "typescript": {
-    "definition": "dist/typings/index.d.ts"
+    "definition": "dist/index.d.ts"
   },
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/_esm/index.js"
       },
       "default": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/_esm/index.js"
       }
     },
     "./package.json": "./package.json"

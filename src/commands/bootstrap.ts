@@ -12,26 +12,26 @@ import { rewriteCodeImports } from "../utils/rewrite-code-imports";
 /** The default bob fields that should be within a package.json */
 export const presetFields = Object.freeze({
   type: "module",
-  main: "dist/cjs/index.js",
-  module: "dist/esm/index.js",
-  typings: "dist/typings/index.d.ts",
+  main: "dist/_cjs/index.js",
+  module: "dist/_esm/index.js",
+  typings: "dist/index.d.ts",
   typescript: {
-    definition: "dist/typings/index.d.ts",
+    definition: "dist/index.d.ts",
   },
   exports: {
     ".": {
       require: {
-        types: "./dist/typings/index.d.ts",
-        default: "./dist/cjs/index.js",
+        types: "./dist/index.d.ts",
+        default: "./dist/_cjs/index.js",
       },
       import: {
-        types: "./dist/typings/index.d.ts",
-        default: "./dist/esm/index.js",
+        types: "./dist/index.d.ts",
+        default: "./dist/_esm/index.js",
       },
       /** without this default (THAT MUST BE LAST!!!) webpack will have a midlife crisis. */
       default: {
-        types: "./dist/typings/index.d.ts",
-        default: "./dist/esm/index.js",
+        types: "./dist/index.d.ts",
+        default: "./dist/_esm/index.js",
       },
     },
     "./package.json": "./package.json",
@@ -44,22 +44,22 @@ export const presetFields = Object.freeze({
 
 export const presetFieldsESM = {
   type: "module",
-  main: "dist/esm/index.js",
-  module: "dist/esm/index.js",
-  typings: "dist/typings/index.d.ts",
+  main: "dist/_esm/index.js",
+  module: "dist/_esm/index.js",
+  typings: "dist/index.d.ts",
   typescript: {
-    definition: "dist/typings/index.d.ts",
+    definition: "dist/index.d.ts",
   },
   exports: {
     ".": {
       import: {
-        types: "./dist/typings/index.d.ts",
-        default: "./dist/esm/index.js",
+        types: "./dist/index.d.ts",
+        default: "./dist/_esm/index.js",
       },
       /** without this default (THAT MUST BE LAST!!!) webpack will have a midlife crisis. */
       default: {
-        types: "./dist/typings/index.d.ts",
-        default: "./dist/esm/index.js",
+        types: "./dist/index.d.ts",
+        default: "./dist/_esm/index.js",
       },
     },
     "./package.json": "./package.json",

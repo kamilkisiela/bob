@@ -1,45 +1,45 @@
 {
   "name": "b",
   "type": "module",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "typings": "dist/typings/index.d.ts",
+  "main": "dist/_cjs/index.js",
+  "module": "dist/_esm/index.js",
+  "typings": "dist/index.d.ts",
   "typescript": {
-    "definition": "dist/typings/index.d.ts"
+    "definition": "dist/index.d.ts"
   },
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/cjs/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/_cjs/index.js"
       },
       "import": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/_esm/index.js"
       },
       "default": {
-        "types": "./dist/typings/index.d.ts",
-        "default": "./dist/esm/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/_esm/index.js"
       }
     },
     "./foo": {
       "require": {
-        "types": "./dist/typings/foo.d.ts",
-        "default": "./dist/cjs/foo.js"
+        "types": "./dist/foo.d.ts",
+        "default": "./dist/_cjs/foo.js"
       },
       "import": {
-        "types": "./dist/typings/foo.d.ts",
-        "default": "./dist/esm/foo.js"
+        "types": "./dist/foo.d.ts",
+        "default": "./dist/_esm/foo.js"
       },
       "default": {
-        "types": "./dist/typings/foo.d.ts",
-        "default": "./dist/esm/foo.js"
+        "types": "./dist/foo.d.ts",
+        "default": "./dist/_esm/foo.js"
       }
     },
     "./package.json": "./package.json"
   },
   "bin": {
-    "bbb": "dist/cjs/log-the-world.js"
+    "bbb": "dist/_cjs/log-the-world.js"
   },
   "buildOptions": {
     "input": "./src/index.ts"

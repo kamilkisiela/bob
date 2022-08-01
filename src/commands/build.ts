@@ -209,7 +209,7 @@ async function build({
   await fse.remove(distPath);
 
   // Copy type definitions
-  await fse.ensureDir(join(distPath, "typings"));
+  await fse.ensureDir(join(distPath));
 
   const declarations = await globby("**/*.d.ts", {
     cwd: getBuildPath("esm"),
@@ -220,16 +220,13 @@ async function build({
   await Promise.all(
     declarations.map((filePath) =>
       limit(() =>
-        fse.copy(
-          join(getBuildPath("esm"), filePath),
-          join(distPath, "typings", filePath)
-        )
+        fse.copy(join(getBuildPath("esm"), filePath), join(distPath, filePath))
       )
     )
   );
 
   // Move ESM to dist/esm
-  await fse.ensureDir(join(distPath, "esm"));
+  await fse.ensureDir(join(distPath, "_esm"));
 
   const esmFiles = await globby("**/*.js", {
     cwd: getBuildPath("esm"),
@@ -242,7 +239,7 @@ async function build({
       limit(() =>
         fse.copy(
           join(getBuildPath("esm"), filePath),
-          join(distPath, "esm", filePath)
+          join(distPath, "_esm", filePath)
         )
       )
     )
@@ -250,7 +247,7 @@ async function build({
 
   if (config?.commonjs === undefined) {
     // Transpile ESM to CJS and move CJS to dist/cjs
-    await fse.ensureDir(join(distPath, "cjs"));
+    await fse.ensureDir(join(distPath, "_cjs"));
 
     const cjsFiles = await globby("**/*.js", {
       cwd: getBuildPath("cjs"),
@@ -263,7 +260,7 @@ async function build({
         limit(() =>
           fse.copy(
             join(getBuildPath("cjs"), filePath),
-            join(distPath, "cjs", filePath)
+            join(distPath, "_cjs", filePath)
           )
         )
       )
@@ -271,7 +268,7 @@ async function build({
 
     // Add package.json to dist/cjs to ensure files are interpreted as commonjs
     await fse.writeFile(
-      join(distPath, "cjs", "package.json"),
+      join(distPath, "_cjs", "package.json"),
       JSON.stringify({ type: "commonjs" })
     );
   }

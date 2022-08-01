@@ -14,9 +14,9 @@ it("can bundle a simple project", async () => {
   });
   expect(result.exitCode).toEqual(0);
   const baseDistPath = path.resolve(fixturesFolder, "simple", "dist");
-  const indexJsFilePath = path.resolve(baseDistPath, "cjs", "index.js");
-  const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
-  const indexMjsFilePath = path.resolve(baseDistPath, "esm", "index.js");
+  const indexJsFilePath = path.resolve(baseDistPath, "_cjs", "index.js");
+  const indexDtsFilePath = path.resolve(baseDistPath, "index.d.ts");
+  const indexMjsFilePath = path.resolve(baseDistPath, "_esm", "index.js");
   const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
   const readmeFilePath = path.resolve(baseDistPath, "README.md");
   const fooFilePath = path.resolve(baseDistPath, "foo.json");
@@ -47,40 +47,40 @@ it("can bundle a simple project", async () => {
   expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"simple\\",
-      \\"main\\": \\"cjs/index.js\\",
-      \\"module\\": \\"esm/index.js\\",
-      \\"typings\\": \\"typings/index.d.ts\\",
+      \\"main\\": \\"_cjs/index.js\\",
+      \\"module\\": \\"_esm/index.js\\",
+      \\"typings\\": \\"index.d.ts\\",
       \\"typescript\\": {
-        \\"definition\\": \\"typings/index.d.ts\\"
+        \\"definition\\": \\"index.d.ts\\"
       },
       \\"type\\": \\"module\\",
       \\"exports\\": {
         \\".\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./cjs/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_cjs/index.js\\"
           },
           \\"import\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./esm/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_esm/index.js\\"
           },
           \\"default\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./esm/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_esm/index.js\\"
           }
         },
         \\"./*\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
-            \\"default\\": \\"./cjs/*.js\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./_cjs/*.js\\"
           },
           \\"import\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
-            \\"default\\": \\"./esm/*.js\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./_esm/*.js\\"
           },
           \\"default\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
-            \\"default\\": \\"./esm/*.js\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./_esm/*.js\\"
           }
         },
         \\"./package.json\\": \\"./package.json\\",
@@ -121,20 +121,20 @@ it("can build a monorepo project", async () => {
   // prettier-ignore
   const files = {
     a: {
-      "cjs/index.js": path.resolve(baseDistAPath, "cjs", "index.js"),
-      "typings/index.d.ts": path.resolve(baseDistAPath, "typings", "index.d.ts"),
-      "esm/index.js": path.resolve(baseDistAPath, "esm", "index.js"),
+      "_cjs/index.js": path.resolve(baseDistAPath, "_cjs", "index.js"),
+      "index.d.ts": path.resolve(baseDistAPath, "index.d.ts"),
+      "_esm/index.js": path.resolve(baseDistAPath, "_esm", "index.js"),
       "package.json": path.resolve(baseDistAPath, "package.json"),
     },
     b: {
-      "cjs/index.js": path.resolve(baseDistBPath, "cjs", "index.js"),
-      "typings/index.d.ts": path.resolve(baseDistBPath, "typings", "index.d.ts"),
-      "esm/index.js": path.resolve(baseDistBPath, "esm", "index.js"),
+      "_cjs/index.js": path.resolve(baseDistBPath, "_cjs", "index.js"),
+      "index.d.ts": path.resolve(baseDistBPath, "index.d.ts"),
+      "_esm/index.js": path.resolve(baseDistBPath, "_esm", "index.js"),
       "package.json": path.resolve(baseDistBPath, "package.json"),
     },
   } as const;
 
-  expect(fse.readFileSync(files.a["cjs/index.js"], "utf8"))
+  expect(fse.readFileSync(files.a["_cjs/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "\\"use strict\\";
     Object.defineProperty(exports, \\"__esModule\\", { value: true });
@@ -142,12 +142,12 @@ it("can build a monorepo project", async () => {
     exports.a = \\"WUP\\";
     "
   `);
-  expect(fse.readFileSync(files.a["typings/index.d.ts"], "utf8"))
+  expect(fse.readFileSync(files.a["index.d.ts"], "utf8"))
     .toMatchInlineSnapshot(`
     "export declare const a = \\"WUP\\";
     "
   `);
-  expect(fse.readFileSync(files.a["esm/index.js"], "utf8"))
+  expect(fse.readFileSync(files.a["_esm/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "export const a = \\"WUP\\";
     "
@@ -156,40 +156,40 @@ it("can build a monorepo project", async () => {
     .toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"a\\",
-      \\"main\\": \\"cjs/index.js\\",
-      \\"module\\": \\"esm/index.js\\",
-      \\"typings\\": \\"typings/index.d.ts\\",
+      \\"main\\": \\"_cjs/index.js\\",
+      \\"module\\": \\"_esm/index.js\\",
+      \\"typings\\": \\"index.d.ts\\",
       \\"typescript\\": {
-        \\"definition\\": \\"typings/index.d.ts\\"
+        \\"definition\\": \\"index.d.ts\\"
       },
       \\"type\\": \\"module\\",
       \\"exports\\": {
         \\".\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./cjs/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_cjs/index.js\\"
           },
           \\"import\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./esm/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_esm/index.js\\"
           },
           \\"default\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./esm/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_esm/index.js\\"
           }
         },
         \\"./*\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
-            \\"default\\": \\"./cjs/*.js\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./_cjs/*.js\\"
           },
           \\"import\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
-            \\"default\\": \\"./esm/*.js\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./_esm/*.js\\"
           },
           \\"default\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
-            \\"default\\": \\"./esm/*.js\\"
+            \\"types\\": \\"./*.d.ts\\",
+            \\"default\\": \\"./_esm/*.js\\"
           }
         },
         \\"./package.json\\": \\"./package.json\\"
@@ -197,7 +197,7 @@ it("can build a monorepo project", async () => {
     }"
   `);
 
-  expect(fse.readFileSync(files.b["cjs/index.js"], "utf8"))
+  expect(fse.readFileSync(files.b["_cjs/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "\\"use strict\\";
     var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -225,14 +225,14 @@ it("can build a monorepo project", async () => {
     exports.foo = foo;
     "
   `);
-  expect(fse.readFileSync(files.b["typings/index.d.ts"], "utf8"))
+  expect(fse.readFileSync(files.b["index.d.ts"], "utf8"))
     .toMatchInlineSnapshot(`
     "export * from \\"./foo.js\\";
     export declare const b: string;
     export declare function foo(): Promise<typeof import(\\"./foo.js\\")>;
     "
   `);
-  expect(fse.readFileSync(files.b["esm/index.js"], "utf8"))
+  expect(fse.readFileSync(files.b["_esm/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "import { b as a } from \\"./foo.js\\";
     export * from \\"./foo.js\\";
@@ -246,46 +246,46 @@ it("can build a monorepo project", async () => {
     .toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"b\\",
-      \\"main\\": \\"cjs/index.js\\",
-      \\"module\\": \\"esm/index.js\\",
-      \\"typings\\": \\"typings/index.d.ts\\",
+      \\"main\\": \\"_cjs/index.js\\",
+      \\"module\\": \\"_esm/index.js\\",
+      \\"typings\\": \\"index.d.ts\\",
       \\"typescript\\": {
-        \\"definition\\": \\"typings/index.d.ts\\"
+        \\"definition\\": \\"index.d.ts\\"
       },
       \\"type\\": \\"module\\",
       \\"exports\\": {
         \\".\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./cjs/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_cjs/index.js\\"
           },
           \\"import\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./esm/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_esm/index.js\\"
           },
           \\"default\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./esm/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_esm/index.js\\"
           }
         },
         \\"./foo\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/foo.d.ts\\",
-            \\"default\\": \\"./cjs/foo.js\\"
+            \\"types\\": \\"./foo.d.ts\\",
+            \\"default\\": \\"./_cjs/foo.js\\"
           },
           \\"import\\": {
-            \\"types\\": \\"./typings/foo.d.ts\\",
-            \\"default\\": \\"./esm/foo.js\\"
+            \\"types\\": \\"./foo.d.ts\\",
+            \\"default\\": \\"./_esm/foo.js\\"
           },
           \\"default\\": {
-            \\"types\\": \\"./typings/foo.d.ts\\",
-            \\"default\\": \\"./esm/foo.js\\"
+            \\"types\\": \\"./foo.d.ts\\",
+            \\"default\\": \\"./_esm/foo.js\\"
           }
         },
         \\"./package.json\\": \\"./package.json\\"
       },
       \\"bin\\": {
-        \\"bbb\\": \\"cjs/log-the-world.js\\"
+        \\"bbb\\": \\"_cjs/log-the-world.js\\"
       }
     }"
   `);
@@ -304,27 +304,27 @@ it("can build an esm only project", async () => {
 
   const baseDistPath = path.resolve(fixturesFolder, "simple-esm-only", "dist");
   const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
-  const indexJsFilePath = path.resolve(baseDistPath, "esm", "index.js");
-  const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
+  const indexJsFilePath = path.resolve(baseDistPath, "_esm", "index.js");
+  const indexDtsFilePath = path.resolve(baseDistPath, "index.d.ts");
   expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"simple-esm-only\\",
-      \\"main\\": \\"esm/index.js\\",
-      \\"module\\": \\"esm/index.js\\",
-      \\"typings\\": \\"typings/index.d.ts\\",
+      \\"main\\": \\"_esm/index.js\\",
+      \\"module\\": \\"_esm/index.js\\",
+      \\"typings\\": \\"index.d.ts\\",
       \\"typescript\\": {
-        \\"definition\\": \\"typings/index.d.ts\\"
+        \\"definition\\": \\"index.d.ts\\"
       },
       \\"type\\": \\"module\\",
       \\"exports\\": {
         \\".\\": {
           \\"import\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./esm/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_esm/index.js\\"
           },
           \\"default\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
-            \\"default\\": \\"./esm/index.js\\"
+            \\"types\\": \\"./index.d.ts\\",
+            \\"default\\": \\"./_esm/index.js\\"
           }
         },
         \\"./package.json\\": \\"./package.json\\"
