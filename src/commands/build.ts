@@ -291,7 +291,9 @@ async function build({
           );
           await fse.writeFile(
             join(distPath, "typings", filePath.replace(/\.d\.ts/, ".d.cts")),
-            contents.replace(/\.js";/g, '.cjs";')
+            contents
+              .replace(/\.js";\n/g, `.cjs";\n`)
+              .replace(/\.js';\n/g, `.cjs';\n`)
           );
         })
       )
