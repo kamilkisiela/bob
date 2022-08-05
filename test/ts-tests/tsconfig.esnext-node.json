@@ -1,0 +1,8 @@
+{
+  "include": ["fixture.ts"],
+  "compilerOptions": {
+    "strict": true,
+    "module": "ESNext",
+    "moduleResolution": "Node"
+  }
+}
