@@ -1,5 +1,43 @@
 # Changelog
 
+## 4.0.0
+
+### Major Changes
+
+- f685733: Change the exports map again, to please TypeScript commonjs :)
+
+  This is a major breaking change as it requires adjusting your `package.json` exports map.
+
+  The `require` entries file extension must be changed from `.d.ts` to `.d.cts`.
+
+  ```diff
+    {
+      "exports": {
+        ".": {
+          "require": {
+  -          "types": "./dist/typings/index.d.ts",
+  +          "types": "./dist/typings/index.d.cts"
+          }
+        }
+      }
+    }
+  ```
+
+### Minor Changes
+
+- 14fa965: Disable commonjs output via package.json
+
+  ```json
+  {
+    "name": "my-package",
+    "bob": {
+      "commonjs": false
+    }
+  }
+  ```
+
+- b8db426: Ignore `__tests__` and `__testUtils__` from bundling
+
 ## 3.0.5
 
 ### Patch Changes
