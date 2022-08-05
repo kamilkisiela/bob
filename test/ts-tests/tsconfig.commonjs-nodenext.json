@@ -1,0 +1,8 @@
+{
+  "include": ["fixture.ts"],
+  "compilerOptions": {
+    "strict": true,
+    "module": "CommonJS",
+    "moduleResolution": "NodeNext"
+  }
+}

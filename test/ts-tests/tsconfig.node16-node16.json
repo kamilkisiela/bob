@@ -1,0 +1,8 @@
+{
+  "include": ["fixture.ts"],
+  "compilerOptions": {
+    "strict": true,
+    "module": "Node16",
+    "moduleResolution": "Node16"
+  }
+}
