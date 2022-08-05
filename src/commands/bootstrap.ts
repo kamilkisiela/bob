@@ -21,7 +21,7 @@ export const presetFields = Object.freeze({
   exports: {
     ".": {
       require: {
-        types: "./dist/typings/index.d.ts",
+        types: "./dist/typings/index.d.cts",
         default: "./dist/cjs/index.js",
       },
       import: {

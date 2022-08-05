@@ -274,6 +274,28 @@ async function build({
       join(distPath, "cjs", "package.json"),
       JSON.stringify({ type: "commonjs" })
     );
+    // We need to provide .cjs extension type definitions as well :)
+    // https://github.com/ardatan/graphql-tools/discussions/4581#discussioncomment-3329673
+
+    const declarations = await globby("**/*.d.ts", {
+      cwd: getBuildPath("cjs"),
+      absolute: false,
+      ignore: filesToExcludeFromDist,
+    });
+    await Promise.all(
+      declarations.map((filePath) =>
+        limit(async () => {
+          const contents = await fse.readFile(
+            join(getBuildPath("cjs"), filePath),
+            "utf-8"
+          );
+          await fse.writeFile(
+            join(distPath, "typings", filePath.replace(/\.d\.ts/, ".d.cts")),
+            contents.replace(/\.js";/g, '.cjs";')
+          );
+        })
+      )
+    );
   }
 
   // move the package.json to dist

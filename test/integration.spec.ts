@@ -26,14 +26,18 @@ it("can bundle a simple project", async () => {
     exports.__esModule = true;
     exports.someNumber = void 0;
     exports.someNumber = 1;
+    exports[\\"default\\"] = \\"kek\\";
     "
   `);
   expect(fse.readFileSync(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
     "export declare const someNumber = 1;
+    declare const _default: \\"kek\\";
+    export default _default;
     "
   `);
   expect(fse.readFileSync(indexMjsFilePath, "utf8")).toMatchInlineSnapshot(`
     "export var someNumber = 1;
+    export default \\"kek\\";
     "
   `);
   expect(fse.readFileSync(readmeFilePath, "utf8")).toMatchInlineSnapshot(`
@@ -57,7 +61,7 @@ it("can bundle a simple project", async () => {
       \\"exports\\": {
         \\".\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
+            \\"types\\": \\"./typings/index.d.cts\\",
             \\"default\\": \\"./cjs/index.js\\"
           },
           \\"import\\": {
@@ -71,7 +75,7 @@ it("can bundle a simple project", async () => {
         },
         \\"./*\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
+            \\"types\\": \\"./typings/*.d.cts\\",
             \\"default\\": \\"./cjs/*.js\\"
           },
           \\"import\\": {
@@ -166,7 +170,7 @@ it("can build a monorepo project", async () => {
       \\"exports\\": {
         \\".\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
+            \\"types\\": \\"./typings/index.d.cts\\",
             \\"default\\": \\"./cjs/index.js\\"
           },
           \\"import\\": {
@@ -180,7 +184,7 @@ it("can build a monorepo project", async () => {
         },
         \\"./*\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/*.d.ts\\",
+            \\"types\\": \\"./typings/*.d.cts\\",
             \\"default\\": \\"./cjs/*.js\\"
           },
           \\"import\\": {
@@ -256,7 +260,7 @@ it("can build a monorepo project", async () => {
       \\"exports\\": {
         \\".\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/index.d.ts\\",
+            \\"types\\": \\"./typings/index.d.cts\\",
             \\"default\\": \\"./cjs/index.js\\"
           },
           \\"import\\": {
@@ -270,7 +274,7 @@ it("can build a monorepo project", async () => {
         },
         \\"./foo\\": {
           \\"require\\": {
-            \\"types\\": \\"./typings/foo.d.ts\\",
+            \\"types\\": \\"./typings/foo.d.cts\\",
             \\"default\\": \\"./cjs/foo.js\\"
           },
           \\"import\\": {
