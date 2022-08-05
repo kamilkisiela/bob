@@ -36,3 +36,5 @@ jobs:
         run: yarn install
       - name: Run Tests
         run: yarn test
+      - name: Run TS Smoke Tests
+        run: yarn test:ts

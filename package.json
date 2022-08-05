@@ -49,6 +49,7 @@
     "prepublish": "yarn build",
     "build": "rimraf dist && tsc",
     "test": "jest",
+    "test:ts": "node test/ts-tests/run-tests.mjs",
     "prerelease": "yarn build",
     "release": "changeset publish",
     "release:canary": "node scripts/canary-release.js && yarn build && yarn changeset publish --tag alpha"
