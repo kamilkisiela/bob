@@ -74,11 +74,15 @@ function assertTypeScriptBuildResult(result: execa.ExecaReturnValue<string>) {
   }
 }
 
-async function buildTypeScript(buildPath: string) {
+async function buildTypeScript(
+  buildPath: string,
+  options: { incremental?: boolean } = {}
+) {
   assertTypeScriptBuildResult(
     await execa("npx", [
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("esm")),
+      options.incremental ? "--incremental" : "",
       "--outDir",
       join(buildPath, "esm"),
     ])
@@ -88,6 +92,7 @@ async function buildTypeScript(buildPath: string) {
     await execa("npx", [
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("cjs")),
+      options.incremental ? "--incremental" : "",
       "--outDir",
       join(buildPath, "cjs"),
     ])
@@ -126,7 +131,7 @@ export const buildCommand = createCommand<
         if (!incremental) {
           await fse.remove(buildPath);
         }
-        await buildTypeScript(buildPath);
+        await buildTypeScript(buildPath, { incremental });
         const pkg = await fse.readJSON(resolve(cwd, "package.json"));
         const fullName: string = pkg.name;
 
@@ -166,7 +171,7 @@ export const buildCommand = createCommand<
       if (!incremental) {
         await fse.remove(bobBuildPath);
       }
-      await buildTypeScript(bobBuildPath);
+      await buildTypeScript(bobBuildPath, { incremental });
 
       await Promise.all(
         packageInfoList.map(({ cwd, pkg, fullName }) =>
