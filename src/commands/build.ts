@@ -94,16 +94,20 @@ async function buildTypeScript(buildPath: string) {
   );
 }
 
-export const buildCommand = createCommand<{}, {}>((api) => {
+export const buildCommand = createCommand<{}, { pkgs?: string[] }>((api) => {
   const { reporter } = api;
 
   return {
-    command: "build",
+    command: "build [pkgs..]",
     describe: "Build",
     builder(yargs) {
-      return yargs.options({});
+      return yargs.positional("pkgs", {
+        describe: "Build only specific package(s) by name.",
+        array: true,
+        type: "string",
+      });
     },
-    async handler() {
+    async handler({ pkgs: buildPkgs }) {
       const cwd = process.cwd();
       const rootPackageJSON = await getRootPackageJSON(cwd);
       const workspaces = getWorkspaces(rootPackageJSON);
@@ -154,23 +158,27 @@ export const buildCommand = createCommand<{}, {}>((api) => {
       await buildTypeScript(bobBuildPath);
 
       await Promise.all(
-        packageInfoList.map(({ cwd, pkg, fullName }) =>
-          limit(async () => {
-            const getBuildPath = (target: "esm" | "cjs") =>
-              join(cwd.replace("packages", join(".bob", target)), "src");
+        packageInfoList
+          .filter(
+            ({ fullName }) => !buildPkgs?.length || buildPkgs.includes(fullName)
+          )
+          .map(({ cwd, pkg, fullName }) =>
+            limit(async () => {
+              const getBuildPath = (target: "esm" | "cjs") =>
+                join(cwd.replace("packages", join(".bob", target)), "src");
 
-            const distPath = join(cwd, "dist");
+              const distPath = join(cwd, "dist");
 
-            await build({
-              cwd,
-              pkg,
-              fullName,
-              reporter,
-              getBuildPath,
-              distPath,
-            });
-          })
-        )
+              await build({
+                cwd,
+                pkg,
+                fullName,
+                reporter,
+                getBuildPath,
+                distPath,
+              });
+            })
+          )
       );
     },
   };
