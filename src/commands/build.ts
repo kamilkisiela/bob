@@ -94,16 +94,27 @@ async function buildTypeScript(buildPath: string) {
   );
 }
 
-export const buildCommand = createCommand<{}, {}>((api) => {
+export const buildCommand = createCommand<
+  {},
+  {
+    incremental?: boolean;
+  }
+>((api) => {
   const { reporter } = api;
 
   return {
     command: "build",
     describe: "Build",
     builder(yargs) {
-      return yargs.options({});
+      return yargs.options({
+        incremental: {
+          describe:
+            "Better performance by building only packages that had changes.",
+          type: "boolean",
+        },
+      });
     },
-    async handler() {
+    async handler({ incremental }) {
       const cwd = process.cwd();
       const rootPackageJSON = await getRootPackageJSON(cwd);
       const workspaces = getWorkspaces(rootPackageJSON);
@@ -112,7 +123,9 @@ export const buildCommand = createCommand<{}, {}>((api) => {
       if (isSinglePackage) {
         const buildPath = join(cwd, ".bob");
 
-        await fse.remove(buildPath);
+        if (!incremental) {
+          await fse.remove(buildPath);
+        }
         await buildTypeScript(buildPath);
         const pkg = await fse.readJSON(resolve(cwd, "package.json"));
         const fullName: string = pkg.name;
@@ -150,7 +163,9 @@ export const buildCommand = createCommand<{}, {}>((api) => {
       );
 
       const bobBuildPath = join(cwd, ".bob");
-      await fse.remove(bobBuildPath);
+      if (!incremental) {
+        await fse.remove(bobBuildPath);
+      }
       await buildTypeScript(bobBuildPath);
 
       await Promise.all(
