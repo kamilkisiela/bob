@@ -94,7 +94,12 @@ async function buildTypeScript(buildPath: string) {
   );
 }
 
-export const buildCommand = createCommand<{}, { pkgs?: string[] }>((api) => {
+export const buildCommand = createCommand<
+  {},
+  {
+    pkgs?: string[];
+  }
+>((api) => {
   const { reporter } = api;
 
   return {
