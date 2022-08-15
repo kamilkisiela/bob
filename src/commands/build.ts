@@ -74,11 +74,15 @@ function assertTypeScriptBuildResult(result: execa.ExecaReturnValue<string>) {
   }
 }
 
-async function buildTypeScript(buildPath: string) {
+async function buildTypeScript(
+  buildPath: string,
+  options: { incremental?: boolean } = {}
+) {
   assertTypeScriptBuildResult(
     await execa("npx", [
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("esm")),
+      ...(options.incremental ? ["--incremental"] : []),
       "--outDir",
       join(buildPath, "esm"),
     ])
@@ -88,22 +92,34 @@ async function buildTypeScript(buildPath: string) {
     await execa("npx", [
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("cjs")),
+      ...(options.incremental ? ["--incremental"] : []),
       "--outDir",
       join(buildPath, "cjs"),
     ])
   );
 }
 
-export const buildCommand = createCommand<{}, {}>((api) => {
+export const buildCommand = createCommand<
+  {},
+  {
+    incremental?: boolean;
+  }
+>((api) => {
   const { reporter } = api;
 
   return {
     command: "build",
     describe: "Build",
     builder(yargs) {
-      return yargs.options({});
+      return yargs.options({
+        incremental: {
+          describe:
+            "Better performance by building only packages that had changes.",
+          type: "boolean",
+        },
+      });
     },
-    async handler() {
+    async handler({ incremental }) {
       const cwd = process.cwd();
       const rootPackageJSON = await getRootPackageJSON(cwd);
       const workspaces = getWorkspaces(rootPackageJSON);
@@ -112,8 +128,10 @@ export const buildCommand = createCommand<{}, {}>((api) => {
       if (isSinglePackage) {
         const buildPath = join(cwd, ".bob");
 
-        await fse.remove(buildPath);
-        await buildTypeScript(buildPath);
+        if (!incremental) {
+          await fse.remove(buildPath);
+        }
+        await buildTypeScript(buildPath, { incremental });
         const pkg = await fse.readJSON(resolve(cwd, "package.json"));
         const fullName: string = pkg.name;
 
@@ -150,8 +168,10 @@ export const buildCommand = createCommand<{}, {}>((api) => {
       );
 
       const bobBuildPath = join(cwd, ".bob");
-      await fse.remove(bobBuildPath);
-      await buildTypeScript(bobBuildPath);
+      if (!incremental) {
+        await fse.remove(bobBuildPath);
+      }
+      await buildTypeScript(bobBuildPath, { incremental });
 
       await Promise.all(
         packageInfoList.map(({ cwd, pkg, fullName }) =>
