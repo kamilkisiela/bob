@@ -82,7 +82,7 @@ async function buildTypeScript(
     await execa("npx", [
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("esm")),
-      options.incremental ? "--incremental" : "",
+      ...(options.incremental ? ["--incremental"] : []),
       "--outDir",
       join(buildPath, "esm"),
     ])
@@ -92,7 +92,7 @@ async function buildTypeScript(
     await execa("npx", [
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("cjs")),
-      options.incremental ? "--incremental" : "",
+      ...(options.incremental ? ["--incremental"] : []),
       "--outDir",
       join(buildPath, "cjs"),
     ])
