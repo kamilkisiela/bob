@@ -1,10 +1,16 @@
-name: CI
+name: test
 
-on: [push, pull_request]
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
 
 jobs:
-  test:
-    name: Testing on ${{matrix.os}} and Node ${{matrix.node_version}}
+  unit:
+    name: unit / ${{matrix.os}} / node v${{matrix.node_version}}
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
@@ -13,7 +19,7 @@ jobs:
         node_version: [12, 14, 16]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Use Node ${{matrix.node_version}}
         uses: actions/setup-node@master
         with:
