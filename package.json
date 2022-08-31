@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@actions/core": "1.9.1",
-    "@changesets/cli": "2.24.3",
+    "@changesets/cli": "2.24.4",
     "@changesets/changelog-github": "0.4.6",
     "@jest/types": "28.1.3",
     "@types/cross-spawn": "6.0.2",
