@@ -122,6 +122,13 @@ it("can build a monorepo project", async () => {
     "b",
     "dist"
   );
+  const baseDistCPath = path.resolve(
+    fixturesFolder,
+    "simple-monorepo",
+    "packages",
+    "c",
+    "dist"
+  );
   // prettier-ignore
   const files = {
     a: {
@@ -135,6 +142,10 @@ it("can build a monorepo project", async () => {
       "typings/index.d.ts": path.resolve(baseDistBPath, "typings", "index.d.ts"),
       "esm/index.js": path.resolve(baseDistBPath, "esm", "index.js"),
       "package.json": path.resolve(baseDistBPath, "package.json"),
+    },
+    c: {
+      "typings/index.d.ts": path.resolve(baseDistCPath, "typings", "index.d.ts"),
+      "package.json": path.resolve(baseDistCPath, "package.json"),
     },
   } as const;
 
@@ -290,6 +301,27 @@ it("can build a monorepo project", async () => {
       },
       \\"bin\\": {
         \\"bbb\\": \\"cjs/log-the-world.js\\"
+      }
+    }"
+  `);
+
+  expect(fse.existsSync(path.resolve(baseDistCPath, "cjs"))).toBeFalsy();
+  expect(fse.existsSync(path.resolve(baseDistCPath, "esm"))).toBeFalsy();
+  expect(fse.readFileSync(files.c["typings/index.d.ts"], "utf8"))
+    .toMatchInlineSnapshot(`
+    "export declare type SomeType = \\"type\\";
+    export interface SomeInterface {
+    }
+    "
+  `);
+  expect(fse.readFileSync(files.c["package.json"], "utf8"))
+    .toMatchInlineSnapshot(`
+    "{
+      \\"name\\": \\"c\\",
+      \\"main\\": \\"\\",
+      \\"typings\\": \\"typings/index.d.ts\\",
+      \\"typescript\\": {
+        \\"definition\\": \\"typings/index.d.ts\\"
       }
     }"
   `);
