@@ -345,3 +345,43 @@ it("can build an esm only project", async () => {
     "
   `);
 });
+
+it("can build a types only project", async () => {
+  await fse.remove(path.resolve(fixturesFolder, "simple-types-only", "dist"));
+  const result = await execa("node", [binaryFolder, "build"], {
+    cwd: path.resolve(fixturesFolder, "simple-types-only"),
+  });
+  expect(result.exitCode).toEqual(0);
+
+  const baseDistPath = path.resolve(
+    fixturesFolder,
+    "simple-types-only",
+    "dist"
+  );
+
+  // types-only adjusted package.json
+  const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
+  expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
+    "{
+      \\"name\\": \\"simple-types-only\\",
+      \\"main\\": \\"\\",
+      \\"typings\\": \\"typings/index.d.ts\\",
+      \\"typescript\\": {
+        \\"definition\\": \\"typings/index.d.ts\\"
+      }
+    }"
+  `);
+
+  // no cjs or esm files
+  expect(fse.existsSync(path.resolve(baseDistPath, "cjs"))).toBeFalsy();
+  expect(fse.existsSync(path.resolve(baseDistPath, "esm"))).toBeFalsy();
+
+  // only types
+  const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
+  expect(fse.readFileSync(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
+    "export declare type SomeType = \\"type\\";
+    export interface SomeInterface {
+    }
+    "
+  `);
+});

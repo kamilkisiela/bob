@@ -248,28 +248,39 @@ async function build({
     )
   );
 
-  // Move ESM to dist/esm
-  await fse.ensureDir(join(distPath, "esm"));
-
   const esmFiles = await globby("**/*.js", {
     cwd: getBuildPath("esm"),
     absolute: false,
     ignore: filesToExcludeFromDist,
   });
 
-  await Promise.all(
-    esmFiles.map((filePath) =>
-      limit(() =>
-        fse.copy(
-          join(getBuildPath("esm"), filePath),
-          join(distPath, "esm", filePath)
+  // Check whether al esm files are empty, if not - probably a types only build
+  let emptyEsmFiles = true;
+  for (const file of esmFiles) {
+    const src = await fse.readFile(join(getBuildPath("esm"), file));
+    if (src.toString().trim() !== "export {};") {
+      emptyEsmFiles = false;
+      break;
+    }
+  }
+
+  // If ESM files are not empty, copy them to dist/esm
+  if (!emptyEsmFiles) {
+    await fse.ensureDir(join(distPath, "esm"));
+    await Promise.all(
+      esmFiles.map((filePath) =>
+        limit(() =>
+          fse.copy(
+            join(getBuildPath("esm"), filePath),
+            join(distPath, "esm", filePath)
+          )
         )
       )
-    )
-  );
+    );
+  }
 
-  if (config?.commonjs === undefined) {
-    // Transpile ESM to CJS and move CJS to dist/cjs
+  if (!emptyEsmFiles && config?.commonjs === undefined) {
+    // Transpile ESM to CJS and move CJS to dist/cjs only if there's something to transpile
     await fse.ensureDir(join(distPath, "cjs"));
 
     const cjsFiles = await globby("**/*.js", {
@@ -323,8 +334,13 @@ async function build({
   // move the package.json to dist
   await fse.writeFile(
     join(distPath, "package.json"),
-    JSON.stringify(rewritePackageJson(pkg), null, 2)
+    JSON.stringify(
+      rewritePackageJson(pkg, emptyEsmFiles && declarations.length > 0),
+      null,
+      2
+    )
   );
+
   // move README.md and LICENSE and other specified files
   await copyToDist(
     cwd,
@@ -350,7 +366,7 @@ async function build({
   reporter.success(`Built ${pkg.name}`);
 }
 
-function rewritePackageJson(pkg: Record<string, any>) {
+function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
   const newPkg: Record<string, any> = {};
   const fields = [
     "name",
@@ -382,18 +398,25 @@ function rewritePackageJson(pkg: Record<string, any>) {
 
   const distDirStr = `${DIST_DIR}/`;
 
-  newPkg.main = newPkg.main.replace(distDirStr, "");
-  newPkg.module = newPkg.module.replace(distDirStr, "");
+  if (typesOnly) {
+    newPkg.main = "";
+    delete newPkg.module;
+    delete newPkg.type;
+  } else {
+    newPkg.main = newPkg.main.replace(distDirStr, "");
+    newPkg.module = newPkg.module.replace(distDirStr, "");
+  }
   newPkg.typings = newPkg.typings.replace(distDirStr, "");
   newPkg.typescript = {
     definition: newPkg.typescript.definition.replace(distDirStr, ""),
   };
 
-  if (!pkg.exports) {
-    newPkg.exports = presetFields.exports;
+  if (!typesOnly) {
+    if (!pkg.exports) {
+      newPkg.exports = presetFields.exports;
+    }
+    newPkg.exports = rewriteExports(pkg.exports, DIST_DIR);
   }
-
-  newPkg.exports = rewriteExports(pkg.exports, DIST_DIR);
 
   if (pkg.bin) {
     newPkg.bin = {};
