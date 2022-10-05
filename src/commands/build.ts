@@ -223,30 +223,11 @@ async function build({
     return;
   }
 
-  validatePackageJson(pkg, config?.commonjs ?? true);
-
-  // remove <project>/dist
-  await fse.remove(distPath);
-
-  // Copy type definitions
-  await fse.ensureDir(join(distPath, "typings"));
-
   const declarations = await globby("**/*.d.ts", {
     cwd: getBuildPath("esm"),
     absolute: false,
     ignore: filesToExcludeFromDist,
   });
-
-  await Promise.all(
-    declarations.map((filePath) =>
-      limit(() =>
-        fse.copy(
-          join(getBuildPath("esm"), filePath),
-          join(distPath, "typings", filePath)
-        )
-      )
-    )
-  );
 
   const esmFiles = await globby("**/*.js", {
     cwd: getBuildPath("esm"),
@@ -263,6 +244,30 @@ async function build({
       break;
     }
   }
+
+  // Empty ESM files with existing declarations is a types-only package
+  const typesOnly = emptyEsmFiles && declarations.length > 0;
+
+  validatePackageJson(pkg, {
+    typesOnly,
+    includesCommonJS: config?.commonjs ?? true,
+  });
+
+  // remove <project>/dist
+  await fse.remove(distPath);
+
+  // Copy type definitions
+  await fse.ensureDir(join(distPath, "typings"));
+  await Promise.all(
+    declarations.map((filePath) =>
+      limit(() =>
+        fse.copy(
+          join(getBuildPath("esm"), filePath),
+          join(distPath, "typings", filePath)
+        )
+      )
+    )
+  );
 
   // If ESM files are not empty, copy them to dist/esm
   if (!emptyEsmFiles) {
@@ -334,11 +339,7 @@ async function build({
   // move the package.json to dist
   await fse.writeFile(
     join(distPath, "package.json"),
-    JSON.stringify(
-      rewritePackageJson(pkg, emptyEsmFiles && declarations.length > 0),
-      null,
-      2
-    )
+    JSON.stringify(rewritePackageJson(pkg, typesOnly), null, 2)
   );
 
   // move README.md and LICENSE and other specified files
@@ -429,7 +430,13 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
   return newPkg;
 }
 
-export function validatePackageJson(pkg: any, includesCommonJS: boolean) {
+export function validatePackageJson(
+  pkg: any,
+  opts: {
+    typesOnly: boolean;
+    includesCommonJS: boolean;
+  }
+) {
   function expect(key: string, expected: unknown) {
     const received = get(pkg, key);
 
@@ -441,13 +448,23 @@ export function validatePackageJson(pkg: any, includesCommonJS: boolean) {
     );
   }
 
+  // Type only packages have simpler rules (following the style of https://github.com/DefinitelyTyped/DefinitelyTyped packages)
+  if (opts.typesOnly) {
+    expect("main", "");
+    expect("module", undefined);
+    expect("typings", presetFields.typings);
+    expect("typescript.definition", presetFields.typescript.definition);
+    expect("exports", undefined);
+    return;
+  }
+
   // If the package has NO binary we need to check the exports map.
   // a package should either
   // 1. have a bin property
   // 2. have a exports property
   // 3. have an exports and bin property
   if (Object.keys(pkg.bin ?? {}).length > 0) {
-    if (includesCommonJS === true) {
+    if (opts.includesCommonJS === true) {
       expect("main", presetFields.main);
       expect("module", presetFields.module);
       expect("typings", presetFields.typings);
@@ -465,7 +482,7 @@ export function validatePackageJson(pkg: any, includesCommonJS: boolean) {
     pkg.typings !== undefined ||
     pkg.typescript !== undefined
   ) {
-    if (includesCommonJS === true) {
+    if (opts.includesCommonJS === true) {
       // if there is no bin property, we NEED to check the exports.
       expect("main", presetFields.main);
       expect("module", presetFields.module);
