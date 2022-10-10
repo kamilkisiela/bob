@@ -88,6 +88,17 @@ export const checkCommand = createCommand<{}, {}>((api) => {
             const distPackageJSONPath = path.join(cwd, "dist", "package.json");
             const distPackageJSON = await fse.readJSON(distPackageJSONPath);
 
+            // a tell for a types-only build is the lack of main import and presence of typings
+            if (
+              distPackageJSON.main === "" &&
+              (distPackageJSON.typings || "").endsWith("d.ts")
+            ) {
+              api.reporter.warn(
+                `Skip check for '${packageJSON.name}' because it's a types-only package.`
+              );
+              return;
+            }
+
             try {
               await checkExportsMapIntegrity({
                 cwd: path.join(cwd, "dist"),
