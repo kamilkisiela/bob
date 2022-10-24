@@ -22,7 +22,7 @@
     "jest-resolver.js"
   ],
   "dependencies": {
-    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-json": "^5.0.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@vercel/ncc": "^0.34.0",
     "builtins": "^5.0.1",
