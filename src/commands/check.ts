@@ -6,7 +6,7 @@ import { createCommand } from "../command";
 import { presetFields } from "./bootstrap";
 import path from "path";
 import pLimit from "p-limit";
-import execa from "execa";
+import { execa, ExecaChildProcess } from "execa";
 import { getRootPackageJSON } from "../utils/get-root-package-json";
 import { getWorkspaces } from "../utils/get-workspaces";
 import { getWorkspacePackagePaths } from "../utils/get-workspace-package-paths";
@@ -340,7 +340,7 @@ const timeout = `;setTimeout(() => { throw new Error("The Node.js process hangs.
 function runRequireJSFileCommand(args: {
   cwd: string;
   path: string;
-}): execa.ExecaChildProcess<string> {
+}): ExecaChildProcess<string> {
   return execa("node", ["-e", `require('${args.path}')${timeout}`], {
     cwd: args.cwd,
     reject: false,
