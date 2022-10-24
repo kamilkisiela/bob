@@ -122,6 +122,13 @@ it("can build a monorepo project", async () => {
     "b",
     "dist"
   );
+  const baseDistCPath = path.resolve(
+    fixturesFolder,
+    "simple-monorepo",
+    "packages",
+    "c",
+    "dist"
+  );
   // prettier-ignore
   const files = {
     a: {
@@ -135,6 +142,10 @@ it("can build a monorepo project", async () => {
       "typings/index.d.ts": path.resolve(baseDistBPath, "typings", "index.d.ts"),
       "esm/index.js": path.resolve(baseDistBPath, "esm", "index.js"),
       "package.json": path.resolve(baseDistBPath, "package.json"),
+    },
+    c: {
+      "typings/index.d.ts": path.resolve(baseDistCPath, "typings", "index.d.ts"),
+      "package.json": path.resolve(baseDistCPath, "package.json"),
     },
   } as const;
 
@@ -294,6 +305,27 @@ it("can build a monorepo project", async () => {
     }"
   `);
 
+  expect(fse.existsSync(path.resolve(baseDistCPath, "cjs"))).toBeFalsy();
+  expect(fse.existsSync(path.resolve(baseDistCPath, "esm"))).toBeFalsy();
+  expect(fse.readFileSync(files.c["typings/index.d.ts"], "utf8"))
+    .toMatchInlineSnapshot(`
+    "export declare type SomeType = \\"type\\";
+    export interface SomeInterface {
+    }
+    "
+  `);
+  expect(fse.readFileSync(files.c["package.json"], "utf8"))
+    .toMatchInlineSnapshot(`
+    "{
+      \\"name\\": \\"c\\",
+      \\"main\\": \\"\\",
+      \\"typings\\": \\"typings/index.d.ts\\",
+      \\"typescript\\": {
+        \\"definition\\": \\"typings/index.d.ts\\"
+      }
+    }"
+  `);
+
   await execa("node", [binaryFolder, "check"], {
     cwd: path.resolve(fixturesFolder, "simple-monorepo"),
   });
@@ -342,6 +374,46 @@ it("can build an esm only project", async () => {
   `);
   expect(fse.readFileSync(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
     "export declare const someNumber = 1;
+    "
+  `);
+});
+
+it("can build a types only project", async () => {
+  await fse.remove(path.resolve(fixturesFolder, "simple-types-only", "dist"));
+  const result = await execa("node", [binaryFolder, "build"], {
+    cwd: path.resolve(fixturesFolder, "simple-types-only"),
+  });
+  expect(result.exitCode).toEqual(0);
+
+  const baseDistPath = path.resolve(
+    fixturesFolder,
+    "simple-types-only",
+    "dist"
+  );
+
+  // types-only adjusted package.json
+  const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
+  expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
+    "{
+      \\"name\\": \\"simple-types-only\\",
+      \\"main\\": \\"\\",
+      \\"typings\\": \\"typings/index.d.ts\\",
+      \\"typescript\\": {
+        \\"definition\\": \\"typings/index.d.ts\\"
+      }
+    }"
+  `);
+
+  // no cjs or esm files
+  expect(fse.existsSync(path.resolve(baseDistPath, "cjs"))).toBeFalsy();
+  expect(fse.existsSync(path.resolve(baseDistPath, "esm"))).toBeFalsy();
+
+  // only types
+  const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
+  expect(fse.readFileSync(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
+    "export declare type SomeType = \\"type\\";
+    export interface SomeInterface {
+    }
     "
   `);
 });

@@ -1,0 +1,26 @@
+{
+  "name": "simple-types-only",
+  "main": "",
+  "typings": "dist/typings/index.d.ts",
+  "typescript": {
+    "definition": "dist/typings/index.d.ts"
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "access": "public"
+  },
+  "type": "module",
+  "bob": {
+    "build": {
+      "copy": [
+        "foo.json",
+        "src/style.css"
+      ]
+    },
+    "check": {
+      "skip": [
+        "./file-that-throws"
+      ]
+    }
+  }
+}
