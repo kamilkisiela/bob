@@ -1,5 +1,19 @@
 # Changelog
 
+## 4.1.0
+
+### Minor Changes
+
+- [#123](https://github.com/kamilkisiela/bob/pull/123) [`b68da59`](https://github.com/kamilkisiela/bob/commit/b68da59ef41d4d66b9c4ec5d7da1a3550b5b58b7) Thanks [@enisdenjo](https://github.com/enisdenjo)! - better performance by incrementally building only packages that had changes
+
+### Patch Changes
+
+- [#129](https://github.com/kamilkisiela/bob/pull/129) [`cd16844`](https://github.com/kamilkisiela/bob/commit/cd16844210db99a3e74fa95c3311fb644ad48594) Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`rollup-plugin-typescript2@^0.33.0` ↗︎](https://www.npmjs.com/package/rollup-plugin-typescript2/v/null) (from `^0.32.1`, in `dependencies`)
+
+- [#144](https://github.com/kamilkisiela/bob/pull/144) [`76fd23c`](https://github.com/kamilkisiela/bob/commit/76fd23c0f0887a8e324a92b0cff705214e1883bc) Thanks [@enisdenjo](https://github.com/enisdenjo)! - Correct package.json for types-only packages
+
 ## 4.0.0
 
 ### Major Changes
