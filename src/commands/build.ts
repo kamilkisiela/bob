@@ -76,13 +76,14 @@ function assertTypeScriptBuildResult(result: execa.ExecaReturnValue<string>) {
 
 async function buildTypeScript(
   buildPath: string,
-  options: { incremental?: boolean } = {}
+  options: { incremental?: boolean; tsconfig?: string } = {}
 ) {
   assertTypeScriptBuildResult(
     await execa("npx", [
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("esm")),
       ...(options.incremental ? ["--incremental"] : []),
+      ...(options.tsconfig ? ["-p", options.tsconfig] : []),
       "--outDir",
       join(buildPath, "esm"),
     ])
@@ -93,6 +94,7 @@ async function buildTypeScript(
       "tsc",
       ...compilerOptionsToArgs(typeScriptCompilerOptions("cjs")),
       ...(options.incremental ? ["--incremental"] : []),
+      ...(options.tsconfig ? ["-p", options.tsconfig] : []),
       "--outDir",
       join(buildPath, "cjs"),
     ])
@@ -102,6 +104,7 @@ async function buildTypeScript(
 export const buildCommand = createCommand<
   {},
   {
+    tsconfig?: string;
     incremental?: boolean;
   }
 >((api) => {
@@ -112,6 +115,10 @@ export const buildCommand = createCommand<
     describe: "Build",
     builder(yargs) {
       return yargs.options({
+        tsconfig: {
+          desribe: "Option to re-write default tsconfig.json",
+          type: "string",
+        },
         incremental: {
           describe:
             "Better performance by building only packages that had changes.",
@@ -119,7 +126,7 @@ export const buildCommand = createCommand<
         },
       });
     },
-    async handler({ incremental }) {
+    async handler({ tsconfig, incremental }) {
       const cwd = process.cwd();
       const rootPackageJSON = await getRootPackageJSON(cwd);
       const workspaces = getWorkspaces(rootPackageJSON);
@@ -171,7 +178,7 @@ export const buildCommand = createCommand<
       if (!incremental) {
         await fse.remove(bobBuildPath);
       }
-      await buildTypeScript(bobBuildPath, { incremental });
+      await buildTypeScript(bobBuildPath, { incremental, tsconfig });
 
       await Promise.all(
         packageInfoList.map(({ cwd, pkg, fullName }) =>
