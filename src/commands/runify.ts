@@ -117,10 +117,12 @@ async function runify(packagePath: string, reporter: Consola) {
   }
 
   if (isNext(pkg)) {
-    await buildNext(cwd);
+    const additionalRequire = pkg?.buildOptions?.runify?.next?.header ?? null;
+    await buildNext(cwd, additionalRequire);
     await rewritePackageJson(pkg, cwd, (newPkg) => ({
       ...newPkg,
       dependencies: pkg.dependencies,
+      type: "commonjs",
     }));
   } else {
     await compile(
@@ -195,7 +197,7 @@ function isNext(pkg: any): boolean {
   return pkg?.dependencies?.next || pkg?.devDependencies?.next;
 }
 
-async function buildNext(cwd: string) {
+async function buildNext(cwd: string, additionalRequire: string | null) {
   await new Promise((resolve, reject) => {
     const child = spawn("next", ["build"], {
       stdio: "inherit",
@@ -206,6 +208,17 @@ async function buildNext(cwd: string) {
   });
 
   await fs.mkdirp(join(cwd, "dist"));
+  if (additionalRequire) {
+    await tsup({
+      entryPoints: [join(cwd, additionalRequire)],
+      outDir: join(cwd, "dist"),
+      target: "node16",
+      format: ["cjs"],
+      splitting: false,
+      skipNodeModulesBundle: true,
+    });
+  }
+
   await Promise.all([
     fs.copy(join(cwd, ".next"), join(cwd, "dist/.next"), {
       filter(src) {
@@ -220,11 +233,15 @@ async function buildNext(cwd: string) {
         `#!/usr/bin/env node`,
         `process.on('SIGTERM', () => process.exit(0))`,
         `process.on('SIGINT', () => process.exit(0))`,
+        additionalRequire
+          ? `require('${additionalRequire.replace(".ts", "")}')`
+          : ``,
         `
           require('next/dist/server/lib/start-server').startServer({
             dir: __dirname,
             hostname: '0.0.0.0',
-            port: parseInt(process.env.PORT)
+            port: parseInt(process.env.PORT),
+            conf: {},
           }).then(async (app)=>{
             const appUrl = 'http://' + app.hostname + ':' + app.port;
             console.log('started server on '+ app.hostname + ':' + app.port + ', url: ' + appUrl);
