@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.1.1
+
+### Patch Changes
+
+- [#151](https://github.com/kamilkisiela/bob/pull/151) [`4695d0b`](https://github.com/kamilkisiela/bob/commit/4695d0b4f1bf849d87f626f97445b9b9b5bb9cba) Thanks [@kamilkisiela](https://github.com/kamilkisiela)! - dependencies updates:
+
+  - Updated dependency [`tsup@^6.5.0` ↗︎](https://www.npmjs.com/package/tsup/v/6.5.0) (from `^5.11.6`, in `dependencies`)
+
+- [#151](https://github.com/kamilkisiela/bob/pull/151) [`4695d0b`](https://github.com/kamilkisiela/bob/commit/4695d0b4f1bf849d87f626f97445b9b9b5bb9cba) Thanks [@kamilkisiela](https://github.com/kamilkisiela)! - Support TypeScript 4.9 and satisfies operator
+
 ## 4.1.0
 
 ### Minor Changes
