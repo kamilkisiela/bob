@@ -257,6 +257,7 @@ async function compile(
       splitting: false,
       sourcemap: true,
       clean: true,
+      shims: true,
       skipNodeModulesBundle: false,
       noExternal: dependencies,
       external: buildOptions.external,
