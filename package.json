@@ -23,10 +23,10 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
-    "lint:prettier": "prettier --cache --check .",
+    "lint:prettier": "prettier --check .",
     "prepublish": "yarn build",
     "prerelease": "yarn build",
-    "prettier": "prettier --cache --write --list-different .",
+    "prettier": "prettier --write --list-different .",
     "release": "changeset publish",
     "test": "vitest .",
     "test:ts": "node test/ts-tests/run-tests.mjs"
