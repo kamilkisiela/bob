@@ -39,3 +39,5 @@ jobs:
         run: yarn test:ts
       - name: Lint Prettier
         run: yarn lint:prettier
+      - name: Lint ESLint
+        run: yarn lint

@@ -1,7 +1,7 @@
 import { globby } from 'globby';
 import pLimit from 'p-limit';
-import * as path from 'path';
-import * as fse from 'fs-extra';
+import path from 'path';
+import fse from 'fs-extra';
 import { createCommand } from '../command.js';
 import { buildArtifactDirectories } from '../constants.js';
 import { getRootPackageJSON } from '../utils/get-root-package-json.js';

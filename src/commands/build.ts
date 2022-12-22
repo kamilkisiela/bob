@@ -1,6 +1,6 @@
-import * as assert from 'assert';
+import assert from 'assert';
 import { execa, ExecaReturnValue } from 'execa';
-import * as fse from 'fs-extra';
+import fse from 'fs-extra';
 import { globby } from 'globby';
 import pLimit from 'p-limit';
 import { resolve, join, dirname } from 'path';

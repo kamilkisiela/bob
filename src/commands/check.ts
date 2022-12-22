@@ -1,9 +1,9 @@
 import { globby } from 'globby';
 import zod from 'zod';
-import * as fse from 'fs-extra';
-import resolve from 'resolve.exports';
-import { createCommand } from '../command';
-import { presetFields } from './bootstrap';
+import fse from 'fs-extra';
+import * as resolve from 'resolve.exports';
+import { createCommand } from '../command.js';
+import { presetFields } from './bootstrap.js';
 import path from 'path';
 import pLimit from 'p-limit';
 import { execa, ExecaChildProcess } from 'execa';
@@ -313,7 +313,7 @@ async function checkExportsMapIntegrity(args: {
       });
 
       const contents = await fse.readFile(absoluteFilePath, 'utf-8');
-      if (contents.startsWith('#!/usr/bin/env node\n') === false) {
+      if (!contents.startsWith('#!/usr/bin/env node\n')) {
         throw new Error(
           "Binary file '" +
             absoluteFilePath +
