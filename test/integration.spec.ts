@@ -21,7 +21,7 @@ it("can bundle a simple project", async () => {
   const readmeFilePath = path.resolve(baseDistPath, "README.md");
   const fooFilePath = path.resolve(baseDistPath, "foo.json");
 
-  expect(fse.readFileSync(indexJsFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(indexJsFilePath, "utf8")).toMatchInlineSnapshot(`
     "\\"use strict\\";
     exports.__esModule = true;
     exports.someNumber = void 0;
@@ -29,26 +29,26 @@ it("can bundle a simple project", async () => {
     exports[\\"default\\"] = \\"kek\\";
     "
   `);
-  expect(fse.readFileSync(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
     "export declare const someNumber = 1;
     declare const _default: \\"kek\\";
     export default _default;
     "
   `);
-  expect(fse.readFileSync(indexMjsFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(indexMjsFilePath, "utf8")).toMatchInlineSnapshot(`
     "export var someNumber = 1;
     export default \\"kek\\";
     "
   `);
-  expect(fse.readFileSync(readmeFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(readmeFilePath, "utf8")).toMatchInlineSnapshot(`
     "Hello!
     "
   `);
-  expect(fse.readFileSync(fooFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(fooFilePath, "utf8")).toMatchInlineSnapshot(`
     "{ \\"hi\\": 1 }
     "
   `);
-  expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"simple\\",
       \\"main\\": \\"cjs/index.js\\",
@@ -149,7 +149,7 @@ it("can build a monorepo project", async () => {
     },
   } as const;
 
-  expect(fse.readFileSync(files.a["cjs/index.js"], "utf8"))
+  expect(await fse.readFile(files.a["cjs/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "\\"use strict\\";
     Object.defineProperty(exports, \\"__esModule\\", { value: true });
@@ -157,17 +157,17 @@ it("can build a monorepo project", async () => {
     exports.a = \\"WUP\\";
     "
   `);
-  expect(fse.readFileSync(files.a["typings/index.d.ts"], "utf8"))
+  expect(await fse.readFile(files.a["typings/index.d.ts"], "utf8"))
     .toMatchInlineSnapshot(`
     "export declare const a = \\"WUP\\";
     "
   `);
-  expect(fse.readFileSync(files.a["esm/index.js"], "utf8"))
+  expect(await fse.readFile(files.a["esm/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "export const a = \\"WUP\\";
     "
   `);
-  expect(fse.readFileSync(files.a["package.json"], "utf8"))
+  expect(await fse.readFile(files.a["package.json"], "utf8"))
     .toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"a\\",
@@ -212,7 +212,7 @@ it("can build a monorepo project", async () => {
     }"
   `);
 
-  expect(fse.readFileSync(files.b["cjs/index.js"], "utf8"))
+  expect(await fse.readFile(files.b["cjs/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "\\"use strict\\";
     var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -240,14 +240,14 @@ it("can build a monorepo project", async () => {
     exports.foo = foo;
     "
   `);
-  expect(fse.readFileSync(files.b["typings/index.d.ts"], "utf8"))
+  expect(await fse.readFile(files.b["typings/index.d.ts"], "utf8"))
     .toMatchInlineSnapshot(`
     "export * from \\"./foo.js\\";
     export declare const b: string;
     export declare function foo(): Promise<typeof import(\\"./foo.js\\")>;
     "
   `);
-  expect(fse.readFileSync(files.b["esm/index.js"], "utf8"))
+  expect(await fse.readFile(files.b["esm/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "import { b as a } from \\"./foo.js\\";
     export * from \\"./foo.js\\";
@@ -257,7 +257,7 @@ it("can build a monorepo project", async () => {
     }
     "
   `);
-  expect(fse.readFileSync(files.b["package.json"], "utf8"))
+  expect(await fse.readFile(files.b["package.json"], "utf8"))
     .toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"b\\",
@@ -307,14 +307,14 @@ it("can build a monorepo project", async () => {
 
   expect(fse.existsSync(path.resolve(baseDistCPath, "cjs"))).toBeFalsy();
   expect(fse.existsSync(path.resolve(baseDistCPath, "esm"))).toBeFalsy();
-  expect(fse.readFileSync(files.c["typings/index.d.ts"], "utf8"))
+  expect(await fse.readFile(files.c["typings/index.d.ts"], "utf8"))
     .toMatchInlineSnapshot(`
     "export declare type SomeType = \\"type\\";
     export interface SomeInterface {
     }
     "
   `);
-  expect(fse.readFileSync(files.c["package.json"], "utf8"))
+  expect(await fse.readFile(files.c["package.json"], "utf8"))
     .toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"c\\",
@@ -342,7 +342,7 @@ it("can build an esm only project", async () => {
   const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
   const indexJsFilePath = path.resolve(baseDistPath, "esm", "index.js");
   const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
-  expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"simple-esm-only\\",
       \\"main\\": \\"esm/index.js\\",
@@ -368,11 +368,11 @@ it("can build an esm only project", async () => {
     }"
   `);
 
-  expect(fse.readFileSync(indexJsFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(indexJsFilePath, "utf8")).toMatchInlineSnapshot(`
     "export var someNumber = 1;
     "
   `);
-  expect(fse.readFileSync(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
     "export declare const someNumber = 1;
     "
   `);
@@ -393,7 +393,7 @@ it("can build a types only project", async () => {
 
   // types-only adjusted package.json
   const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
-  expect(fse.readFileSync(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"simple-types-only\\",
       \\"main\\": \\"\\",
@@ -410,7 +410,7 @@ it("can build a types only project", async () => {
 
   // only types
   const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
-  expect(fse.readFileSync(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
     "export declare type SomeType = \\"type\\";
     export interface SomeInterface {
     }
@@ -418,7 +418,7 @@ it("can build a types only project", async () => {
   `);
 });
 
-it.only("can build a monorepo pnpm project", async () => {
+it("can build a monorepo pnpm project", async () => {
   await fse.remove(
     path.resolve(fixturesFolder, "simple-monorepo-pnpm", "a", "dist")
   );
@@ -470,7 +470,7 @@ it.only("can build a monorepo pnpm project", async () => {
     },
   } as const;
 
-  expect(fse.readFileSync(files.a["cjs/index.js"], "utf8"))
+  expect(await fse.readFile(files.a["cjs/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "\\"use strict\\";
     Object.defineProperty(exports, \\"__esModule\\", { value: true });
@@ -478,17 +478,17 @@ it.only("can build a monorepo pnpm project", async () => {
     exports.a = \\"WUP\\";
     "
   `);
-  expect(fse.readFileSync(files.a["typings/index.d.ts"], "utf8"))
+  expect(await fse.readFile(files.a["typings/index.d.ts"], "utf8"))
     .toMatchInlineSnapshot(`
     "export declare const a = \\"WUP\\";
     "
   `);
-  expect(fse.readFileSync(files.a["esm/index.js"], "utf8"))
+  expect(await fse.readFile(files.a["esm/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "export const a = \\"WUP\\";
     "
   `);
-  expect(fse.readFileSync(files.a["package.json"], "utf8"))
+  expect(await fse.readFile(files.a["package.json"], "utf8"))
     .toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"a\\",
@@ -533,7 +533,7 @@ it.only("can build a monorepo pnpm project", async () => {
     }"
   `);
 
-  expect(fse.readFileSync(files.b["cjs/index.js"], "utf8"))
+  expect(await fse.readFile(files.b["cjs/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "\\"use strict\\";
     var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -561,14 +561,14 @@ it.only("can build a monorepo pnpm project", async () => {
     exports.foo = foo;
     "
   `);
-  expect(fse.readFileSync(files.b["typings/index.d.ts"], "utf8"))
+  expect(await fse.readFile(files.b["typings/index.d.ts"], "utf8"))
     .toMatchInlineSnapshot(`
     "export * from \\"./foo.js\\";
     export declare const b: string;
     export declare function foo(): Promise<typeof import(\\"./foo.js\\")>;
     "
   `);
-  expect(fse.readFileSync(files.b["esm/index.js"], "utf8"))
+  expect(await fse.readFile(files.b["esm/index.js"], "utf8"))
     .toMatchInlineSnapshot(`
     "import { b as a } from \\"./foo.js\\";
     export * from \\"./foo.js\\";
@@ -578,7 +578,7 @@ it.only("can build a monorepo pnpm project", async () => {
     }
     "
   `);
-  expect(fse.readFileSync(files.b["package.json"], "utf8"))
+  expect(await fse.readFile(files.b["package.json"], "utf8"))
     .toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"b\\",
@@ -628,14 +628,14 @@ it.only("can build a monorepo pnpm project", async () => {
 
   expect(fse.existsSync(path.resolve(baseDistCPath, "cjs"))).toBeFalsy();
   expect(fse.existsSync(path.resolve(baseDistCPath, "esm"))).toBeFalsy();
-  expect(fse.readFileSync(files.c["typings/index.d.ts"], "utf8"))
+  expect(await fse.readFile(files.c["typings/index.d.ts"], "utf8"))
     .toMatchInlineSnapshot(`
     "export declare type SomeType = \\"type\\";
     export interface SomeInterface {
     }
     "
   `);
-  expect(fse.readFileSync(files.c["package.json"], "utf8"))
+  expect(await fse.readFile(files.c["package.json"], "utf8"))
     .toMatchInlineSnapshot(`
     "{
       \\"name\\": \\"c\\",
