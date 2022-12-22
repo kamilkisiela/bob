@@ -98,7 +98,9 @@ async function buildTypeScript(
 
 export const buildCommand = createCommand<
   {},
-  { incremental?: boolean; }
+  {
+    incremental?: boolean;
+  }
 >((api) => {
   const { reporter } = api;
 
@@ -116,7 +118,7 @@ export const buildCommand = createCommand<
     },
     async handler({ incremental }) {
       const cwd = process.cwd();
-      const rootPackageJSON = await getRootPackageJSON(cwd);
+      const rootPackageJSON = await getRootPackageJSON();
       const workspaces = getWorkspaces(rootPackageJSON);
       const isSinglePackage = workspaces === null;
 
@@ -146,10 +148,7 @@ export const buildCommand = createCommand<
       }
 
       const limit = pLimit(4);
-      const workspacePackagePaths = await getWorkspacePackagePaths(
-        cwd,
-        workspaces
-      );
+      const workspacePackagePaths = await getWorkspacePackagePaths(workspaces);
 
       const packageInfoList: PackageInfo[] = await Promise.all(
         workspacePackagePaths.map((packagePath) =>

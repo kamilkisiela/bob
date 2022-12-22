@@ -4,8 +4,8 @@ import path from "path";
 import { buildArtifactDirectories } from "../constants";
 
 export async function getWorkspacePackagePaths(
-  cwd: string,
-  workspaces: Array<string>
+  workspaces: string[],
+  cwd = process.cwd()
 ) {
   const packageJSONPaths = await globby(
     workspaces
