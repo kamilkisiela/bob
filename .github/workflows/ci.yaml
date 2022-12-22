@@ -31,15 +31,8 @@ jobs:
           key: ${{ runner.os }}-${{matrix.node_version}}-yarn-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{matrix.node_version}}-yarn-
-      - name: Cache Jest
-        uses: actions/cache@v3
-        with:
-          path: .cache/jest
-          key: ${{ runner.os }}-${{matrix.node_version}}-jest-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{matrix.node_version}}-jest-
       - name: Install Dependencies using Yarn
-        run: yarn install
+        run: yarn
       - name: Run Tests
         run: yarn test
       - name: Run TS Smoke Tests
