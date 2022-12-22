@@ -262,7 +262,7 @@ it('can build a monorepo project', async () => {
   expect(fse.existsSync(path.resolve(baseDistCPath, 'cjs'))).toBeFalsy();
   expect(fse.existsSync(path.resolve(baseDistCPath, 'esm'))).toBeFalsy();
   expect(await fse.readFile(files.c['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
-    export declare type SomeType = 'type';
+    export type SomeType = 'type';
     export interface SomeInterface {
     }
   `);
@@ -356,7 +356,7 @@ it('can build a types only project', async () => {
   // only types
   const indexDtsFilePath = path.resolve(baseDistPath, 'typings', 'index.d.ts');
   expect(await fse.readFile(indexDtsFilePath, 'utf8')).toMatchInlineSnapshot(`
-    export declare type SomeType = 'type';
+    export type SomeType = 'type';
     export interface SomeInterface {
     }
   `);
@@ -555,7 +555,7 @@ it('can build a monorepo pnpm project', async () => {
   expect(fse.existsSync(path.resolve(baseDistCPath, 'cjs'))).toBeFalsy();
   expect(fse.existsSync(path.resolve(baseDistCPath, 'esm'))).toBeFalsy();
   expect(await fse.readFile(files.c['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
-    export declare type SomeType = 'type';
+    export type SomeType = 'type';
     export interface SomeInterface {
     }
   `);
