@@ -23,10 +23,10 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
-    "lint:prettier": "prettier --check .",
+    "lint:prettier": "prettier --cache --check .",
     "prepublish": "yarn build",
     "prerelease": "yarn build",
-    "prettier": "prettier --write --list-different .",
+    "prettier": "prettier --cache --write --list-different .",
     "release": "changeset publish",
     "test": "vitest .",
     "test:ts": "node test/ts-tests/run-tests.mjs"
@@ -63,6 +63,7 @@
     "@types/node": "16.18.10",
     "@types/yargs": "17.0.17",
     "jest-snapshot-serializer-raw": "1.2.0",
+    "prettier": "2.8.1",
     "rimraf": "3.0.2",
     "typescript": "4.8.2",
     "vitest": "0.26.2"
