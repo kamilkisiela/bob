@@ -1,5 +1,6 @@
 import { rewriteCodeImports } from "./rewrite-code-imports";
 import * as path from "path";
+import { it, expect } from "vitest";
 
 const fixturePath = path.join(__dirname, "__fixtures__", "index.ts");
 
@@ -65,7 +66,6 @@ import type { ValidationContext } from '../../ValidationContext';
   `;
   const result = rewriteCodeImports(fixture, fixturePath);
   expect(result).toMatchInlineSnapshot(`
-    "
     import { GraphQLError } from '../../../error/GraphQLError.js';
 
     import type { FieldNode } from '../../../language/ast.js';
@@ -75,6 +75,5 @@ import type { ValidationContext } from '../../ValidationContext';
     import { isIntrospectionType } from '../../../type/introspection.js';
 
     import type { ValidationContext } from '../../ValidationContext.js';
-      "
   `);
 });
