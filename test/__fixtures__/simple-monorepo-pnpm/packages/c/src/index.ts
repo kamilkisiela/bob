@@ -1,3 +1,3 @@
-export type SomeType = "type";
+export type SomeType = 'type';
 
 export interface SomeInterface {}

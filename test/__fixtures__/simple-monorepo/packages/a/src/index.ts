@@ -1,1 +1,1 @@
-export const a = "WUP";
+export const a = 'WUP';

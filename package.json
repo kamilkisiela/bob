@@ -2,25 +2,38 @@
   "name": "bob-the-bundler",
   "version": "4.1.1",
   "description": "Bob The Bundler!",
+  "repository": {
+    "url": "git@github.com:kamilkisiela/bob.git",
+    "type": "git"
+  },
   "author": {
     "email": "kamil.kisiela@gmail.com",
     "name": "Kamil Kisiela",
     "url": "https://github.com/kamilkisiela"
   },
-  "repository": {
-    "url": "git@github.com:kamilkisiela/bob.git",
-    "type": "git"
-  },
-  "main": "dist/index.js",
+  "license": "MIT",
   "bin": {
     "bob": "dist/index.js"
   },
-  "license": "MIT",
+  "main": "dist/index.js",
   "files": [
     "dist",
-    "README.md",
-    "jest-resolver.js"
+    "jest-resolver.js",
+    "README.md"
   ],
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "lint:prettier": "prettier --cache --check .",
+    "prepublish": "yarn build",
+    "prerelease": "yarn build",
+    "prettier": "prettier --cache --write --list-different .",
+    "release": "changeset publish",
+    "test": "vitest .",
+    "test:ts": "node test/ts-tests/run-tests.mjs"
+  },
+  "peerDependencies": {
+    "typescript": "^4.7.4"
+  },
   "dependencies": {
     "@vercel/ncc": "^0.36.0",
     "consola": "^2.15.3",
@@ -38,31 +51,22 @@
     "yargs": "^17.5.1",
     "zod": "^3.17.3"
   },
-  "scripts": {
-    "prepublish": "yarn build",
-    "build": "rimraf dist && tsc",
-    "test": "vitest .",
-    "test:ts": "node test/ts-tests/run-tests.mjs",
-    "prerelease": "yarn build",
-    "release": "changeset publish"
-  },
   "devDependencies": {
     "@actions/core": "1.10.0",
     "@changesets/changelog-github": "0.4.8",
     "@changesets/cli": "2.24.4",
+    "@theguild/prettier-config": "1.0.0",
     "@types/fs-extra": "9.0.13",
     "@types/js-yaml": "4.0.5",
     "@types/lodash.get": "4.4.7",
     "@types/mkdirp": "1.0.2",
     "@types/node": "16.18.10",
     "@types/yargs": "17.0.17",
-    "jest-snapshot-serializer-raw": "^1.2.0",
+    "jest-snapshot-serializer-raw": "1.2.0",
+    "prettier": "2.8.1",
     "rimraf": "3.0.2",
     "typescript": "4.8.2",
-    "vitest": "^0.26.2"
-  },
-  "peerDependencies": {
-    "typescript": "^4.7.4"
+    "vitest": "0.26.2"
   },
   "publishConfig": {
     "access": "public"

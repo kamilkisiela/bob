@@ -1,17 +1,17 @@
-import globby from "globby";
-import * as fse from "fs-extra";
-import pLimit from "p-limit";
-import fs from "fs-extra";
-import { DepGraph } from "dependency-graph";
-import { resolve, join, dirname } from "path";
-import { Consola } from "consola";
-import ncc from "@vercel/ncc";
-import { build as tsup } from "tsup";
-import { spawn } from "child_process";
+import globby from 'globby';
+import * as fse from 'fs-extra';
+import pLimit from 'p-limit';
+import fs from 'fs-extra';
+import { DepGraph } from 'dependency-graph';
+import { resolve, join, dirname } from 'path';
+import { Consola } from 'consola';
+import ncc from '@vercel/ncc';
+import { build as tsup } from 'tsup';
+import { spawn } from 'child_process';
 
-import { createCommand } from "../command";
+import { createCommand } from '../command';
 
-export const distDir = "dist";
+export const distDir = 'dist';
 
 interface BuildOptions {
   bin?: string;
@@ -27,45 +27,42 @@ export const runifyCommand = createCommand<
   {
     tag?: string[];
   }
->((api) => {
+>(api => {
   const { reporter } = api;
 
   return {
-    command: "runify",
-    describe: "Runify",
+    command: 'runify',
+    describe: 'Runify',
     builder(yargs) {
       return yargs.options({
         tag: {
-          describe: "Run only for following tags",
+          describe: 'Run only for following tags',
           array: true,
-          type: "string",
+          type: 'string',
         },
       });
     },
     async handler({ tag }) {
-      const [rootPackageJSONPath] = await globby("package.json", {
+      const [rootPackageJSONPath] = await globby('package.json', {
         cwd: process.cwd(),
         absolute: true,
       });
-      const rootPackageJSON: Record<string, unknown> = await fse.readJSON(
-        rootPackageJSONPath
-      );
-      const isSinglePackage =
-        Array.isArray(rootPackageJSON.workspaces) === false;
+      const rootPackageJSON: Record<string, unknown> = await fse.readJSON(rootPackageJSONPath);
+      const isSinglePackage = Array.isArray(rootPackageJSON.workspaces) === false;
 
       if (isSinglePackage) {
-        return runify(join(process.cwd(), "package.json"), reporter);
+        return runify(join(process.cwd(), 'package.json'), reporter);
       }
 
       const limit = pLimit(1);
-      const packageJsonFiles = await globby("packages/**/package.json", {
+      const packageJsonFiles = await globby('packages/**/package.json', {
         cwd: process.cwd(),
         absolute: true,
-        ignore: ["**/node_modules/**", `**/${distDir}/**`],
+        ignore: ['**/node_modules/**', `**/${distDir}/**`],
       });
 
       const packageJsons = await Promise.all(
-        packageJsonFiles.map((packagePath) => fs.readJSON(packagePath))
+        packageJsonFiles.map(packagePath => fs.readJSON(packagePath)),
       );
       const depGraph = new DepGraph<{ path: string; tags: string[] }>();
 
@@ -76,14 +73,14 @@ export const runifyCommand = createCommand<
         });
       });
 
-      packageJsons.forEach((pkg) => {
+      packageJsons.forEach(pkg => {
         [
           ...Object.keys(pkg.dependencies ?? {}),
           ...Object.keys(pkg.peerDependencies ?? {}),
           ...Object.keys(pkg.devDependencies ?? {}),
         ]
-          .filter((dep) => depGraph.hasNode(dep))
-          .forEach((dep) => {
+          .filter(dep => depGraph.hasNode(dep))
+          .forEach(dep => {
             depGraph.addDependency(pkg.name, dep);
           });
       });
@@ -91,24 +88,24 @@ export const runifyCommand = createCommand<
       const ordered = depGraph.overallOrder();
 
       await Promise.all(
-        ordered.map((name) => {
+        ordered.map(name => {
           const data = depGraph.getNodeData(name);
 
           if (tag) {
-            if (!data.tags.some((t) => tag.includes(t))) {
+            if (!data.tags.some(t => tag.includes(t))) {
               return;
             }
           }
 
           return limit(() => runify(depGraph.getNodeData(name).path, reporter));
-        })
+        }),
       );
     },
   };
 });
 
 async function runify(packagePath: string, reporter: Consola) {
-  const cwd = packagePath.replace("/package.json", "");
+  const cwd = packagePath.replace('/package.json', '');
   const pkg = await readPackageJson(cwd);
   const buildOptions: BuildOptions = pkg.buildOptions || {};
 
@@ -119,18 +116,18 @@ async function runify(packagePath: string, reporter: Consola) {
   if (isNext(pkg)) {
     const additionalRequire = pkg?.buildOptions?.runify?.next?.header ?? null;
     await buildNext(cwd, additionalRequire);
-    await rewritePackageJson(pkg, cwd, (newPkg) => ({
+    await rewritePackageJson(pkg, cwd, newPkg => ({
       ...newPkg,
       dependencies: pkg.dependencies,
-      type: "commonjs",
+      type: 'commonjs',
     }));
   } else {
     await compile(
       cwd,
-      buildOptions.bin ?? "src/index.ts",
+      buildOptions.bin ?? 'src/index.ts',
       buildOptions,
       Object.keys(pkg.dependencies ?? {}),
-      pkg.type === "module"
+      pkg.type === 'module',
     );
     await rewritePackageJson(pkg, cwd);
   }
@@ -140,41 +137,34 @@ async function runify(packagePath: string, reporter: Consola) {
 
 export async function readPackageJson(baseDir: string) {
   return JSON.parse(
-    await fs.readFile(resolve(baseDir, "package.json"), {
-      encoding: "utf-8",
-    })
+    await fs.readFile(resolve(baseDir, 'package.json'), {
+      encoding: 'utf-8',
+    }),
   );
 }
 
 async function rewritePackageJson(
   pkg: Record<string, any>,
   cwd: string,
-  modify?: (pkg: any) => any
+  modify?: (pkg: any) => any,
 ) {
-  let filename = "index.js";
+  let filename = 'index.js';
 
   // only tsup keep the file name
   if (pkg.buildOptions.bin && pkg.buildOptions.tsup) {
-    const bits = pkg.buildOptions.bin.split("/");
+    const bits = pkg.buildOptions.bin.split('/');
     const lastBit = bits[bits.length - 1];
 
-    filename = lastBit.replace(".ts", ".js");
+    filename = lastBit.replace('.ts', '.js');
   }
 
   let newPkg: Record<string, any> = {
     bin: filename,
   };
-  const fields = [
-    "name",
-    "version",
-    "description",
-    "registry",
-    "repository",
-    "type",
-  ];
+  const fields = ['name', 'version', 'description', 'registry', 'repository', 'type'];
 
-  fields.forEach((field) => {
-    if (typeof pkg[field] !== "undefined") {
+  fields.forEach(field => {
+    if (typeof pkg[field] !== 'undefined') {
       newPkg[field] = pkg[field];
     }
   });
@@ -183,13 +173,9 @@ async function rewritePackageJson(
     newPkg = modify(newPkg);
   }
 
-  await fs.writeFile(
-    join(cwd, "dist/package.json"),
-    JSON.stringify(newPkg, null, 2),
-    {
-      encoding: "utf-8",
-    }
-  );
+  await fs.writeFile(join(cwd, 'dist/package.json'), JSON.stringify(newPkg, null, 2), {
+    encoding: 'utf-8',
+  });
 }
 
 function isNext(pkg: any): boolean {
@@ -198,43 +184,41 @@ function isNext(pkg: any): boolean {
 
 async function buildNext(cwd: string, additionalRequire: string | null) {
   await new Promise((resolve, reject) => {
-    const child = spawn("next", ["build"], {
-      stdio: "inherit",
+    const child = spawn('next', ['build'], {
+      stdio: 'inherit',
       cwd,
     });
-    child.on("exit", (code) => (code ? reject(code) : resolve(code)));
-    child.on("error", reject);
+    child.on('exit', code => (code ? reject(code) : resolve(code)));
+    child.on('error', reject);
   });
 
-  await fs.mkdirp(join(cwd, "dist"));
+  await fs.mkdirp(join(cwd, 'dist'));
   if (additionalRequire) {
     await tsup({
       entryPoints: [join(cwd, additionalRequire)],
-      outDir: join(cwd, "dist"),
-      target: "node16",
-      format: ["cjs"],
+      outDir: join(cwd, 'dist'),
+      target: 'node16',
+      format: ['cjs'],
       splitting: false,
       skipNodeModulesBundle: true,
     });
   }
 
   await Promise.all([
-    fs.copy(join(cwd, ".next"), join(cwd, "dist/.next"), {
+    fs.copy(join(cwd, '.next'), join(cwd, 'dist/.next'), {
       filter(src) {
         // copy without webpack cache (it's 900mb...)
-        return src.includes("cache/webpack") === false;
+        return src.includes('cache/webpack') === false;
       },
     }),
-    fs.copy(join(cwd, "public"), join(cwd, "dist/public")),
+    fs.copy(join(cwd, 'public'), join(cwd, 'dist/public')),
     fs.writeFile(
-      join(cwd, "dist/index.js"),
+      join(cwd, 'dist/index.js'),
       [
         `#!/usr/bin/env node`,
         `process.on('SIGTERM', () => process.exit(0))`,
         `process.on('SIGINT', () => process.exit(0))`,
-        additionalRequire
-          ? `require('${additionalRequire.replace(".ts", "")}')`
-          : ``,
+        additionalRequire ? `require('${additionalRequire.replace('.ts', '')}')` : ``,
         `
           require('next/dist/server/lib/start-server').startServer({
             dir: __dirname,
@@ -250,7 +234,7 @@ async function buildNext(cwd: string, additionalRequire: string | null) {
             process.exit(1);
           })
         `,
-      ].join("\n")
+      ].join('\n'),
     ),
   ]);
 }
@@ -260,16 +244,16 @@ async function compile(
   entryPoint: string,
   buildOptions: BuildOptions,
   dependencies: string[],
-  useEsm = false
+  useEsm = false,
 ) {
   if (buildOptions.tsup) {
-    const out = join(cwd, "dist");
+    const out = join(cwd, 'dist');
 
     await tsup({
       entryPoints: [join(cwd, entryPoint)],
       outDir: out,
-      target: "node16",
-      format: [useEsm ? "esm" : "cjs"],
+      target: 'node16',
+      format: [useEsm ? 'esm' : 'cjs'],
       splitting: false,
       sourcemap: true,
       clean: true,
@@ -280,9 +264,8 @@ async function compile(
       banner: buildOptions.banner
         ? {
             js:
-              buildOptions.banner.includes(".js") ||
-              buildOptions.banner.includes(".mjs")
-                ? await fs.readFile(join(cwd, buildOptions.banner), "utf-8")
+              buildOptions.banner.includes('.js') || buildOptions.banner.includes('.mjs')
+                ? await fs.readFile(join(cwd, buildOptions.banner), 'utf-8')
                 : buildOptions.banner,
           }
         : {},
@@ -295,16 +278,16 @@ async function compile(
     sourceMap: true,
   });
 
-  await fs.mkdirp(join(cwd, "dist"));
+  await fs.mkdirp(join(cwd, 'dist'));
   await Promise.all([
-    fs.writeFile(join(cwd, "dist/index.js"), code, "utf8"),
-    fs.writeFile(join(cwd, "dist/index.js.map"), map, "utf8"),
-    ...Object.keys(assets).map(async (filepath) => {
-      if (filepath.endsWith("package.json")) {
+    fs.writeFile(join(cwd, 'dist/index.js'), code, 'utf8'),
+    fs.writeFile(join(cwd, 'dist/index.js.map'), map, 'utf8'),
+    ...Object.keys(assets).map(async filepath => {
+      if (filepath.endsWith('package.json')) {
         return;
       }
-      await fs.ensureDir(dirname(join(cwd, "dist", filepath)), {});
-      await fs.writeFile(join(cwd, "dist", filepath), assets[filepath].source);
+      await fs.ensureDir(dirname(join(cwd, 'dist', filepath)), {});
+      await fs.writeFile(join(cwd, 'dist', filepath), assets[filepath].source);
     }),
   ]);
 }

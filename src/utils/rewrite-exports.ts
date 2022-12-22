@@ -6,10 +6,7 @@ type Exports =
       default?: string | Record<string, string>;
     };
 
-export function rewriteExports(
-  exports: Record<string, Exports>,
-  distDir: string
-) {
+export function rewriteExports(exports: Record<string, Exports>, distDir: string) {
   const newExports = { ...exports };
 
   for (const [key, value] of Object.entries(newExports)) {
@@ -17,23 +14,21 @@ export function rewriteExports(
 
     let newValue = value as Exports;
 
-    if (typeof newValue === "string") {
-      newValue = newValue.replace(`${distDir}/`, "");
-    } else if (typeof newValue === "object" && newValue != null) {
-      function transformValue(
-        value: string | { [key: string]: string } | undefined
-      ) {
+    if (typeof newValue === 'string') {
+      newValue = newValue.replace(`${distDir}/`, '');
+    } else if (typeof newValue === 'object' && newValue != null) {
+      function transformValue(value: string | { [key: string]: string } | undefined) {
         if (value == null) {
           return;
         }
-        if (typeof value === "object") {
+        if (typeof value === 'object') {
           const newValue: Record<string, string> = {};
           for (const [key, path] of Object.entries(value)) {
-            newValue[key] = path.replace(`${distDir}/`, "");
+            newValue[key] = path.replace(`${distDir}/`, '');
           }
           return newValue;
         }
-        return value.replace(`${distDir}/`, "");
+        return value.replace(`${distDir}/`, '');
       }
 
       newValue = {
@@ -42,7 +37,7 @@ export function rewriteExports(
         default: transformValue(newValue.import),
       };
     }
-    newExports[key.replace(`${distDir}/`, "")] = newValue;
+    newExports[key.replace(`${distDir}/`, '')] = newValue;
   }
 
   return newExports;
