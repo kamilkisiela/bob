@@ -9,7 +9,7 @@ import ncc from '@vercel/ncc';
 import { build as tsup } from 'tsup';
 import { spawn } from 'child_process';
 
-import { createCommand } from '../command';
+import { createCommand } from '../command.js';
 
 export const distDir = 'dist';
 

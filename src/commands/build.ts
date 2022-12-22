@@ -8,13 +8,13 @@ import { Consola } from 'consola';
 import get from 'lodash.get';
 import mkdirp from 'mkdirp';
 
-import { getRootPackageJSON } from '../utils/get-root-package-json';
-import { getWorkspaces } from '../utils/get-workspaces';
-import { createCommand } from '../command';
-import { getBobConfig } from '../config';
-import { rewriteExports } from '../utils/rewrite-exports';
-import { presetFields, presetFieldsESM } from './bootstrap';
-import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths';
+import { getRootPackageJSON } from '../utils/get-root-package-json.js';
+import { getWorkspaces } from '../utils/get-workspaces.js';
+import { createCommand } from '../command.js';
+import { getBobConfig } from '../config.js';
+import { rewriteExports } from '../utils/rewrite-exports.js';
+import { presetFields, presetFieldsESM } from './bootstrap.js';
+import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
 
 export const DIST_DIR = 'dist';
 

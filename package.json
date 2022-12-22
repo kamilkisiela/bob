@@ -24,6 +24,7 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
+    "lint": "eslint --cache --cache-location node_modules/.cache/.eslintcache --ignore-path .gitignore .",
     "lint:prettier": "prettier --cache --check .",
     "prepublish": "yarn build",
     "prerelease": "yarn build",
@@ -63,6 +64,9 @@
     "@types/mkdirp": "1.0.2",
     "@types/node": "18.11.17",
     "@types/yargs": "17.0.17",
+    "@typescript-eslint/parser": "5.47.0",
+    "eslint": "8.30.0",
+    "eslint-plugin-import": "2.26.0",
     "jest-snapshot-serializer-raw": "1.2.0",
     "prettier": "2.8.1",
     "rimraf": "3.0.2",
