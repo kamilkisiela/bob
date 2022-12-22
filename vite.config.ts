@@ -4,10 +4,9 @@ export default defineConfig({
   test: {
     testTimeout: 15_000,
     deps: {
-      // fixes `fs-extra` errors
+      // fixes `fs-extra` TypeError: readFileSync is not a function
       inline: true,
-      fallbackCJS: true,
     },
-    setupFiles: ['./serializer.js'],
+    setupFiles: ["./serializer.js"],
   },
 });
