@@ -25,14 +25,14 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
       - name: Cache Yarn
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: "**/node_modules"
           key: ${{ runner.os }}-${{matrix.node_version}}-yarn-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{matrix.node_version}}-yarn-
       - name: Cache Jest
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .cache/jest
           key: ${{ runner.os }}-${{matrix.node_version}}-jest-${{ hashFiles('yarn.lock') }}
