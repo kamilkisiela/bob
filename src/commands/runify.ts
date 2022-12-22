@@ -287,7 +287,6 @@ async function compile(
           }
         : {},
     });
-
     return;
   }
 
@@ -297,25 +296,15 @@ async function compile(
   });
 
   await fs.mkdirp(join(cwd, "dist"));
-  await Promise.all(
-    [
-      fs.writeFile(join(cwd, "dist/index.js"), code, {
-        encoding: "utf-8",
-      }),
-      fs.writeFile(join(cwd, "dist/index.js.map"), map, {
-        encoding: "utf-8",
-      }),
-    ].concat(
-      Object.keys(assets).map(async (filepath) => {
-        if (filepath.endsWith("package.json")) {
-          return Promise.resolve();
-        }
-        await fs.ensureDir(dirname(join(cwd, "dist", filepath)), {});
-        await fs.writeFile(
-          join(cwd, "dist", filepath),
-          assets[filepath].source
-        );
-      })
-    )
-  );
+  await Promise.all([
+    fs.writeFile(join(cwd, "dist/index.js"), code, "utf8"),
+    fs.writeFile(join(cwd, "dist/index.js.map"), map, "utf8"),
+    ...Object.keys(assets).map(async (filepath) => {
+      if (filepath.endsWith("package.json")) {
+        return;
+      }
+      await fs.ensureDir(dirname(join(cwd, "dist", filepath)), {});
+      await fs.writeFile(join(cwd, "dist", filepath), assets[filepath].source);
+    }),
+  ]);
 }

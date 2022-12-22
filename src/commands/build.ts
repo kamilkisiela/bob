@@ -26,7 +26,7 @@ interface PackageInfo {
 }
 
 /**
- * A list of files that we don't need need within the published package.
+ * A list of files that we don't need within the published package.
  * Also known as test files :)
  * This list is derived from scouting various of our repositories.
  */
@@ -56,17 +56,14 @@ function typeScriptCompilerOptions(
   };
 }
 
-function compilerOptionsToArgs(
-  options: Record<string, unknown>
-): Array<string> {
-  const args: Array<string> = [];
-  for (const [key, value] of Object.entries(options)) {
-    args.push(`--${key}`, `${value}`);
-  }
-  return args;
+function compilerOptionsToArgs(options: Record<string, unknown>): string[] {
+  return Object.entries(options).flatMap(([key, value]) => [
+    `--${key}`,
+    `${value}`,
+  ]);
 }
 
-function assertTypeScriptBuildResult(result: execa.ExecaReturnValue<string>) {
+function assertTypeScriptBuildResult(result: execa.ExecaReturnValue) {
   if (result.exitCode !== 0) {
     console.log("TypeScript compiler exited with non-zero exit code.");
     console.log(result.stdout);
@@ -101,9 +98,7 @@ async function buildTypeScript(
 
 export const buildCommand = createCommand<
   {},
-  {
-    incremental?: boolean;
-  }
+  { incremental?: boolean; }
 >((api) => {
   const { reporter } = api;
 

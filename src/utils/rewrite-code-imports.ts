@@ -4,13 +4,13 @@ import * as path from "path";
 function isFolderSync(path: string) {
   try {
     return fse.statSync(path).isDirectory();
-  } catch (e) {
+  } catch {
     return false;
   }
 }
 
 function rewriteSourceValue(sourceValue: string, relativeDirname: string) {
-  if (sourceValue.startsWith(".") && sourceValue.endsWith(".js") === false) {
+  if (sourceValue.startsWith(".") && !sourceValue.endsWith(".js")) {
     const targetPath = path.resolve(relativeDirname, sourceValue);
     // If the target path is a folder, we need to import from the index.js file
     if (isFolderSync(targetPath)) {
