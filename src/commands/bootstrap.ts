@@ -70,7 +70,7 @@ export const presetFieldsESM = {
   },
 };
 
-async function applyESMModuleTransform(cwd: string) {
+async function applyESMModuleTransform(cwd = process.cwd()) {
   const filePaths = await globby("**/*.ts", {
     cwd,
     absolute: true,
@@ -108,26 +108,22 @@ export const bootstrapCommand = createCommand<{}, {}>(() => {
       return yargs.options({});
     },
     async handler() {
-      const cwd = process.cwd();
-      const rootPackageJSON = await getRootPackageJSON(cwd);
-      const workspaces = getWorkspaces(rootPackageJSON);
+      const rootPackageJSON = await getRootPackageJSON();
+      const workspaces = await getWorkspaces(rootPackageJSON);
       const isSinglePackage = workspaces === null;
 
       // Make sure all modules are converted to ESM
 
       if (isSinglePackage) {
-        await applyESMModuleTransform(cwd);
+        await applyESMModuleTransform();
         await applyPackageJSONPresetConfig(
-          path.join(cwd, "package.json"),
+          path.join(process.cwd(), "package.json"),
           rootPackageJSON
         );
         return;
       }
 
-      const workspacePackagePaths = await getWorkspacePackagePaths(
-        cwd,
-        workspaces
-      );
+      const workspacePackagePaths = await getWorkspacePackagePaths(workspaces);
 
       await Promise.all(
         workspacePackagePaths.map((packagePath) =>

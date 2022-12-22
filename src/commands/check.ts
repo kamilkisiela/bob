@@ -40,8 +40,8 @@ export const checkCommand = createCommand<{}, {}>((api) => {
     },
     async handler() {
       const cwd = process.cwd();
-      const rootPackageJSON = await getRootPackageJSON(cwd);
-      const workspaces = getWorkspaces(rootPackageJSON);
+      const rootPackageJSON = await getRootPackageJSON();
+      const workspaces = await getWorkspaces(rootPackageJSON);
       const isSinglePackage = workspaces === null;
 
       let checkConfigs: Array<{
@@ -55,7 +55,7 @@ export const checkCommand = createCommand<{}, {}>((api) => {
           packageJSON: rootPackageJSON,
         });
       } else {
-        const workspacesPaths = await getWorkspacePackagePaths(cwd, workspaces);
+        const workspacesPaths = await getWorkspacePackagePaths(workspaces);
         const limit = pLimit(20);
         await Promise.all(
           workspacesPaths.map((workspacePath) =>

@@ -1,7 +1,7 @@
 import globby from "globby";
 import * as fse from "fs-extra";
 
-export async function getRootPackageJSON(cwd: string) {
+export async function getRootPackageJSON(cwd = process.cwd()) {
   const [rootPackageJSONPath] = await globby("package.json", {
     cwd,
     absolute: true,

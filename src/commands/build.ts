@@ -26,7 +26,7 @@ interface PackageInfo {
 }
 
 /**
- * A list of files that we don't need need within the published package.
+ * A list of files that we don't need within the published package.
  * Also known as test files :)
  * This list is derived from scouting various of our repositories.
  */
@@ -56,17 +56,14 @@ function typeScriptCompilerOptions(
   };
 }
 
-function compilerOptionsToArgs(
-  options: Record<string, unknown>
-): Array<string> {
-  const args: Array<string> = [];
-  for (const [key, value] of Object.entries(options)) {
-    args.push(`--${key}`, `${value}`);
-  }
-  return args;
+function compilerOptionsToArgs(options: Record<string, unknown>): string[] {
+  return Object.entries(options).flatMap(([key, value]) => [
+    `--${key}`,
+    `${value}`,
+  ]);
 }
 
-function assertTypeScriptBuildResult(result: execa.ExecaReturnValue<string>) {
+function assertTypeScriptBuildResult(result: execa.ExecaReturnValue) {
   if (result.exitCode !== 0) {
     console.log("TypeScript compiler exited with non-zero exit code.");
     console.log(result.stdout);
@@ -121,8 +118,8 @@ export const buildCommand = createCommand<
     },
     async handler({ incremental }) {
       const cwd = process.cwd();
-      const rootPackageJSON = await getRootPackageJSON(cwd);
-      const workspaces = getWorkspaces(rootPackageJSON);
+      const rootPackageJSON = await getRootPackageJSON();
+      const workspaces = await getWorkspaces(rootPackageJSON);
       const isSinglePackage = workspaces === null;
 
       if (isSinglePackage) {
@@ -151,10 +148,7 @@ export const buildCommand = createCommand<
       }
 
       const limit = pLimit(4);
-      const workspacePackagePaths = await getWorkspacePackagePaths(
-        cwd,
-        workspaces
-      );
+      const workspacePackagePaths = await getWorkspacePackagePaths(workspaces);
 
       const packageInfoList: PackageInfo[] = await Promise.all(
         workspacePackagePaths.map((packagePath) =>
@@ -392,7 +386,7 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
   ];
 
   fields.forEach((field) => {
-    if (typeof pkg[field] !== "undefined") {
+    if (pkg[field] !== undefined) {
       newPkg[field] = pkg[field];
     }
   });
@@ -461,7 +455,7 @@ export function validatePackageJson(
   // If the package has NO binary we need to check the exports map.
   // a package should either
   // 1. have a bin property
-  // 2. have a exports property
+  // 2. have an exports property
   // 3. have an exports and bin property
   if (Object.keys(pkg.bin ?? {}).length > 0) {
     if (opts.includesCommonJS === true) {
@@ -499,7 +493,7 @@ export function validatePackageJson(
       expect("typings", presetFieldsESM.typings);
       expect("typescript.definition", presetFieldsESM.typescript.definition);
 
-      // For now we enforce a top level exports property
+      // For now, we enforce a top level exports property
       expect("exports['.']", presetFieldsESM.exports["."]);
     }
   }
