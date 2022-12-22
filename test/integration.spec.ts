@@ -1,5 +1,5 @@
 import path from 'path';
-import execa from 'execa';
+import { execa } from 'execa';
 import * as fse from 'fs-extra';
 import { it, expect } from 'vitest';
 

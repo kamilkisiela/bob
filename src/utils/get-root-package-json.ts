@@ -1,4 +1,4 @@
-import globby from 'globby';
+import { globby } from 'globby';
 import * as fse from 'fs-extra';
 
 export async function getRootPackageJSON(cwd = process.cwd()) {

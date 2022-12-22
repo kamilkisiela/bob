@@ -1,4 +1,4 @@
-import globby from 'globby';
+import { globby } from 'globby';
 import zod from 'zod';
 import * as fse from 'fs-extra';
 import resolve from 'resolve.exports';
@@ -6,7 +6,7 @@ import { createCommand } from '../command';
 import { presetFields } from './bootstrap';
 import path from 'path';
 import pLimit from 'p-limit';
-import execa from 'execa';
+import { execa, ExecaChildProcess } from 'execa';
 import { getRootPackageJSON } from '../utils/get-root-package-json';
 import { getWorkspaces } from '../utils/get-workspaces';
 import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths';
@@ -326,10 +326,7 @@ async function checkExportsMapIntegrity(args: {
 
 const timeout = `;setTimeout(() => { throw new Error("The Node.js process hangs. There is probably some side-effects. All exports should be free of side effects.") }, 500).unref()`;
 
-function runRequireJSFileCommand(args: {
-  cwd: string;
-  path: string;
-}): execa.ExecaChildProcess<string> {
+function runRequireJSFileCommand(args: { cwd: string; path: string }): ExecaChildProcess {
   return execa('node', ['-e', `require('${args.path}')${timeout}`], {
     cwd: args.cwd,
     reject: false,

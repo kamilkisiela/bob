@@ -1,4 +1,4 @@
-import globby from 'globby';
+import { globby } from 'globby';
 import pLimit from 'p-limit';
 import * as path from 'path';
 import * as fse from 'fs-extra';
