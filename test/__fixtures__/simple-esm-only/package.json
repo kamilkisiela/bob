@@ -1,11 +1,8 @@
 {
   "name": "simple-esm-only",
+  "type": "module",
   "main": "dist/esm/index.js",
   "module": "dist/esm/index.js",
-  "typings": "dist/typings/index.d.ts",
-  "typescript": {
-    "definition": "dist/typings/index.d.ts"
-  },
   "exports": {
     ".": {
       "import": {
@@ -19,12 +16,15 @@
     },
     "./package.json": "./package.json"
   },
+  "typings": "dist/typings/index.d.ts",
   "publishConfig": {
     "directory": "dist",
     "access": "public"
   },
-  "type": "module",
   "bob": {
     "commonjs": false
+  },
+  "typescript": {
+    "definition": "dist/typings/index.d.ts"
   }
 }

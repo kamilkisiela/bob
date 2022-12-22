@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
@@ -7,6 +7,6 @@ export default defineConfig({
       // fixes `fs-extra` TypeError: readFileSync is not a function
       inline: true,
     },
-    setupFiles: ["./serializer.js"],
+    setupFiles: ['./serializer.js'],
   },
 });

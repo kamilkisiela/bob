@@ -1,44 +1,44 @@
-import path from "path";
-import execa from "execa";
-import * as fse from "fs-extra";
-import { it, expect } from "vitest";
+import path from 'path';
+import execa from 'execa';
+import * as fse from 'fs-extra';
+import { it, expect } from 'vitest';
 
-const fixturesFolder = path.join(__dirname, "__fixtures__");
-const binaryFolder = path.join(__dirname, "..", "dist", "index.js");
+const fixturesFolder = path.join(__dirname, '__fixtures__');
+const binaryFolder = path.join(__dirname, '..', 'dist', 'index.js');
 
-it("can bundle a simple project", async () => {
-  await fse.remove(path.resolve(fixturesFolder, "simple", "dist"));
-  const result = await execa("node", [binaryFolder, "build"], {
-    cwd: path.resolve(fixturesFolder, "simple")
+it('can bundle a simple project', async () => {
+  await fse.remove(path.resolve(fixturesFolder, 'simple', 'dist'));
+  const result = await execa('node', [binaryFolder, 'build'], {
+    cwd: path.resolve(fixturesFolder, 'simple'),
   });
   expect(result.exitCode).toEqual(0);
-  const baseDistPath = path.resolve(fixturesFolder, "simple", "dist");
-  const indexJsFilePath = path.resolve(baseDistPath, "cjs", "index.js");
-  const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
-  const indexMjsFilePath = path.resolve(baseDistPath, "esm", "index.js");
-  const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
-  const readmeFilePath = path.resolve(baseDistPath, "README.md");
-  const fooFilePath = path.resolve(baseDistPath, "foo.json");
+  const baseDistPath = path.resolve(fixturesFolder, 'simple', 'dist');
+  const indexJsFilePath = path.resolve(baseDistPath, 'cjs', 'index.js');
+  const indexDtsFilePath = path.resolve(baseDistPath, 'typings', 'index.d.ts');
+  const indexMjsFilePath = path.resolve(baseDistPath, 'esm', 'index.js');
+  const packageJsonFilePath = path.resolve(baseDistPath, 'package.json');
+  const readmeFilePath = path.resolve(baseDistPath, 'README.md');
+  const fooFilePath = path.resolve(baseDistPath, 'foo.json');
 
-  expect(await fse.readFile(indexJsFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(indexJsFilePath, 'utf8')).toMatchInlineSnapshot(`
     "use strict";
     exports.__esModule = true;
     exports.someNumber = void 0;
     exports.someNumber = 1;
-    exports["default"] = "kek";
+    exports["default"] = 'kek';
   `);
-  expect(await fse.readFile(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(indexDtsFilePath, 'utf8')).toMatchInlineSnapshot(`
     export declare const someNumber = 1;
     declare const _default: "kek";
     export default _default;
   `);
-  expect(await fse.readFile(indexMjsFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(indexMjsFilePath, 'utf8')).toMatchInlineSnapshot(`
     export var someNumber = 1;
-    export default "kek";
+    export default 'kek';
   `);
-  expect(await fse.readFile(readmeFilePath, "utf8")).toMatchInlineSnapshot('Hello!');
-  expect(await fse.readFile(fooFilePath, "utf8")).toMatchInlineSnapshot('{ "hi": 1 }');
-  expect(await fse.readFile(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
+  expect(await fse.readFile(readmeFilePath, 'utf8')).toMatchInlineSnapshot('Hello!');
+  expect(await fse.readFile(fooFilePath, 'utf8')).toMatchInlineSnapshot('{ "hi": 1 }');
+  expect(await fse.readFile(packageJsonFilePath, 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "simple",
       "main": "cjs/index.js",
@@ -82,43 +82,21 @@ it("can bundle a simple project", async () => {
       }
     }
   `);
-  await execa("node", [binaryFolder, "check"], {
-    cwd: path.resolve(fixturesFolder, "simple")
+  await execa('node', [binaryFolder, 'check'], {
+    cwd: path.resolve(fixturesFolder, 'simple'),
   });
 });
 
-it("can build a monorepo project", async () => {
-  await fse.remove(
-    path.resolve(fixturesFolder, "simple-monorepo", "a", "dist")
-  );
-  await fse.remove(
-    path.resolve(fixturesFolder, "simple-monorepo", "b", "dist")
-  );
-  const result = await execa("node", [binaryFolder, "build"], {
-    cwd: path.resolve(fixturesFolder, "simple-monorepo")
+it('can build a monorepo project', async () => {
+  await fse.remove(path.resolve(fixturesFolder, 'simple-monorepo', 'a', 'dist'));
+  await fse.remove(path.resolve(fixturesFolder, 'simple-monorepo', 'b', 'dist'));
+  const result = await execa('node', [binaryFolder, 'build'], {
+    cwd: path.resolve(fixturesFolder, 'simple-monorepo'),
   });
   expect(result.exitCode).toEqual(0);
-  const baseDistAPath = path.resolve(
-    fixturesFolder,
-    "simple-monorepo",
-    "packages",
-    "a",
-    "dist"
-  );
-  const baseDistBPath = path.resolve(
-    fixturesFolder,
-    "simple-monorepo",
-    "packages",
-    "b",
-    "dist"
-  );
-  const baseDistCPath = path.resolve(
-    fixturesFolder,
-    "simple-monorepo",
-    "packages",
-    "c",
-    "dist"
-  );
+  const baseDistAPath = path.resolve(fixturesFolder, 'simple-monorepo', 'packages', 'a', 'dist');
+  const baseDistBPath = path.resolve(fixturesFolder, 'simple-monorepo', 'packages', 'b', 'dist');
+  const baseDistCPath = path.resolve(fixturesFolder, 'simple-monorepo', 'packages', 'c', 'dist');
   // prettier-ignore
   const files = {
     a: {
@@ -139,19 +117,19 @@ it("can build a monorepo project", async () => {
     },
   } as const;
 
-  expect(await fse.readFile(files.a["cjs/index.js"], "utf8"))
-    .toMatchInlineSnapshot(`
-      "use strict";
-      Object.defineProperty(exports, "__esModule", { value: true });
-      exports.a = void 0;
-      exports.a = "WUP";
-    `);
-  expect(await fse.readFile(files.a["typings/index.d.ts"], "utf8"))
-    .toMatchInlineSnapshot('export declare const a = "WUP";');
-  expect(await fse.readFile(files.a["esm/index.js"], "utf8"))
-    .toMatchInlineSnapshot('export const a = "WUP";');
-  expect(await fse.readFile(files.a["package.json"], "utf8"))
-    .toMatchInlineSnapshot(`
+  expect(await fse.readFile(files.a['cjs/index.js'], 'utf8')).toMatchInlineSnapshot(`
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.a = void 0;
+    exports.a = 'WUP';
+  `);
+  expect(await fse.readFile(files.a['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(
+    'export declare const a = "WUP";',
+  );
+  expect(await fse.readFile(files.a['esm/index.js'], 'utf8')).toMatchInlineSnapshot(
+    'export const a = \'WUP\';',
+  );
+  expect(await fse.readFile(files.a['package.json'], 'utf8')).toMatchInlineSnapshot(`
       {
         "name": "a",
         "main": "cjs/index.js",
@@ -195,50 +173,46 @@ it("can build a monorepo project", async () => {
       }
     `);
 
-  expect(await fse.readFile(files.b["cjs/index.js"], "utf8"))
-    .toMatchInlineSnapshot(`
-      "use strict";
-      var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-          if (k2 === undefined) k2 = k;
-          var desc = Object.getOwnPropertyDescriptor(m, k);
-          if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-            desc = { enumerable: true, get: function() { return m[k]; } };
-          }
-          Object.defineProperty(o, k2, desc);
-      }) : (function(o, m, k, k2) {
-          if (k2 === undefined) k2 = k;
-          o[k2] = m[k];
-      }));
-      var __exportStar = (this && this.__exportStar) || function(m, exports) {
-          for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-      };
-      Object.defineProperty(exports, "__esModule", { value: true });
-      exports.foo = exports.b = void 0;
-      const foo_js_1 = require("./foo.js");
-      __exportStar(require("./foo.js"), exports);
-      exports.b = "SUP" + foo_js_1.b;
-      function foo() {
-          return Promise.resolve().then(() => require("./foo.js"));
-      }
-      exports.foo = foo;
-    `);
-  expect(await fse.readFile(files.b["typings/index.d.ts"], "utf8"))
-    .toMatchInlineSnapshot(`
-      export * from "./foo.js";
-      export declare const b: string;
-      export declare function foo(): Promise<typeof import("./foo.js")>;
-    `);
-  expect(await fse.readFile(files.b["esm/index.js"], "utf8"))
-    .toMatchInlineSnapshot(`
-      import { b as a } from "./foo.js";
-      export * from "./foo.js";
-      export const b = "SUP" + a;
-      export function foo() {
-          return import("./foo.js");
-      }
-    `);
-  expect(await fse.readFile(files.b["package.json"], "utf8"))
-    .toMatchInlineSnapshot(`
+  expect(await fse.readFile(files.b['cjs/index.js'], 'utf8')).toMatchInlineSnapshot(`
+    "use strict";
+    var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+          desc = { enumerable: true, get: function() { return m[k]; } };
+        }
+        Object.defineProperty(o, k2, desc);
+    }) : (function(o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        o[k2] = m[k];
+    }));
+    var __exportStar = (this && this.__exportStar) || function(m, exports) {
+        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+    };
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.foo = exports.b = void 0;
+    const foo_js_1 = require("./foo.js");
+    __exportStar(require("./foo.js"), exports);
+    exports.b = 'SUP' + foo_js_1.b;
+    function foo() {
+        return Promise.resolve().then(() => require('./foo.js'));
+    }
+    exports.foo = foo;
+  `);
+  expect(await fse.readFile(files.b['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
+    export * from './foo.js';
+    export declare const b: string;
+    export declare function foo(): Promise<typeof import("./foo.js")>;
+  `);
+  expect(await fse.readFile(files.b['esm/index.js'], 'utf8')).toMatchInlineSnapshot(`
+    import { b as a } from './foo.js';
+    export * from './foo.js';
+    export const b = 'SUP' + a;
+    export function foo() {
+        return import('./foo.js');
+    }
+  `);
+  expect(await fse.readFile(files.b['package.json'], 'utf8')).toMatchInlineSnapshot(`
       {
         "name": "b",
         "main": "cjs/index.js",
@@ -285,16 +259,14 @@ it("can build a monorepo project", async () => {
       }
     `);
 
-  expect(fse.existsSync(path.resolve(baseDistCPath, "cjs"))).toBeFalsy();
-  expect(fse.existsSync(path.resolve(baseDistCPath, "esm"))).toBeFalsy();
-  expect(await fse.readFile(files.c["typings/index.d.ts"], "utf8"))
-    .toMatchInlineSnapshot(`
-      export declare type SomeType = "type";
-      export interface SomeInterface {
-      }
-    `);
-  expect(await fse.readFile(files.c["package.json"], "utf8"))
-    .toMatchInlineSnapshot(`
+  expect(fse.existsSync(path.resolve(baseDistCPath, 'cjs'))).toBeFalsy();
+  expect(fse.existsSync(path.resolve(baseDistCPath, 'esm'))).toBeFalsy();
+  expect(await fse.readFile(files.c['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
+    export declare type SomeType = 'type';
+    export interface SomeInterface {
+    }
+  `);
+  expect(await fse.readFile(files.c['package.json'], 'utf8')).toMatchInlineSnapshot(`
       {
         "name": "c",
         "main": "",
@@ -305,23 +277,23 @@ it("can build a monorepo project", async () => {
       }
     `);
 
-  await execa("node", [binaryFolder, "check"], {
-    cwd: path.resolve(fixturesFolder, "simple-monorepo")
+  await execa('node', [binaryFolder, 'check'], {
+    cwd: path.resolve(fixturesFolder, 'simple-monorepo'),
   });
 });
 
-it("can build an esm only project", async () => {
-  await fse.remove(path.resolve(fixturesFolder, "simple-esm-only", "dist"));
-  const result = await execa("node", [binaryFolder, "build"], {
-    cwd: path.resolve(fixturesFolder, "simple-esm-only")
+it('can build an esm only project', async () => {
+  await fse.remove(path.resolve(fixturesFolder, 'simple-esm-only', 'dist'));
+  const result = await execa('node', [binaryFolder, 'build'], {
+    cwd: path.resolve(fixturesFolder, 'simple-esm-only'),
   });
   expect(result.exitCode).toEqual(0);
 
-  const baseDistPath = path.resolve(fixturesFolder, "simple-esm-only", "dist");
-  const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
-  const indexJsFilePath = path.resolve(baseDistPath, "esm", "index.js");
-  const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
-  expect(await fse.readFile(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
+  const baseDistPath = path.resolve(fixturesFolder, 'simple-esm-only', 'dist');
+  const packageJsonFilePath = path.resolve(baseDistPath, 'package.json');
+  const indexJsFilePath = path.resolve(baseDistPath, 'esm', 'index.js');
+  const indexDtsFilePath = path.resolve(baseDistPath, 'typings', 'index.d.ts');
+  expect(await fse.readFile(packageJsonFilePath, 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "simple-esm-only",
       "main": "esm/index.js",
@@ -347,26 +319,26 @@ it("can build an esm only project", async () => {
     }
   `);
 
-  expect(await fse.readFile(indexJsFilePath, "utf8")).toMatchInlineSnapshot('export var someNumber = 1;');
-  expect(await fse.readFile(indexDtsFilePath, "utf8")).toMatchInlineSnapshot('export declare const someNumber = 1;');
+  expect(await fse.readFile(indexJsFilePath, 'utf8')).toMatchInlineSnapshot(
+    'export var someNumber = 1;',
+  );
+  expect(await fse.readFile(indexDtsFilePath, 'utf8')).toMatchInlineSnapshot(
+    'export declare const someNumber = 1;',
+  );
 });
 
-it("can build a types only project", async () => {
-  await fse.remove(path.resolve(fixturesFolder, "simple-types-only", "dist"));
-  const result = await execa("node", [binaryFolder, "build"], {
-    cwd: path.resolve(fixturesFolder, "simple-types-only"),
+it('can build a types only project', async () => {
+  await fse.remove(path.resolve(fixturesFolder, 'simple-types-only', 'dist'));
+  const result = await execa('node', [binaryFolder, 'build'], {
+    cwd: path.resolve(fixturesFolder, 'simple-types-only'),
   });
   expect(result.exitCode).toEqual(0);
 
-  const baseDistPath = path.resolve(
-    fixturesFolder,
-    "simple-types-only",
-    "dist"
-  );
+  const baseDistPath = path.resolve(fixturesFolder, 'simple-types-only', 'dist');
 
   // types-only adjusted package.json
-  const packageJsonFilePath = path.resolve(baseDistPath, "package.json");
-  expect(await fse.readFile(packageJsonFilePath, "utf8")).toMatchInlineSnapshot(`
+  const packageJsonFilePath = path.resolve(baseDistPath, 'package.json');
+  expect(await fse.readFile(packageJsonFilePath, 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "simple-types-only",
       "main": "",
@@ -378,49 +350,45 @@ it("can build a types only project", async () => {
   `);
 
   // no cjs or esm files
-  expect(fse.existsSync(path.resolve(baseDistPath, "cjs"))).toBeFalsy();
-  expect(fse.existsSync(path.resolve(baseDistPath, "esm"))).toBeFalsy();
+  expect(fse.existsSync(path.resolve(baseDistPath, 'cjs'))).toBeFalsy();
+  expect(fse.existsSync(path.resolve(baseDistPath, 'esm'))).toBeFalsy();
 
   // only types
-  const indexDtsFilePath = path.resolve(baseDistPath, "typings", "index.d.ts");
-  expect(await fse.readFile(indexDtsFilePath, "utf8")).toMatchInlineSnapshot(`
-    export declare type SomeType = "type";
+  const indexDtsFilePath = path.resolve(baseDistPath, 'typings', 'index.d.ts');
+  expect(await fse.readFile(indexDtsFilePath, 'utf8')).toMatchInlineSnapshot(`
+    export declare type SomeType = 'type';
     export interface SomeInterface {
     }
   `);
 });
 
-it("can build a monorepo pnpm project", async () => {
-  await fse.remove(
-    path.resolve(fixturesFolder, "simple-monorepo-pnpm", "a", "dist")
-  );
-  await fse.remove(
-    path.resolve(fixturesFolder, "simple-monorepo-pnpm", "b", "dist")
-  );
-  const result = await execa("node", [binaryFolder, "build"], {
-    cwd: path.resolve(fixturesFolder, "simple-monorepo-pnpm")
+it('can build a monorepo pnpm project', async () => {
+  await fse.remove(path.resolve(fixturesFolder, 'simple-monorepo-pnpm', 'a', 'dist'));
+  await fse.remove(path.resolve(fixturesFolder, 'simple-monorepo-pnpm', 'b', 'dist'));
+  const result = await execa('node', [binaryFolder, 'build'], {
+    cwd: path.resolve(fixturesFolder, 'simple-monorepo-pnpm'),
   });
   expect(result.exitCode).toEqual(0);
   const baseDistAPath = path.resolve(
     fixturesFolder,
-    "simple-monorepo-pnpm",
-    "packages",
-    "a",
-    "dist"
+    'simple-monorepo-pnpm',
+    'packages',
+    'a',
+    'dist',
   );
   const baseDistBPath = path.resolve(
     fixturesFolder,
-    "simple-monorepo-pnpm",
-    "packages",
-    "b",
-    "dist"
+    'simple-monorepo-pnpm',
+    'packages',
+    'b',
+    'dist',
   );
   const baseDistCPath = path.resolve(
     fixturesFolder,
-    "simple-monorepo-pnpm",
-    "packages",
-    "c",
-    "dist"
+    'simple-monorepo-pnpm',
+    'packages',
+    'c',
+    'dist',
   );
   // prettier-ignore
   const files = {
@@ -442,19 +410,19 @@ it("can build a monorepo pnpm project", async () => {
     },
   } as const;
 
-  expect(await fse.readFile(files.a["cjs/index.js"], "utf8"))
-    .toMatchInlineSnapshot(`
-      "use strict";
-      Object.defineProperty(exports, "__esModule", { value: true });
-      exports.a = void 0;
-      exports.a = "WUP";
-    `);
-  expect(await fse.readFile(files.a["typings/index.d.ts"], "utf8"))
-    .toMatchInlineSnapshot('export declare const a = "WUP";');
-  expect(await fse.readFile(files.a["esm/index.js"], "utf8"))
-    .toMatchInlineSnapshot('export const a = "WUP";');
-  expect(await fse.readFile(files.a["package.json"], "utf8"))
-    .toMatchInlineSnapshot(`
+  expect(await fse.readFile(files.a['cjs/index.js'], 'utf8')).toMatchInlineSnapshot(`
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.a = void 0;
+    exports.a = 'WUP';
+  `);
+  expect(await fse.readFile(files.a['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(
+    'export declare const a = "WUP";',
+  );
+  expect(await fse.readFile(files.a['esm/index.js'], 'utf8')).toMatchInlineSnapshot(
+    'export const a = \'WUP\';',
+  );
+  expect(await fse.readFile(files.a['package.json'], 'utf8')).toMatchInlineSnapshot(`
       {
         "name": "a",
         "main": "cjs/index.js",
@@ -498,50 +466,46 @@ it("can build a monorepo pnpm project", async () => {
       }
     `);
 
-  expect(await fse.readFile(files.b["cjs/index.js"], "utf8"))
-    .toMatchInlineSnapshot(`
-      "use strict";
-      var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-          if (k2 === undefined) k2 = k;
-          var desc = Object.getOwnPropertyDescriptor(m, k);
-          if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-            desc = { enumerable: true, get: function() { return m[k]; } };
-          }
-          Object.defineProperty(o, k2, desc);
-      }) : (function(o, m, k, k2) {
-          if (k2 === undefined) k2 = k;
-          o[k2] = m[k];
-      }));
-      var __exportStar = (this && this.__exportStar) || function(m, exports) {
-          for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-      };
-      Object.defineProperty(exports, "__esModule", { value: true });
-      exports.foo = exports.b = void 0;
-      const foo_js_1 = require("./foo.js");
-      __exportStar(require("./foo.js"), exports);
-      exports.b = "SUP" + foo_js_1.b;
-      function foo() {
-          return Promise.resolve().then(() => require("./foo.js"));
-      }
-      exports.foo = foo;
-    `);
-  expect(await fse.readFile(files.b["typings/index.d.ts"], "utf8"))
-    .toMatchInlineSnapshot(`
-      export * from "./foo.js";
-      export declare const b: string;
-      export declare function foo(): Promise<typeof import("./foo.js")>;
-    `);
-  expect(await fse.readFile(files.b["esm/index.js"], "utf8"))
-    .toMatchInlineSnapshot(`
-      import { b as a } from "./foo.js";
-      export * from "./foo.js";
-      export const b = "SUP" + a;
-      export function foo() {
-          return import("./foo.js");
-      }
-    `);
-  expect(await fse.readFile(files.b["package.json"], "utf8"))
-    .toMatchInlineSnapshot(`
+  expect(await fse.readFile(files.b['cjs/index.js'], 'utf8')).toMatchInlineSnapshot(`
+    "use strict";
+    var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+          desc = { enumerable: true, get: function() { return m[k]; } };
+        }
+        Object.defineProperty(o, k2, desc);
+    }) : (function(o, m, k, k2) {
+        if (k2 === undefined) k2 = k;
+        o[k2] = m[k];
+    }));
+    var __exportStar = (this && this.__exportStar) || function(m, exports) {
+        for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+    };
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.foo = exports.b = void 0;
+    const foo_js_1 = require("./foo.js");
+    __exportStar(require("./foo.js"), exports);
+    exports.b = 'SUP' + foo_js_1.b;
+    function foo() {
+        return Promise.resolve().then(() => require('./foo.js'));
+    }
+    exports.foo = foo;
+  `);
+  expect(await fse.readFile(files.b['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
+    export * from './foo.js';
+    export declare const b: string;
+    export declare function foo(): Promise<typeof import("./foo.js")>;
+  `);
+  expect(await fse.readFile(files.b['esm/index.js'], 'utf8')).toMatchInlineSnapshot(`
+    import { b as a } from './foo.js';
+    export * from './foo.js';
+    export const b = 'SUP' + a;
+    export function foo() {
+        return import('./foo.js');
+    }
+  `);
+  expect(await fse.readFile(files.b['package.json'], 'utf8')).toMatchInlineSnapshot(`
       {
         "name": "b",
         "main": "cjs/index.js",
@@ -588,16 +552,14 @@ it("can build a monorepo pnpm project", async () => {
       }
     `);
 
-  expect(fse.existsSync(path.resolve(baseDistCPath, "cjs"))).toBeFalsy();
-  expect(fse.existsSync(path.resolve(baseDistCPath, "esm"))).toBeFalsy();
-  expect(await fse.readFile(files.c["typings/index.d.ts"], "utf8"))
-    .toMatchInlineSnapshot(`
-      export declare type SomeType = "type";
-      export interface SomeInterface {
-      }
-    `);
-  expect(await fse.readFile(files.c["package.json"], "utf8"))
-    .toMatchInlineSnapshot(`
+  expect(fse.existsSync(path.resolve(baseDistCPath, 'cjs'))).toBeFalsy();
+  expect(fse.existsSync(path.resolve(baseDistCPath, 'esm'))).toBeFalsy();
+  expect(await fse.readFile(files.c['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
+    export declare type SomeType = 'type';
+    export interface SomeInterface {
+    }
+  `);
+  expect(await fse.readFile(files.c['package.json'], 'utf8')).toMatchInlineSnapshot(`
       {
         "name": "c",
         "main": "",
@@ -608,7 +570,7 @@ it("can build a monorepo pnpm project", async () => {
       }
     `);
 
-  await execa("node", [binaryFolder, "check"], {
-    cwd: path.resolve(fixturesFolder, "simple-monorepo-pnpm")
+  await execa('node', [binaryFolder, 'check'], {
+    cwd: path.resolve(fixturesFolder, 'simple-monorepo-pnpm'),
   });
 });

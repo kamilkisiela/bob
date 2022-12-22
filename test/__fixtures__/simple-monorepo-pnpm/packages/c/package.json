@@ -2,14 +2,14 @@
   "name": "c",
   "main": "",
   "typings": "dist/typings/index.d.ts",
-  "typescript": {
-    "definition": "dist/typings/index.d.ts"
+  "publishConfig": {
+    "directory": "dist",
+    "access": "public"
   },
   "buildOptions": {
     "input": "./src/index.ts"
   },
-  "publishConfig": {
-    "directory": "dist",
-    "access": "public"
+  "typescript": {
+    "definition": "dist/typings/index.d.ts"
   }
 }

@@ -1,0 +1,3 @@
+dist/
+.changeset/*.md
+.bob/

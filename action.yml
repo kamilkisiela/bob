@@ -1,15 +1,15 @@
-name: "Bob The Bundler - Check Affected"
-description: "Checks for affected packages"
-author: "Kamil Kisiela <kamil.kisiela@gmail.com>"
+name: 'Bob The Bundler - Check Affected'
+description: 'Checks for affected packages'
+author: 'Kamil Kisiela <kamil.kisiela@gmail.com>'
 inputs:
   command:
-    description: "Scope it to one command"
+    description: 'Scope it to one command'
 outputs:
   dirty:
-    description: "Something affected?"
+    description: 'Something affected?'
 runs:
-  using: "node12"
-  main: "action/index.js"
+  using: 'node12'
+  main: 'action/index.js'
 branding:
-  icon: "target"
-  color: "purple"
+  icon: 'target'
+  color: 'purple'
