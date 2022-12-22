@@ -2,7 +2,7 @@
 "bob-the-bundler": minor
 ---
 
-took workspace from `pnpm-workspace.yaml`
-throw an error in case existing both `pnpm-workspace.yaml` and `package.json#workspaces` fields
-add `execa` as dependency
-cleanup unused deps
+Support pnpm workspaces from `pnpm-workspace.yaml`..
+Throw an error in case both `pnpm-workspace.yaml` and `package.json#workspaces` fields exist.
+Add missing dependency `execa`.
+Cleanup and remove unused dependencies.
