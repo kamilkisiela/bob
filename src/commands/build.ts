@@ -119,7 +119,7 @@ export const buildCommand = createCommand<
     async handler({ incremental }) {
       const cwd = process.cwd();
       const rootPackageJSON = await getRootPackageJSON();
-      const workspaces = getWorkspaces(rootPackageJSON);
+      const workspaces = await getWorkspaces(rootPackageJSON);
       const isSinglePackage = workspaces === null;
 
       if (isSinglePackage) {
@@ -386,7 +386,7 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
   ];
 
   fields.forEach((field) => {
-    if (typeof pkg[field] !== "undefined") {
+    if (pkg[field] !== undefined) {
       newPkg[field] = pkg[field];
     }
   });
@@ -455,7 +455,7 @@ export function validatePackageJson(
   // If the package has NO binary we need to check the exports map.
   // a package should either
   // 1. have a bin property
-  // 2. have a exports property
+  // 2. have an exports property
   // 3. have an exports and bin property
   if (Object.keys(pkg.bin ?? {}).length > 0) {
     if (opts.includesCommonJS === true) {
@@ -493,7 +493,7 @@ export function validatePackageJson(
       expect("typings", presetFieldsESM.typings);
       expect("typescript.definition", presetFieldsESM.typescript.definition);
 
-      // For now we enforce a top level exports property
+      // For now, we enforce a top level exports property
       expect("exports['.']", presetFieldsESM.exports["."]);
     }
   }

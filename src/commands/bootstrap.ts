@@ -109,7 +109,7 @@ export const bootstrapCommand = createCommand<{}, {}>(() => {
     },
     async handler() {
       const rootPackageJSON = await getRootPackageJSON();
-      const workspaces = getWorkspaces(rootPackageJSON);
+      const workspaces = await getWorkspaces(rootPackageJSON);
       const isSinglePackage = workspaces === null;
 
       // Make sure all modules are converted to ESM

@@ -1,7 +1,4 @@
 {
-  "name": "monorepo",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ]
+  "name": "monorepo-pnpm",
+  "private": true
 }

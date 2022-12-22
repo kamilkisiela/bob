@@ -41,7 +41,7 @@ export const checkCommand = createCommand<{}, {}>((api) => {
     async handler() {
       const cwd = process.cwd();
       const rootPackageJSON = await getRootPackageJSON();
-      const workspaces = getWorkspaces(rootPackageJSON);
+      const workspaces = await getWorkspaces(rootPackageJSON);
       const isSinglePackage = workspaces === null;
 
       let checkConfigs: Array<{
