@@ -37,3 +37,5 @@ jobs:
         run: yarn test
       - name: Run TS Smoke Tests
         run: yarn test:ts
+      - name: Lint Prettier
+        run: yarn lint:prettier

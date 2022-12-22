@@ -23,6 +23,7 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
+    "lint:prettier": "prettier --cache --check .",
     "prepublish": "yarn build",
     "prerelease": "yarn build",
     "prettier": "prettier --cache --write --list-different .",

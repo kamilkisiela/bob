@@ -436,7 +436,7 @@
     tiny-glob "^0.2.9"
     tslib "^2.4.0"
 
-"@theguild/prettier-config@^1.0.0":
+"@theguild/prettier-config@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@theguild/prettier-config/-/prettier-config-1.0.0.tgz#9f44dc44e0d683d5bd5b909496a4af161104ea7d"
   integrity sha512-EdPbtrXN1Z0QqmFJZXGj4n/xLZTCJtDxb+jeNGmOccrv0cJTB46d+lsvCO8j7SmuUhyt/gv9B6nnVKt66D2X1w==
@@ -1680,7 +1680,7 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
 
-jest-snapshot-serializer-raw@^1.2.0:
+jest-snapshot-serializer-raw@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/jest-snapshot-serializer-raw/-/jest-snapshot-serializer-raw-1.2.0.tgz#cd67afb5e5cc39d88d518b45e7320dd01ce55148"
   integrity sha512-Cnp2u7GkaXBVOOelhU94x6Kb/10WJjQtgKDvqynnYGNGQlKBj06x8QZmRkL8XWWVLQ5DKA2fT5rY9kRd512JcA==
@@ -2810,7 +2810,7 @@ vite-node@0.26.2:
   optionalDependencies:
     fsevents "~2.3.2"
 
-vitest@^0.26.2:
+vitest@0.26.2:
   version "0.26.2"
   resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.26.2.tgz#c1647e41d5619d1d059ff65d9c00672261ccac30"
   integrity sha512-Jvqxh6SDy9SsuslkDjts0iDewDIdq4rveEt69YgDuAb1tVDGV0lDepVaeAFraoySWqneJmOt4TngFFNhlw7GfA==

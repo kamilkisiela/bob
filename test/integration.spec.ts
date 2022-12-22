@@ -127,7 +127,7 @@ it('can build a monorepo project', async () => {
     'export declare const a = "WUP";',
   );
   expect(await fse.readFile(files.a['esm/index.js'], 'utf8')).toMatchInlineSnapshot(
-    'export const a = \'WUP\';',
+    "export const a = 'WUP';",
   );
   expect(await fse.readFile(files.a['package.json'], 'utf8')).toMatchInlineSnapshot(`
       {
@@ -420,7 +420,7 @@ it('can build a monorepo pnpm project', async () => {
     'export declare const a = "WUP";',
   );
   expect(await fse.readFile(files.a['esm/index.js'], 'utf8')).toMatchInlineSnapshot(
-    'export const a = \'WUP\';',
+    "export const a = 'WUP';",
   );
   expect(await fse.readFile(files.a['package.json'], 'utf8')).toMatchInlineSnapshot(`
       {
