@@ -466,6 +466,11 @@ export function validatePackageJson(
   }
 }
 
+async function executeCopy(sourcePath: string, destPath: string) {
+  await mkdirp(dirname(destPath));
+  await fse.copyFile(sourcePath, destPath);
+}
+
 async function copyToDist(cwd: string, files: string[], distDir: string) {
   const allFiles = await globby(files, { cwd });
 
@@ -473,9 +478,16 @@ async function copyToDist(cwd: string, files: string[], distDir: string) {
     allFiles.map(async file => {
       if (await fse.pathExists(join(cwd, file))) {
         const sourcePath = join(cwd, file);
-        const destPath = join(distDir, file.replace('src/', ''));
-        await mkdirp(dirname(destPath));
-        await fse.copyFile(sourcePath, destPath);
+        if (file.includes('src/')) {
+          const allTypes: Array<Promise<void>> = [];
+          ['esm', 'cjs'].forEach(type => {
+            allTypes.push(executeCopy(sourcePath, join(distDir, file.replace('src/', `${type}/`))));
+          });
+          await Promise.all(allTypes);
+        } else {
+          const destPath = join(distDir, file);
+          executeCopy(sourcePath, destPath);
+        }
       }
     }),
   );
