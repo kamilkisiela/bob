@@ -60,7 +60,7 @@
     "@types/js-yaml": "4.0.5",
     "@types/lodash.get": "4.4.7",
     "@types/mkdirp": "1.0.2",
-    "@types/node": "16.18.10",
+    "@types/node": "16.18.11",
     "@types/yargs": "17.0.17",
     "jest-snapshot-serializer-raw": "1.2.0",
     "prettier": "2.8.1",
