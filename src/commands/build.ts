@@ -479,11 +479,23 @@ async function copyToDist(cwd: string, files: string[], distDir: string) {
       if (await fse.pathExists(join(cwd, file))) {
         const sourcePath = join(cwd, file);
         if (file.includes('src/')) {
-          const allTypes: Array<Promise<void>> = [];
-          ['esm', 'cjs'].forEach(type => {
-            allTypes.push(executeCopy(sourcePath, join(distDir, file.replace('src/', `${type}/`))));
+          // Figure relevant module types
+          const allTypes: string[] = [];
+          if (await fse.pathExists(join(distDir, 'esm'))) {
+            allTypes.push('esm');
+          }
+          if (await fse.pathExists(join(distDir, 'cjs'))) {
+            allTypes.push('cjs');
+          }
+
+          // FOr each type, copy files to the relevant directory
+          const allTypesExec: Array<Promise<void>> = [];
+          allTypes.forEach(type => {
+            allTypesExec.push(
+              executeCopy(sourcePath, join(distDir, file.replace('src/', `${type}/`))),
+            );
           });
-          await Promise.all(allTypes);
+          await Promise.all(allTypesExec);
         } else {
           const destPath = join(distDir, file);
           executeCopy(sourcePath, destPath);
