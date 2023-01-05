@@ -489,13 +489,11 @@ async function copyToDist(cwd: string, files: string[], distDir: string) {
           }
 
           // FOr each type, copy files to the relevant directory
-          const allTypesExec: Array<Promise<void>> = [];
-          allTypes.forEach(type => {
-            allTypesExec.push(
-              executeCopy(sourcePath, join(distDir, file.replace('src/', `${type}/`))),
-            );
-          });
-          await Promise.all(allTypesExec);
+await Promise.all(
+  allTypes.map(type =>
+    executeCopy(sourcePath, join(distDir, file.replace('src/', `${type}/`)))
+  )
+)
         } else {
           const destPath = join(distDir, file);
           executeCopy(sourcePath, destPath);
