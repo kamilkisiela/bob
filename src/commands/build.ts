@@ -480,7 +480,7 @@ async function copyToDist(cwd: string, files: string[], distDir: string) {
         const sourcePath = join(cwd, file);
         if (file.includes('src/')) {
           // Figure relevant module types
-          const allTypes: string[] = [];
+          const allTypes: ('cjs' | 'esm')[] = [];
           if (await fse.pathExists(join(distDir, 'esm'))) {
             allTypes.push('esm');
           }
