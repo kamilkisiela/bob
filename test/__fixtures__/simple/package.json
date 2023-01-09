@@ -33,7 +33,7 @@
       }
     },
     "./package.json": "./package.json",
-    "./style.css": "./style.css"
+    "./style.css": "./dist/esm/style.css"
   },
   "typings": "dist/typings/index.d.ts",
   "publishConfig": {

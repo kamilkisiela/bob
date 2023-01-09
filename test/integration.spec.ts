@@ -78,7 +78,7 @@ it('can bundle a simple project', async () => {
           }
         },
         "./package.json": "./package.json",
-        "./style.css": "./style.css"
+        "./style.css": "./esm/style.css"
       }
     }
   `);
