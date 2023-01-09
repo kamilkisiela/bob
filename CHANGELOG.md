@@ -1,5 +1,61 @@
 # Changelog
 
+## 5.0.0
+
+### Major Changes
+
+- [#167](https://github.com/kamilkisiela/bob/pull/167)
+  [`d095697`](https://github.com/kamilkisiela/bob/commit/d0956978c70419c9f5203b3d8f85028589a51e66)
+  Thanks [@B2o5T](https://github.com/B2o5T)! - bundle bob in esm instead cjs
+
+### Minor Changes
+
+- [#160](https://github.com/kamilkisiela/bob/pull/160)
+  [`9ce6e27`](https://github.com/kamilkisiela/bob/commit/9ce6e279f362b78a6e925f1e038a1b611931ad55)
+  Thanks [@B2o5T](https://github.com/B2o5T)! - Support pnpm workspaces from `pnpm-workspace.yaml`..
+  Throw an error in case both `pnpm-workspace.yaml` and `package.json#workspaces` fields exist. Add
+  missing dependency `execa`. Cleanup and remove unused dependencies.
+
+### Patch Changes
+
+- [#145](https://github.com/kamilkisiela/bob/pull/145)
+  [`a4ebd65`](https://github.com/kamilkisiela/bob/commit/a4ebd655dd76c8703edb64605f0de2dd58870263)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency
+    [`rollup-plugin-typescript2@^0.34.0` ↗︎](https://www.npmjs.com/package/rollup-plugin-typescript2/v/0.34.0)
+    (from `^0.33.0`, in `dependencies`)
+
+- [#150](https://github.com/kamilkisiela/bob/pull/150)
+  [`e18b500`](https://github.com/kamilkisiela/bob/commit/e18b500cc3807d7a76ad38639ef1cc59c1eab987)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency
+    [`@vercel/ncc@^0.36.0` ↗︎](https://www.npmjs.com/package/@vercel/ncc/v/0.36.0) (from `^0.34.0`,
+    in `dependencies`)
+
+- [#154](https://github.com/kamilkisiela/bob/pull/154)
+  [`616e125`](https://github.com/kamilkisiela/bob/commit/616e1254ba3b3db638a2030abd244a50ff6ddb2b)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency
+    [`@rollup/plugin-json@^6.0.0` ↗︎](https://www.npmjs.com/package/@rollup/plugin-json/v/6.0.0)
+    (from `^4.1.0`, in `dependencies`)
+
+- [#167](https://github.com/kamilkisiela/bob/pull/167)
+  [`d095697`](https://github.com/kamilkisiela/bob/commit/d0956978c70419c9f5203b3d8f85028589a51e66)
+  Thanks [@B2o5T](https://github.com/B2o5T)! - dependencies updates:
+  - Updated dependency [`execa@6.1.0` ↗︎](https://www.npmjs.com/package/execa/v/6.1.0) (from
+    `5.1.1`, in `dependencies`)
+  - Updated dependency [`globby@^13.1.3` ↗︎](https://www.npmjs.com/package/globby/v/13.1.3) (from
+    `^11.0.0`, in `dependencies`)
+  - Updated dependency [`p-limit@^4.0.0` ↗︎](https://www.npmjs.com/package/p-limit/v/4.0.0) (from
+    `^3.1.0`, in `dependencies`)
+  - Updated dependency [`yargs@^17.6.2` ↗︎](https://www.npmjs.com/package/yargs/v/17.6.2) (from
+    `^17.5.1`, in `dependencies`)
+  - Updated dependency [`zod@^3.20.2` ↗︎](https://www.npmjs.com/package/zod/v/3.20.2) (from
+    `^3.17.3`, in `dependencies`)
+
 ## 4.1.1
 
 ### Patch Changes
@@ -130,16 +186,16 @@
           | false
           | {
               /** Files to copy from the package root to dist */
-              copy?: Array<string>
-            }
+              copy?: Array<string>;
+            };
         /** Whether the package should be checked. */
         check?:
           | false
           | {
               /** Exports within the package that should not be checked. */
-              skip?: Array<string>
-            }
-      }
+              skip?: Array<string>;
+            };
+      };
   ```
 
 ## 2.0.0
