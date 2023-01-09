@@ -1,7 +1,7 @@
-import globby from 'globby';
+import { globby } from 'globby';
 import path from 'path';
 
-import { buildArtifactDirectories } from '../constants';
+import { buildArtifactDirectories } from '../constants.js';
 
 export async function getWorkspacePackagePaths(workspaces: string[], cwd = process.cwd()) {
   const packageJSONPaths = await globby(

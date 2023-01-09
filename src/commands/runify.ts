@@ -1,5 +1,5 @@
-import globby from 'globby';
-import * as fse from 'fs-extra';
+import { globby } from 'globby';
+import fse from 'fs-extra';
 import pLimit from 'p-limit';
 import fs from 'fs-extra';
 import { DepGraph } from 'dependency-graph';
@@ -9,7 +9,7 @@ import ncc from '@vercel/ncc';
 import { build as tsup } from 'tsup';
 import { spawn } from 'child_process';
 
-import { createCommand } from '../command';
+import { createCommand } from '../command.js';
 
 export const distDir = 'dist';
 

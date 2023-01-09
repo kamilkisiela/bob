@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 import yargs, { Argv } from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import consola from 'consola';
-import { CommandFactory } from './command';
-import { buildCommand } from './commands/build';
-import { runifyCommand } from './commands/runify';
-import { bootstrapCommand } from './commands/bootstrap';
-import { checkCommand } from './commands/check';
+import { CommandFactory } from './command.js';
+import { buildCommand } from './commands/build.js';
+import { runifyCommand } from './commands/runify.js';
+import { bootstrapCommand } from './commands/bootstrap.js';
+import { checkCommand } from './commands/check.js';
 
 async function main() {
-  const root: Argv = yargs.scriptName('bob').detectLocale(false).version();
+  const root: Argv = yargs(hideBin(process.argv)).scriptName('bob').detectLocale(false).version();
 
   const commands: CommandFactory<any, any>[] = [
     buildCommand,

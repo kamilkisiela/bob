@@ -1,5 +1,5 @@
 import { rewriteCodeImports } from './rewrite-code-imports';
-import * as path from 'path';
+import path from 'path';
 import { it, expect } from 'vitest';
 
 const fixturePath = path.join(__dirname, '__fixtures__', 'index.ts');

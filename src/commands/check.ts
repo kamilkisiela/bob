@@ -1,16 +1,16 @@
-import globby from 'globby';
+import { globby } from 'globby';
 import zod from 'zod';
-import * as fse from 'fs-extra';
-import resolve from 'resolve.exports';
-import { createCommand } from '../command';
-import { presetFields } from './bootstrap';
+import fse from 'fs-extra';
+import * as resolve from 'resolve.exports';
+import { createCommand } from '../command.js';
+import { presetFields } from './bootstrap.js';
 import path from 'path';
 import pLimit from 'p-limit';
-import execa from 'execa';
-import { getRootPackageJSON } from '../utils/get-root-package-json';
-import { getWorkspaces } from '../utils/get-workspaces';
-import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths';
-import { getBobConfig } from '../config';
+import { execa, ExecaChildProcess } from 'execa';
+import { getRootPackageJSON } from '../utils/get-root-package-json.js';
+import { getWorkspaces } from '../utils/get-workspaces.js';
+import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
+import { getBobConfig } from '../config.js';
 
 const ExportsMapEntry = zod.object({
   default: zod.string(),
@@ -313,7 +313,7 @@ async function checkExportsMapIntegrity(args: {
       });
 
       const contents = await fse.readFile(absoluteFilePath, 'utf-8');
-      if (contents.startsWith('#!/usr/bin/env node\n') === false) {
+      if (!contents.startsWith('#!/usr/bin/env node\n')) {
         throw new Error(
           "Binary file '" +
             absoluteFilePath +
@@ -326,10 +326,7 @@ async function checkExportsMapIntegrity(args: {
 
 const timeout = `;setTimeout(() => { throw new Error("The Node.js process hangs. There is probably some side-effects. All exports should be free of side effects.") }, 500).unref()`;
 
-function runRequireJSFileCommand(args: {
-  cwd: string;
-  path: string;
-}): execa.ExecaChildProcess<string> {
+function runRequireJSFileCommand(args: { cwd: string; path: string }): ExecaChildProcess {
   return execa('node', ['-e', `require('${args.path}')${timeout}`], {
     cwd: args.cwd,
     reject: false,

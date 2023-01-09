@@ -1,13 +1,13 @@
-import globby from 'globby';
+import { globby } from 'globby';
 import pLimit from 'p-limit';
-import * as path from 'path';
-import * as fse from 'fs-extra';
-import { createCommand } from '../command';
-import { buildArtifactDirectories } from '../constants';
-import { getRootPackageJSON } from '../utils/get-root-package-json';
-import { getWorkspaces } from '../utils/get-workspaces';
-import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths';
-import { rewriteCodeImports } from '../utils/rewrite-code-imports';
+import path from 'path';
+import fse from 'fs-extra';
+import { createCommand } from '../command.js';
+import { buildArtifactDirectories } from '../constants.js';
+import { getRootPackageJSON } from '../utils/get-root-package-json.js';
+import { getWorkspaces } from '../utils/get-workspaces.js';
+import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
+import { rewriteCodeImports } from '../utils/rewrite-code-imports.js';
 
 /** The default bob fields that should be within a package.json */
 export const presetFields = Object.freeze({
