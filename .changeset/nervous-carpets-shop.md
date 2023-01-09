@@ -1,5 +1,5 @@
 ---
-'bob-the-bundler': minor
+'bob-the-bundler': major
 ---
 
 bundle bob in esm instead cjs
