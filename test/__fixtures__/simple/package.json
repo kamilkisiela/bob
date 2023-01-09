@@ -32,7 +32,8 @@
         "default": "./dist/esm/*.js"
       }
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./style.css": "./dist/esm/style.css"
   },
   "typings": "dist/typings/index.d.ts",
   "publishConfig": {
