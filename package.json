@@ -66,7 +66,7 @@
     "@types/yargs": "17.0.19",
     "@typescript-eslint/parser": "5.47.0",
     "eslint": "8.30.0",
-    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-import": "2.27.5",
     "jest-snapshot-serializer-raw": "1.2.0",
     "prettier": "2.8.2",
     "rimraf": "3.0.2",
