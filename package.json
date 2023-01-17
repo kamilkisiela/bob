@@ -47,7 +47,7 @@
     "lodash.get": "^4.4.2",
     "mkdirp": "^1.0.4",
     "p-limit": "^4.0.0",
-    "resolve.exports": "^1.1.0",
+    "resolve.exports": "^2.0.0",
     "tslib": "^2.0.0",
     "tsup": "^6.5.0",
     "yargs": "^17.6.2",
