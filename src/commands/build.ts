@@ -17,6 +17,8 @@ import { presetFields, presetFieldsESM } from './bootstrap.js';
 
 export const DIST_DIR = 'dist';
 
+export const DEFAULT_TS_BUILD_CONFIG = 'tsconfig.build.json';
+
 interface PackageInfo {
   packagePath: string;
   cwd: string;
@@ -67,12 +69,16 @@ function assertTypeScriptBuildResult(result: ExecaReturnValue) {
 
 async function buildTypeScript(
   buildPath: string,
-  options: { tsconfig?: string; incremental?: boolean } = {},
+  options: { cwd: string; tsconfig?: string; incremental?: boolean },
 ) {
+  let tsconfig = options.tsconfig;
+  if (!tsconfig && (await fse.exists(join(options.cwd, DEFAULT_TS_BUILD_CONFIG)))) {
+    tsconfig = join(options.cwd, DEFAULT_TS_BUILD_CONFIG);
+  }
   assertTypeScriptBuildResult(
     await execa('npx', [
       'tsc',
-      ...(options.tsconfig ? ['--project', options.tsconfig] : []),
+      ...(tsconfig ? ['--project', tsconfig] : []),
       ...compilerOptionsToArgs(typeScriptCompilerOptions('esm')),
       ...(options.incremental ? ['--incremental'] : []),
       '--outDir',
@@ -107,7 +113,7 @@ export const buildCommand = createCommand<
     builder(yargs) {
       return yargs.options({
         tsconfig: {
-          describe: 'Which tsconfig file to use when building TypeScript.',
+          describe: `Which tsconfig file to use when building TypeScript. By default bob will use ${DEFAULT_TS_BUILD_CONFIG} if it exists, otherwise the TSC's default.`,
           type: 'string',
         },
         incremental: {
@@ -128,7 +134,7 @@ export const buildCommand = createCommand<
         if (!incremental) {
           await fse.remove(buildPath);
         }
-        await buildTypeScript(buildPath, { tsconfig, incremental });
+        await buildTypeScript(buildPath, { cwd, tsconfig, incremental });
         const pkg = await fse.readJSON(resolve(cwd, 'package.json'));
         const fullName: string = pkg.name;
 
@@ -165,7 +171,7 @@ export const buildCommand = createCommand<
       if (!incremental) {
         await fse.remove(bobBuildPath);
       }
-      await buildTypeScript(bobBuildPath, { tsconfig, incremental });
+      await buildTypeScript(bobBuildPath, { cwd, tsconfig, incremental });
 
       await Promise.all(
         packageInfoList.map(({ cwd, pkg, fullName }) =>
