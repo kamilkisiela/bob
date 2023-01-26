@@ -67,12 +67,12 @@ function assertTypeScriptBuildResult(result: ExecaReturnValue) {
 
 async function buildTypeScript(
   buildPath: string,
-  options: { tsconfigPath?: string; incremental?: boolean } = {},
+  options: { tsconfig?: string; incremental?: boolean } = {},
 ) {
   assertTypeScriptBuildResult(
     await execa('npx', [
       'tsc',
-      ...(options.tsconfigPath ? ['--project', options.tsconfigPath] : []),
+      ...(options.tsconfig ? ['--project', options.tsconfig] : []),
       ...compilerOptionsToArgs(typeScriptCompilerOptions('esm')),
       ...(options.incremental ? ['--incremental'] : []),
       '--outDir',
@@ -83,7 +83,7 @@ async function buildTypeScript(
   assertTypeScriptBuildResult(
     await execa('npx', [
       'tsc',
-      ...(options.tsconfigPath ? ['--project', options.tsconfigPath] : []),
+      ...(options.tsconfig ? ['--project', options.tsconfig] : []),
       ...compilerOptionsToArgs(typeScriptCompilerOptions('cjs')),
       ...(options.incremental ? ['--incremental'] : []),
       '--outDir',
@@ -95,7 +95,7 @@ async function buildTypeScript(
 export const buildCommand = createCommand<
   {},
   {
-    tsconfigPath?: string;
+    tsconfig?: string;
     incremental?: boolean;
   }
 >(api => {
@@ -106,7 +106,7 @@ export const buildCommand = createCommand<
     describe: 'Build',
     builder(yargs) {
       return yargs.options({
-        tsconfigPath: {
+        tsconfig: {
           describe: 'Which tsconfig file to use when building TypeScript.',
           type: 'string',
         },
@@ -116,7 +116,7 @@ export const buildCommand = createCommand<
         },
       });
     },
-    async handler({ tsconfigPath, incremental }) {
+    async handler({ tsconfig, incremental }) {
       const cwd = process.cwd();
       const rootPackageJSON = await getRootPackageJSON();
       const workspaces = await getWorkspaces(rootPackageJSON);
@@ -128,7 +128,7 @@ export const buildCommand = createCommand<
         if (!incremental) {
           await fse.remove(buildPath);
         }
-        await buildTypeScript(buildPath, { tsconfigPath, incremental });
+        await buildTypeScript(buildPath, { tsconfig, incremental });
         const pkg = await fse.readJSON(resolve(cwd, 'package.json'));
         const fullName: string = pkg.name;
 
@@ -165,7 +165,7 @@ export const buildCommand = createCommand<
       if (!incremental) {
         await fse.remove(bobBuildPath);
       }
-      await buildTypeScript(bobBuildPath, { tsconfigPath, incremental });
+      await buildTypeScript(bobBuildPath, { tsconfig, incremental });
 
       await Promise.all(
         packageInfoList.map(({ cwd, pkg, fullName }) =>
