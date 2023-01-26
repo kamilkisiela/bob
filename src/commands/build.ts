@@ -335,6 +335,7 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
     'version',
     'description',
     'sideEffects',
+    'peerDependenciesMeta',
     'peerDependencies',
     'dependencies',
     'optionalDependencies',
