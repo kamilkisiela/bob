@@ -146,12 +146,12 @@ async function checkExportsMapIntegrity(args: {
     if (args.includesCommonJS) {
       const cjsResult = resolve.resolve(args.packageJSON, definedExport, {
         require: true,
-      });
+      })?.[0];
       if (typeof cjsResult === 'string') {
         cjsSkipExports.add(cjsResult);
       }
     }
-    const esmResult = resolve.resolve(args.packageJSON, definedExport);
+    const esmResult = resolve.resolve(args.packageJSON, definedExport)?.[0];
     if (typeof esmResult === 'string') {
       esmSkipExports.add(esmResult);
     }
