@@ -146,12 +146,12 @@ async function checkExportsMapIntegrity(args: {
     if (args.includesCommonJS) {
       const cjsResult = resolve.resolve(args.packageJSON, definedExport, {
         require: true,
-      });
+      })?.[0];
       if (typeof cjsResult === 'string') {
         cjsSkipExports.add(cjsResult);
       }
     }
-    const esmResult = resolve.resolve(args.packageJSON, definedExport);
+    const esmResult = resolve.resolve(args.packageJSON, definedExport)?.[0];
     if (typeof esmResult === 'string') {
       esmSkipExports.add(esmResult);
     }
@@ -161,7 +161,7 @@ async function checkExportsMapIntegrity(args: {
     if (args.includesCommonJS) {
       const cjsResult = resolve.resolve(args.packageJSON, key, {
         require: true,
-      });
+      })?.[0];
 
       if (!cjsResult) {
         throw new Error(
@@ -205,7 +205,7 @@ async function checkExportsMapIntegrity(args: {
       }
     }
 
-    const esmResult = resolve.resolve({ exports: exportsMap }, key);
+    const esmResult = resolve.resolve({ exports: exportsMap }, key)?.[0];
 
     if (!esmResult) {
       throw new Error(`Could not resolve CommonJS import '${key}' for '${args.packageJSON.name}'.`);
