@@ -1,15 +1,12 @@
 {
   "name": "simple-types-only",
+  "type": "module",
   "main": "",
   "typings": "dist/typings/index.d.ts",
-  "typescript": {
-    "definition": "dist/typings/index.d.ts"
-  },
   "publishConfig": {
     "directory": "dist",
     "access": "public"
   },
-  "type": "module",
   "bob": {
     "build": {
       "copy": [
@@ -22,5 +19,8 @@
         "./file-that-throws"
       ]
     }
+  },
+  "typescript": {
+    "definition": "dist/typings/index.d.ts"
   }
 }

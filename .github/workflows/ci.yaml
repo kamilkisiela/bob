@@ -25,22 +25,19 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
       - name: Cache Yarn
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: "**/node_modules"
+          path: '**/node_modules'
           key: ${{ runner.os }}-${{matrix.node_version}}-yarn-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{matrix.node_version}}-yarn-
-      - name: Cache Jest
-        uses: actions/cache@v2
-        with:
-          path: .cache/jest
-          key: ${{ runner.os }}-${{matrix.node_version}}-jest-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{matrix.node_version}}-jest-
       - name: Install Dependencies using Yarn
-        run: yarn install
+        run: yarn
       - name: Run Tests
         run: yarn test
       - name: Run TS Smoke Tests
         run: yarn test:ts
+      - name: Lint Prettier
+        run: yarn lint:prettier
+      - name: Lint ESLint
+        run: yarn lint

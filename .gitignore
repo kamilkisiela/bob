@@ -5,4 +5,5 @@ coverage/
 dist/
 public/
 *.map
-.bob
+.bob/
+*.log

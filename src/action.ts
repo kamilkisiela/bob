@@ -1,45 +1,42 @@
-import * as core from "@actions/core";
-import { resolve } from "path";
-import { getAffectedPackages } from "./commands/run";
+import * as core from '@actions/core';
+import { resolve } from 'path';
+import { getAffectedPackages } from './commands/run.js';
 
 async function run(): Promise<void> {
   try {
-    core.info("Running Bob...");
+    core.info('Running Bob...');
 
-    core.info("Looking for bob.config.js");
-    const config = require(resolve(
-      process.env.GITHUB_WORKSPACE!,
-      "bob.config.js"
-    ));
-    const filterCommand = core.getInput("command");
+    core.info('Looking for bob.config.js');
+    const config = require(resolve(process.env.GITHUB_WORKSPACE!, 'bob.config.js'));
+    const filterCommand = core.getInput('command');
 
     if (filterCommand) {
       core.info(`Scoping to one command: ${filterCommand}`);
     }
 
-    core.info("Checking affected packages");
+    core.info('Checking affected packages');
     const { affected } = getAffectedPackages({
       config,
       filterCommand,
     });
 
-    affected.forEach((name) => {
+    affected.forEach(name => {
       core.info(`- ${name}`);
     });
 
     if (affected.length === 0) {
-      core.info("No affected packages");
+      core.info('No affected packages');
     }
 
-    core.setOutput("dirty", affected.length > 0 ? "true" : "false");
+    core.setOutput('dirty', affected.length > 0 ? 'true' : 'false');
   } catch (error) {
     if (error instanceof Error) {
       console.error(error);
       core.setFailed(error.message);
-      core.setOutput("dirty", "true");
-      return
+      core.setOutput('dirty', 'true');
+      return;
     }
-    throw error
+    throw error;
   }
 }
 

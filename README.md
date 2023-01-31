@@ -1,6 +1,7 @@
 # Bob (The ~~Bundler~~ Butler)
 
-Bob is the TypeScript build, bundle and verification tool used by almost all [The Guild](https://the-guild.dev) open source projects.
+Bob is the TypeScript build, bundle and verification tool used by almost all
+[The Guild](https://the-guild.dev) open source projects.
 
 Scope:
 
@@ -16,7 +17,9 @@ Scope:
 
 ## Setup
 
-Setting up bob is currently undocumented. You can check [GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator) repository (or any other The Guild repository).
+Setting up bob is currently undocumented. You can check
+[GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator) repository (or any
+other The Guild repository).
 
 ## Configuration
 
@@ -24,7 +27,7 @@ You can add a `bob` key to each `package.json`.
 
 **Disable bob for a single package**
 
-```js
+```jsonc
 {
   "name": "graphql-lfg",
   "bob": false // exclude a single package from all things bob related
@@ -33,7 +36,7 @@ You can add a `bob` key to each `package.json`.
 
 **Disable build for a single package**
 
-```js
+```json
 {
   "name": "graphql-lfg",
   "bob": {
@@ -44,7 +47,7 @@ You can add a `bob` key to each `package.json`.
 
 **Disable check for a single package**
 
-```js
+```json
 {
   "name": "graphql-lfg",
   "bob": {
@@ -55,7 +58,7 @@ You can add a `bob` key to each `package.json`.
 
 **Disable check for a single export in a package**
 
-```js
+```json
 {
   "name": "graphql-lfg",
   "bob": {
@@ -69,11 +72,9 @@ You can add a `bob` key to each `package.json`.
 ## Usage
 
 ```bash
-
 $ bob build
 $ bob check
 
 # only use this command if you know the secret sauce
 $ bob runify
-
 ```
