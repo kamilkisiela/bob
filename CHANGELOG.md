@@ -1,5 +1,41 @@
 # Changelog
 
+## 5.0.1
+
+### Patch Changes
+
+- [#183](https://github.com/kamilkisiela/bob/pull/183)
+  [`d6f981f`](https://github.com/kamilkisiela/bob/commit/d6f981f6d50608d4954c4a421b19b7cfe8f4b076)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency
+    [`resolve.exports@^2.0.0` ↗︎](https://www.npmjs.com/package/resolve.exports/v/2.0.0) (from
+    `^1.1.0`, in `dependencies`)
+
+- [#187](https://github.com/kamilkisiela/bob/pull/187)
+  [`d7a8fd5`](https://github.com/kamilkisiela/bob/commit/d7a8fd54fb22973c3da426a0d907064b4b62ac40)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`mkdirp@^2.0.0` ↗︎](https://www.npmjs.com/package/mkdirp/v/2.0.0) (from
+    `^1.0.4`, in `dependencies`)
+
+- [#188](https://github.com/kamilkisiela/bob/pull/188)
+  [`4f9c7d4`](https://github.com/kamilkisiela/bob/commit/4f9c7d453911c252a813b084de5d183d994ae287)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency
+    [`resolve.exports@^2.0.0` ↗︎](https://www.npmjs.com/package/resolve.exports/v/2.0.0) (from
+    `^1.1.0`, in `dependencies`)
+
+- [#156](https://github.com/kamilkisiela/bob/pull/156)
+  [`57cd333`](https://github.com/kamilkisiela/bob/commit/57cd333f9fe04026295cf076b10c9b2f7295f04d)
+  Thanks [@kamilkisiela](https://github.com/kamilkisiela)! - Use Node18 as target in runfiy
+
+- [#191](https://github.com/kamilkisiela/bob/pull/191)
+  [`5b5f85e`](https://github.com/kamilkisiela/bob/commit/5b5f85e95adc1e858c1a628e2eb1f88febd7247c)
+  Thanks [@adriencohen](https://github.com/adriencohen)! - Include peerDependenciesMeta in build
+  package.json
+
 ## 5.0.0
 
 ### Major Changes
@@ -186,16 +222,16 @@
           | false
           | {
               /** Files to copy from the package root to dist */
-              copy?: Array<string>
-            }
+              copy?: Array<string>;
+            };
         /** Whether the package should be checked. */
         check?:
           | false
           | {
               /** Exports within the package that should not be checked. */
-              skip?: Array<string>
-            }
-      }
+              skip?: Array<string>;
+            };
+      };
   ```
 
 ## 2.0.0

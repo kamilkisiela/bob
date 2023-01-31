@@ -1,6 +1,6 @@
 {
   "name": "bob-the-bundler",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "type": "module",
   "description": "Bob The Bundler!",
   "repository": {
