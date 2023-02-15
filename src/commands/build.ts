@@ -18,8 +18,6 @@ import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.j
 
 export const DIST_DIR = 'dist';
 
-export const DEFAULT_TS_BUILD_CONFIG = 'tsconfig.build.json';
-
 interface PackageInfo {
   packagePath: string;
   cwd: string;
@@ -68,18 +66,10 @@ function assertTypeScriptBuildResult(result: ExecaReturnValue) {
   }
 }
 
-async function buildTypeScript(
-  buildPath: string,
-  options: { cwd: string; tsconfig?: string; incremental?: boolean },
-) {
-  let tsconfig = options.tsconfig;
-  if (!tsconfig && (await fse.exists(join(options.cwd, DEFAULT_TS_BUILD_CONFIG)))) {
-    tsconfig = join(options.cwd, DEFAULT_TS_BUILD_CONFIG);
-  }
+async function buildTypeScript(buildPath: string, options: { incremental?: boolean } = {}) {
   assertTypeScriptBuildResult(
     await execa('npx', [
       'tsc',
-      ...(tsconfig ? ['--project', tsconfig] : []),
       ...compilerOptionsToArgs(typeScriptCompilerOptions('esm')),
       ...(options.incremental ? ['--incremental'] : []),
       '--outDir',
@@ -90,7 +80,6 @@ async function buildTypeScript(
   assertTypeScriptBuildResult(
     await execa('npx', [
       'tsc',
-      ...(options.tsconfig ? ['--project', options.tsconfig] : []),
       ...compilerOptionsToArgs(typeScriptCompilerOptions('cjs')),
       ...(options.incremental ? ['--incremental'] : []),
       '--outDir',
@@ -102,7 +91,6 @@ async function buildTypeScript(
 export const buildCommand = createCommand<
   {},
   {
-    tsconfig?: string;
     incremental?: boolean;
   }
 >(api => {
@@ -113,17 +101,13 @@ export const buildCommand = createCommand<
     describe: 'Build',
     builder(yargs) {
       return yargs.options({
-        tsconfig: {
-          describe: `Which tsconfig file to use when building TypeScript. By default bob will use ${DEFAULT_TS_BUILD_CONFIG} if it exists, otherwise the TSC's default.`,
-          type: 'string',
-        },
         incremental: {
           describe: 'Better performance by building only packages that had changes.',
           type: 'boolean',
         },
       });
     },
-    async handler({ tsconfig, incremental }) {
+    async handler({ incremental }) {
       const cwd = process.cwd();
       const rootPackageJSON = await getRootPackageJSON();
       const workspaces = await getWorkspaces(rootPackageJSON);
@@ -135,7 +119,7 @@ export const buildCommand = createCommand<
         if (!incremental) {
           await fse.remove(buildPath);
         }
-        await buildTypeScript(buildPath, { cwd, tsconfig, incremental });
+        await buildTypeScript(buildPath, { incremental });
         const pkg = await fse.readJSON(resolve(cwd, 'package.json'));
         const fullName: string = pkg.name;
 
@@ -172,7 +156,7 @@ export const buildCommand = createCommand<
       if (!incremental) {
         await fse.remove(bobBuildPath);
       }
-      await buildTypeScript(bobBuildPath, { cwd, tsconfig, incremental });
+      await buildTypeScript(bobBuildPath, { incremental });
 
       await Promise.all(
         packageInfoList.map(({ cwd, pkg, fullName }) =>
