@@ -19,11 +19,12 @@
   "main": "dist/index.js",
   "files": [
     "dist",
-    "jest-resolver.js",
+    "jest-resolver.cjs",
     "README.md"
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
+    "build-jest-resolver": "rimraf jest-resolver.cjs && tsc jest-resolver.ts --module commonjs && mv jest-resolver.js jest-resolver.cjs",
     "lint": "eslint --cache --cache-location node_modules/.cache/.eslintcache --ignore-path .gitignore .",
     "lint:prettier": "prettier --cache --check .",
     "prepublish": "yarn build",
@@ -67,6 +68,7 @@
     "@typescript-eslint/parser": "5.53.0",
     "eslint": "8.35.0",
     "eslint-plugin-import": "2.27.5",
+    "jest-resolve": "29.4.2",
     "jest-snapshot-serializer-raw": "1.2.0",
     "prettier": "2.8.4",
     "rimraf": "4.1.2",

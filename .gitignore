@@ -7,3 +7,4 @@ public/
 *.map
 .bob/
 *.log
+jest-resolver.cjs
