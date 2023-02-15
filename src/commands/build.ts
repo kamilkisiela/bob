@@ -89,7 +89,7 @@ async function buildTypeScript(
   assertTypeScriptBuildResult(
     await execa('npx', [
       'tsc',
-      ...(options.tsconfig ? ['--project', options.tsconfig] : []),
+      ...(tsconfig ? ['--project', tsconfig] : []),
       ...compilerOptionsToArgs(typeScriptCompilerOptions('cjs')),
       ...(options.incremental ? ['--incremental'] : []),
       '--outDir',
