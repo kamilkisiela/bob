@@ -1,4 +1,3 @@
 dist/
-.changeset/*.md
 .bob/
 test/ts-tests/fixture.js
