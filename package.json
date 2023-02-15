@@ -64,7 +64,7 @@
     "@types/mkdirp": "1.0.2",
     "@types/node": "18.13.0",
     "@types/yargs": "17.0.22",
-    "@typescript-eslint/parser": "5.50.0",
+    "@typescript-eslint/parser": "5.52.0",
     "eslint": "8.34.0",
     "eslint-plugin-import": "2.27.5",
     "jest-snapshot-serializer-raw": "1.2.0",
