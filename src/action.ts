@@ -1,5 +1,5 @@
-import * as core from '@actions/core';
 import { resolve } from 'path';
+import * as core from '@actions/core';
 import { getAffectedPackages } from './commands/run.js';
 
 async function run(): Promise<void> {

@@ -1,16 +1,16 @@
-import { globby } from 'globby';
-import zod from 'zod';
-import fse from 'fs-extra';
-import * as resolve from 'resolve.exports';
-import { createCommand } from '../command.js';
-import { presetFields } from './bootstrap.js';
 import path from 'path';
-import pLimit from 'p-limit';
 import { execa, ExecaChildProcess } from 'execa';
-import { getRootPackageJSON } from '../utils/get-root-package-json.js';
-import { getWorkspaces } from '../utils/get-workspaces.js';
-import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
+import fse from 'fs-extra';
+import { globby } from 'globby';
+import pLimit from 'p-limit';
+import * as resolve from 'resolve.exports';
+import zod from 'zod';
+import { createCommand } from '../command.js';
 import { getBobConfig } from '../config.js';
+import { getRootPackageJSON } from '../utils/get-root-package-json.js';
+import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
+import { getWorkspaces } from '../utils/get-workspaces.js';
+import { presetFields } from './bootstrap.js';
 
 const ExportsMapEntry = zod.object({
   default: zod.string(),

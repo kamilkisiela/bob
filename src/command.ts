@@ -1,5 +1,5 @@
-import { CommandModule } from 'yargs';
 import { Consola } from 'consola';
+import { CommandModule } from 'yargs';
 
 export { CommandModule as Command };
 

@@ -1,14 +1,13 @@
-import { globby } from 'globby';
-import fse from 'fs-extra';
-import pLimit from 'p-limit';
-import fs from 'fs-extra';
-import { DepGraph } from 'dependency-graph';
-import { resolve, join, dirname } from 'path';
-import { Consola } from 'consola';
-import ncc from '@vercel/ncc';
-import { build as tsup } from 'tsup';
 import { spawn } from 'child_process';
-
+import { dirname, join, resolve } from 'path';
+import { Consola } from 'consola';
+import { DepGraph } from 'dependency-graph';
+import fse from 'fs-extra';
+import fs from 'fs-extra';
+import { globby } from 'globby';
+import pLimit from 'p-limit';
+import { build as tsup } from 'tsup';
+import ncc from '@vercel/ncc';
 import { createCommand } from '../command.js';
 
 export const distDir = 'dist';

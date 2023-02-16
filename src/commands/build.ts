@@ -1,20 +1,19 @@
 import assert from 'assert';
+import { dirname, join, resolve } from 'path';
+import { Consola } from 'consola';
 import { execa, ExecaReturnValue } from 'execa';
 import fse from 'fs-extra';
 import { globby } from 'globby';
-import pLimit from 'p-limit';
-import { resolve, join, dirname } from 'path';
-import { Consola } from 'consola';
 import get from 'lodash.get';
 import mkdirp from 'mkdirp';
-
-import { getRootPackageJSON } from '../utils/get-root-package-json.js';
-import { getWorkspaces } from '../utils/get-workspaces.js';
+import pLimit from 'p-limit';
 import { createCommand } from '../command.js';
 import { getBobConfig } from '../config.js';
+import { getRootPackageJSON } from '../utils/get-root-package-json.js';
+import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
+import { getWorkspaces } from '../utils/get-workspaces.js';
 import { rewriteExports } from '../utils/rewrite-exports.js';
 import { presetFields, presetFieldsESM } from './bootstrap.js';
-import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
 
 export const DIST_DIR = 'dist';
 
