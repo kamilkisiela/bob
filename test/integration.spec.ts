@@ -1,7 +1,7 @@
 import path from 'path';
 import { execa } from 'execa';
 import * as fse from 'fs-extra';
-import { it, expect } from 'vitest';
+import { expect, it } from 'vitest';
 
 const fixturesFolder = path.join(__dirname, '__fixtures__');
 const binaryFolder = path.join(__dirname, '..', 'dist', 'index.js');
