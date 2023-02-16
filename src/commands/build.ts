@@ -403,7 +403,9 @@ export function validatePackageJson(
     const received = get(pkg, key);
     
     // In case the `main` entry of the package.json file was a non JS file (like .wasm), we don't wanna validate the cjs rule, but rather skip the check
-    if(key === 'main' && ["js", "cjs"].includes(received.split(".").pop())) {
+    const fileExt = received.split(".").pop()
+    const jsFilesExt = ["js", "cjs"]
+    if(key === 'main' && jsFilesExt.includes(fileExt)) {
       return;
     } else {
       assert.deepEqual(
