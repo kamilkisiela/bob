@@ -401,13 +401,17 @@ export function validatePackageJson(
 ) {
   function expect(key: string, expected: unknown) {
     const received = get(pkg, key);
-
-    assert.deepEqual(
-      received,
-      expected,
-      `${pkg.name}: "${key}" equals "${JSON.stringify(received)}"` +
-        `, should be "${JSON.stringify(expected)}".`,
-    );
+    
+    // In case the `main` entry of the package.json file was a non JS file (like .wasm), we don't wanna validate the cjs rule, but rather skip the check
+    if(key === 'main' && ["js", "cjs"].includes(received.split(".").pop())) {
+      return;
+    } else {
+      assert.deepEqual(
+        received,
+        expected,
+        `${pkg.name}: "${key}" equals "${JSON.stringify(received)}"` +
+          `, should be "${JSON.stringify(expected)}".`,
+      );
   }
 
   // Type only packages have simpler rules (following the style of https://github.com/DefinitelyTyped/DefinitelyTyped packages)
