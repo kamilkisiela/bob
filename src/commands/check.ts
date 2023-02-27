@@ -162,6 +162,12 @@ async function checkExportsMapIntegrity(args: {
     );
   }
 
+  // just check if the types under default exist
+  if (args.typesOnly) {
+    await fse.stat(path.join(args.cwd, (args.packageJSON.exports as any)?.['.']?.default?.types));
+    return;
+  }
+
   const exportsMap = exportsMapResult['data'];
 
   const cjsSkipExports = new Set<string>();
