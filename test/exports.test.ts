@@ -1,5 +1,5 @@
-import { rewriteExports } from '../src/utils/rewrite-exports';
 import { expect, test } from 'vitest';
+import { rewriteExports } from '../src/utils/rewrite-exports';
 
 test('basic exports', () => {
   expect(
