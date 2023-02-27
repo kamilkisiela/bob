@@ -1,12 +1,3 @@
-import assert from 'assert';
-import { dirname, join, resolve } from 'path';
-import { Consola } from 'consola';
-import { execa, ExecaReturnValue } from 'execa';
-import fse from 'fs-extra';
-import { globby } from 'globby';
-import get from 'lodash.get';
-import mkdirp from 'mkdirp';
-import pLimit from 'p-limit';
 import { createCommand } from '../command.js';
 import { getBobConfig } from '../config.js';
 import { getRootPackageJSON } from '../utils/get-root-package-json.js';
@@ -14,6 +5,15 @@ import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.j
 import { getWorkspaces } from '../utils/get-workspaces.js';
 import { rewriteExports } from '../utils/rewrite-exports.js';
 import { presetFields, presetFieldsESM } from './bootstrap.js';
+import assert from 'assert';
+import { Consola } from 'consola';
+import { execa, ExecaReturnValue } from 'execa';
+import fse from 'fs-extra';
+import { globby } from 'globby';
+import get from 'lodash.get';
+import mkdirp from 'mkdirp';
+import pLimit from 'p-limit';
+import { dirname, join, resolve } from 'path';
 
 export const DIST_DIR = 'dist';
 
@@ -360,11 +360,6 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
 
   const distDirStr = `${DIST_DIR}/`;
 
-  if (!pkg.exports) {
-    newPkg.exports = presetFields.exports;
-  }
-  newPkg.exports = rewriteExports(pkg.exports, DIST_DIR, typesOnly);
-
   if (typesOnly) {
     newPkg.main = '';
     delete newPkg.module;
@@ -377,6 +372,11 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
   newPkg.typescript = {
     definition: newPkg.typescript.definition.replace(distDirStr, ''),
   };
+
+  if (!pkg.exports) {
+    newPkg.exports = presetFields.exports;
+  }
+  newPkg.exports = rewriteExports(pkg.exports, DIST_DIR, typesOnly);
 
   if (pkg.bin) {
     newPkg.bin = {};
