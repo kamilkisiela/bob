@@ -373,12 +373,10 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
     definition: newPkg.typescript.definition.replace(distDirStr, ''),
   };
 
-  if (!typesOnly) {
-    if (!pkg.exports) {
-      newPkg.exports = presetFields.exports;
-    }
-    newPkg.exports = rewriteExports(pkg.exports, DIST_DIR);
+  if (!pkg.exports) {
+    newPkg.exports = presetFields.exports;
   }
+  newPkg.exports = rewriteExports(pkg.exports, DIST_DIR, typesOnly);
 
   if (pkg.bin) {
     newPkg.bin = {};
@@ -415,7 +413,10 @@ export function validatePackageJson(
     expect('module', undefined);
     expect('typings', presetFields.typings);
     expect('typescript.definition', presetFields.typescript.definition);
-    expect('exports', undefined);
+    expect("exports['.'].default", {
+      // only the "types" field is required
+      types: presetFields.exports['.'].default.types,
+    });
     return;
   }
 

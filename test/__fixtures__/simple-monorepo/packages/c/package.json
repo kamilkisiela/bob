@@ -1,6 +1,14 @@
 {
   "name": "c",
   "main": "",
+  "exports": {
+    ".": {
+      "default": {
+        "types": "./dist/typings/index.d.ts"
+      }
+    },
+    "./package.json": "./package.json"
+  },
   "typings": "dist/typings/index.d.ts",
   "publishConfig": {
     "directory": "dist",

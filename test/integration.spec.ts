@@ -267,15 +267,23 @@ it('can build a monorepo project', async () => {
     }
   `);
   expect(await fse.readFile(files.c['package.json'], 'utf8')).toMatchInlineSnapshot(`
-      {
-        "name": "c",
-        "main": "",
-        "typings": "typings/index.d.ts",
-        "typescript": {
-          "definition": "typings/index.d.ts"
-        }
+    {
+      "name": "c",
+      "main": "",
+      "typings": "typings/index.d.ts",
+      "typescript": {
+        "definition": "typings/index.d.ts"
+      },
+      "exports": {
+        ".": {
+          "default": {
+            "types": "./typings/index.d.ts"
+          }
+        },
+        "./package.json": "./package.json"
       }
-    `);
+    }
+  `);
 
   await execa('node', [binaryFolder, 'check'], {
     cwd: path.resolve(fixturesFolder, 'simple-monorepo'),
@@ -345,6 +353,14 @@ it('can build a types only project', async () => {
       "typings": "typings/index.d.ts",
       "typescript": {
         "definition": "typings/index.d.ts"
+      },
+      "exports": {
+        ".": {
+          "default": {
+            "types": "./typings/index.d.ts"
+          }
+        },
+        "./package.json": "./package.json"
       }
     }
   `);
@@ -560,15 +576,23 @@ it('can build a monorepo pnpm project', async () => {
     }
   `);
   expect(await fse.readFile(files.c['package.json'], 'utf8')).toMatchInlineSnapshot(`
-      {
-        "name": "c",
-        "main": "",
-        "typings": "typings/index.d.ts",
-        "typescript": {
-          "definition": "typings/index.d.ts"
-        }
+    {
+      "name": "c",
+      "main": "",
+      "typings": "typings/index.d.ts",
+      "typescript": {
+        "definition": "typings/index.d.ts"
+      },
+      "exports": {
+        ".": {
+          "default": {
+            "types": "./typings/index.d.ts"
+          }
+        },
+        "./package.json": "./package.json"
       }
-    `);
+    }
+  `);
 
   await execa('node', [binaryFolder, 'check'], {
     cwd: path.resolve(fixturesFolder, 'simple-monorepo-pnpm'),

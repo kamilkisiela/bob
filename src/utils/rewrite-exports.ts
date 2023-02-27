@@ -6,7 +6,11 @@ type Exports =
       default?: string | Record<string, string>;
     };
 
-export function rewriteExports(exports: Record<string, Exports>, distDir: string) {
+export function rewriteExports(
+  exports: Record<string, Exports>,
+  distDir: string,
+  typesOnly: boolean,
+) {
   const newExports = { ...exports };
 
   for (const [key, value] of Object.entries(newExports)) {
@@ -24,7 +28,10 @@ export function rewriteExports(exports: Record<string, Exports>, distDir: string
         if (typeof value === 'object') {
           const newValue: Record<string, string> = {};
           for (const [key, path] of Object.entries(value)) {
-            newValue[key] = path.replace(`${distDir}/`, '');
+            if (!typesOnly || key === 'types') {
+              // types-only builds need just the types field
+              newValue[key] = path.replace(`${distDir}/`, '');
+            }
           }
           return newValue;
         }
@@ -32,9 +39,13 @@ export function rewriteExports(exports: Record<string, Exports>, distDir: string
       }
 
       newValue = {
-        require: transformValue(newValue.require),
-        import: transformValue(newValue.import),
-        default: transformValue(newValue.import),
+        ...(typesOnly
+          ? {}
+          : {
+              require: transformValue(newValue.require),
+              import: transformValue(newValue.import),
+            }),
+        default: transformValue(typesOnly ? newValue.default : newValue.import),
       };
     }
     newExports[key.replace(`${distDir}/`, '')] = newValue;
