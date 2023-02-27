@@ -1,6 +1,7 @@
 import { ResolverOptions } from 'jest-resolve';
 
-export default function jestResolver(path: string, options: ResolverOptions) {
+/** This is module.exports for a reason. Please don't change it. */
+module.exports = function jestResolver(path: string, options: ResolverOptions) {
   /**
    * Jest does not like .js extensions when not running Jest in EXPERIMENTAL AND TOTALLY UNSTABLE YELL-AT-YA esm mode.
    * We rewrite it so we can run the tests.
@@ -19,4 +20,4 @@ export default function jestResolver(path: string, options: ResolverOptions) {
   return options.defaultResolver(path, {
     ...options,
   });
-}
+};

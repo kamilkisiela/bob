@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc && yarn build:jest-resolver",
-    "build:jest-resolver": "rimraf jest-resolver.cjs && tsc jest-resolver.ts --module commonjs && mv jest-resolver.js jest-resolver.cjs",
+    "build:jest-resolver": "rimraf jest-resolver.cjs && tsc jest-resolver.cts",
     "lint": "eslint --cache --cache-location node_modules/.cache/.eslintcache --ignore-path .gitignore .",
     "lint:prettier": "prettier --cache --check .",
     "prepublish": "yarn build",
