@@ -17,6 +17,12 @@
     "bob": "dist/index.js"
   },
   "main": "dist/index.js",
+  "exports": {
+    "./jest-resolver": {
+      "default": "./jest-resolver.cjs"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
     "jest-resolver.cjs",
