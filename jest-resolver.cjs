@@ -1,4 +1,11 @@
-module.exports = (path, options) => {
+// @ts-check
+
+/** This is module.exports for a reason. Please don't change it. */
+/**
+ * @param {string} path
+ * @param {import("jest-resolve").ResolverOptions} options
+ */
+module.exports = function jestResolver(path, options) {
   /**
    * Jest does not like .js extensions when not running Jest in EXPERIMENTAL AND TOTALLY UNSTABLE YELL-AT-YA esm mode.
    * We rewrite it so we can run the tests.
