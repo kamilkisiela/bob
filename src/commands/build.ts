@@ -415,7 +415,10 @@ export function validatePackageJson(
     expect('module', undefined);
     expect('typings', presetFields.typings);
     expect('typescript.definition', presetFields.typescript.definition);
-    expect('exports', undefined);
+    expect("exports['.'].default", {
+      // only the "types" field is required
+      types: presetFields.exports['.'].default.types,
+    });
     return;
   }
 
