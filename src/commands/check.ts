@@ -28,6 +28,19 @@ const ExportsMapModel = zod.record(
   ]),
 );
 
+const TypesOnlyExportsMapEntry = zod.object({
+  types: zod.string(),
+});
+
+const TypesOnlyExportsMapModel = zod.record(
+  zod.union([
+    zod.string(),
+    zod.object({
+      default: TypesOnlyExportsMapEntry,
+    }),
+  ]),
+);
+
 const BinModel = zod.record(zod.string());
 
 export const checkCommand = createCommand<{}, {}>(api => {
@@ -86,20 +99,15 @@ export const checkCommand = createCommand<{}, {}>(api => {
             const distPackageJSONPath = path.join(cwd, 'dist', 'package.json');
             const distPackageJSON = await fse.readJSON(distPackageJSONPath);
 
-            // a tell for a types-only build is the lack of main import and presence of typings
-            if (distPackageJSON.main === '' && (distPackageJSON.typings || '').endsWith('d.ts')) {
-              api.reporter.warn(
-                `Skip check for '${packageJSON.name}' because it's a types-only package.`,
-              );
-              return;
-            }
-
             try {
               await checkExportsMapIntegrity({
                 cwd: path.join(cwd, 'dist'),
                 packageJSON: distPackageJSON,
                 skipExports: new Set<string>(config?.check?.skip ?? []),
                 includesCommonJS: config?.commonjs ?? true,
+                // a tell for a types-only build is the lack of main import and presence of typings
+                typesOnly:
+                  distPackageJSON.main === '' && (distPackageJSON.typings || '').endsWith('d.ts'),
               });
             } catch (err) {
               api.reporter.error(`Integrity check of '${packageJSON.name}' failed.`);
@@ -127,14 +135,30 @@ async function checkExportsMapIntegrity(args: {
   };
   skipExports: Set<string>;
   includesCommonJS: boolean;
+  typesOnly: boolean;
 }) {
-  const exportsMapResult = ExportsMapModel.safeParse(args.packageJSON['exports']);
+  const exportsMapResult = (args.typesOnly ? TypesOnlyExportsMapModel : ExportsMapModel).safeParse(
+    args.packageJSON['exports'],
+  );
   if (exportsMapResult.success === false) {
     throw new Error(
       "Missing exports map within the 'package.json'.\n" +
         exportsMapResult.error.message +
         '\nCorrect Example:\n' +
-        JSON.stringify(presetFields.exports, null, 2),
+        JSON.stringify(
+          args.typesOnly
+            ? {
+                ...presetFields.exports,
+                '.': {
+                  default: {
+                    types: presetFields.exports['.'].default.types,
+                  },
+                },
+              }
+            : presetFields.exports,
+          null,
+          2,
+        ),
     );
   }
 

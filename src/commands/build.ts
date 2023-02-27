@@ -360,6 +360,11 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
 
   const distDirStr = `${DIST_DIR}/`;
 
+  if (!pkg.exports) {
+    newPkg.exports = presetFields.exports;
+  }
+  newPkg.exports = rewriteExports(pkg.exports, DIST_DIR, typesOnly);
+
   if (typesOnly) {
     newPkg.main = '';
     delete newPkg.module;
@@ -372,13 +377,6 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
   newPkg.typescript = {
     definition: newPkg.typescript.definition.replace(distDirStr, ''),
   };
-
-  if (!typesOnly) {
-    if (!pkg.exports) {
-      newPkg.exports = presetFields.exports;
-    }
-    newPkg.exports = rewriteExports(pkg.exports, DIST_DIR);
-  }
 
   if (pkg.bin) {
     newPkg.bin = {};

@@ -1,5 +1,5 @@
-import { expect, test } from 'vitest';
 import { rewriteExports } from '../src/utils/rewrite-exports';
+import { expect, test } from 'vitest';
 
 test('basic exports', () => {
   expect(
@@ -27,6 +27,7 @@ test('basic exports', () => {
         },
       },
       'dist',
+      false,
     ),
   ).toStrictEqual({
     '.': {
@@ -96,6 +97,7 @@ test('with custom exports', () => {
         },
       },
       'dist',
+      false,
     ),
   ).toStrictEqual({
     '.': {
@@ -142,3 +144,5 @@ test('with custom exports', () => {
     },
   });
 });
+
+test.todo('with types-only exports');
