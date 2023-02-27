@@ -1,4 +1,4 @@
-import { test, expect, it } from 'vitest';
+import { expect, it, test } from 'vitest';
 import jestResolver from '../jest-resolver';
 
 test('jest-resolver', () => {
