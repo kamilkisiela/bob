@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { dirname, join, resolve } from 'path';
+import { dirname, join, normalize, resolve, sep } from 'path';
 import { Consola } from 'consola';
 import { DepGraph } from 'dependency-graph';
 import fse from 'fs-extra';
@@ -50,7 +50,7 @@ export const runifyCommand = createCommand<
       const isSinglePackage = Array.isArray(rootPackageJSON.workspaces) === false;
 
       if (isSinglePackage) {
-        return runify(join(process.cwd(), 'package.json'), reporter);
+        return runify(normalize(join(process.cwd(), 'package.json')), reporter);
       }
 
       const limit = pLimit(1);
@@ -104,7 +104,7 @@ export const runifyCommand = createCommand<
 });
 
 async function runify(packagePath: string, reporter: Consola) {
-  const cwd = packagePath.replace('/package.json', '');
+  const cwd = packagePath.replace(`${sep}package.json`, '');
   const pkg = await readPackageJson(cwd);
   const buildOptions: BuildOptions = pkg.buildOptions || {};
 
@@ -172,7 +172,7 @@ async function rewritePackageJson(
     newPkg = modify(newPkg);
   }
 
-  await fs.writeFile(join(cwd, 'dist/package.json'), JSON.stringify(newPkg, null, 2), {
+  await fs.writeFile(join(cwd, 'dist', 'package.json'), JSON.stringify(newPkg, null, 2), {
     encoding: 'utf-8',
   });
 }
@@ -191,11 +191,11 @@ async function buildNext(cwd: string, additionalRequire: string | null) {
     child.on('error', reject);
   });
 
-  await fs.mkdirp(join(cwd, 'dist'));
+  await fs.mkdirp(normalize(join(cwd, 'dist')));
   if (additionalRequire) {
     await tsup({
-      entryPoints: [join(cwd, additionalRequire)],
-      outDir: join(cwd, 'dist'),
+      entryPoints: [normalize(join(cwd, additionalRequire))],
+      outDir: normalize(join(cwd, 'dist')),
       target: 'node18',
       format: ['cjs'],
       splitting: false,
@@ -246,10 +246,10 @@ async function compile(
   useEsm = false,
 ) {
   if (buildOptions.tsup) {
-    const out = join(cwd, 'dist');
+    const out = normalize(join(cwd, 'dist'));
 
     await tsup({
-      entryPoints: [join(cwd, entryPoint)],
+      entryPoints: [normalize(join(cwd, entryPoint))],
       outDir: out,
       target: 'node18',
       format: [useEsm ? 'esm' : 'cjs'],
@@ -264,7 +264,7 @@ async function compile(
         ? {
             js:
               buildOptions.banner.includes('.js') || buildOptions.banner.includes('.mjs')
-                ? await fs.readFile(join(cwd, buildOptions.banner), 'utf-8')
+                ? await fs.readFile(normalize(join(cwd, buildOptions.banner)), 'utf-8')
                 : buildOptions.banner,
           }
         : {},
@@ -272,21 +272,21 @@ async function compile(
     return;
   }
 
-  const { code, map, assets } = await ncc(join(cwd, entryPoint), {
+  const { code, map, assets } = await ncc(normalize(join(cwd, entryPoint)), {
     cache: false,
     sourceMap: true,
   });
 
   await fs.mkdirp(join(cwd, 'dist'));
   await Promise.all([
-    fs.writeFile(join(cwd, 'dist/index.js'), code, 'utf8'),
-    fs.writeFile(join(cwd, 'dist/index.js.map'), map, 'utf8'),
+    fs.writeFile(join(cwd, 'dist', 'index.js'), code, 'utf8'),
+    fs.writeFile(join(cwd, 'dist', 'index.js.map'), map, 'utf8'),
     ...Object.keys(assets).map(async filepath => {
       if (filepath.endsWith('package.json')) {
         return;
       }
-      await fs.ensureDir(dirname(join(cwd, 'dist', filepath)), {});
-      await fs.writeFile(join(cwd, 'dist', filepath), assets[filepath].source);
+      await fs.ensureDir(dirname(normalize(join(cwd, 'dist', filepath))), {});
+      await fs.writeFile(normalize(join(cwd, 'dist', filepath)), assets[filepath].source);
     }),
   ]);
 }
