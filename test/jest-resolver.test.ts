@@ -1,5 +1,5 @@
 import { expect, it, test } from 'vitest';
-import jestResolver from '../jest-resolver';
+import * as jestResolver from '../jest-resolver.cjs';
 
 test('jest-resolver', () => {
   it('removes .js extension from relative paths', () => {
