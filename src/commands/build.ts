@@ -207,40 +207,16 @@ async function build({
     return;
   }
 
+  validatePackageJson(pkg, {
+    includesCommonJS: config?.commonjs ?? true,
+  });
+
   const declarations = await globby('**/*.d.ts', {
     cwd: getBuildPath('esm'),
     absolute: false,
     ignore: filesToExcludeFromDist,
   });
 
-  const esmFiles = await globby('**/*.js', {
-    cwd: getBuildPath('esm'),
-    absolute: false,
-    ignore: filesToExcludeFromDist,
-  });
-
-  // Check whether al esm files are empty, if not - probably a types only build
-  let emptyEsmFiles = true;
-  for (const file of esmFiles) {
-    const src = await fse.readFile(join(getBuildPath('esm'), file));
-    if (src.toString().trim() !== 'export {};') {
-      emptyEsmFiles = false;
-      break;
-    }
-  }
-
-  // Empty ESM files with existing declarations is a types-only package
-  const typesOnly = emptyEsmFiles && declarations.length > 0;
-
-  validatePackageJson(pkg, {
-    typesOnly,
-    includesCommonJS: config?.commonjs ?? true,
-  });
-
-  // remove <project>/dist
-  await fse.remove(distPath);
-
-  // Copy type definitions
   await fse.ensureDir(join(distPath, 'typings'));
   await Promise.all(
     declarations.map(filePath =>
@@ -250,17 +226,30 @@ async function build({
     ),
   );
 
-  // If ESM files are not empty, copy them to dist/esm
-  if (!emptyEsmFiles) {
-    await fse.ensureDir(join(distPath, 'esm'));
-    await Promise.all(
-      esmFiles.map(filePath =>
-        limit(() => fse.copy(join(getBuildPath('esm'), filePath), join(distPath, 'esm', filePath))),
-      ),
-    );
+  const esmFiles = await globby('**/*.js', {
+    cwd: getBuildPath('esm'),
+    absolute: false,
+    ignore: filesToExcludeFromDist,
+  });
+
+  // all files that export nothing, should be completely empty
+  // this way we wont have issues with linters: <link to issue>
+  // and we will also make all type-only packages happy
+  for (const file of esmFiles) {
+    const src = await fse.readFile(join(getBuildPath('esm'), file));
+    if (src.toString().trim() === 'export {};') {
+      await fse.writeFile(join(getBuildPath('esm'), file), '');
+    }
   }
 
-  if (!emptyEsmFiles && config?.commonjs === undefined) {
+  await fse.ensureDir(join(distPath, 'esm'));
+  await Promise.all(
+    esmFiles.map(filePath =>
+      limit(() => fse.copy(join(getBuildPath('esm'), filePath), join(distPath, 'esm', filePath))),
+    ),
+  );
+
+  if (config?.commonjs === undefined) {
     // Transpile ESM to CJS and move CJS to dist/cjs only if there's something to transpile
     await fse.ensureDir(join(distPath, 'cjs'));
 
@@ -269,6 +258,20 @@ async function build({
       absolute: false,
       ignore: filesToExcludeFromDist,
     });
+
+    // all files that export nothing, should be completely empty
+    // this way we wont have issues with linters: <link to issue>
+    // and we will also make all type-only packages happy
+    for (const file of cjsFiles) {
+      const src = await fse.readFile(join(getBuildPath('cjs'), file));
+      if (
+        // TODO: will this always be the case with empty cjs files
+        src.toString().trim() ===
+        '"use strict";\nObject.defineProperty(exports, "__esModule", { value: true });'
+      ) {
+        await fse.writeFile(join(getBuildPath('cjs'), file), '');
+      }
+    }
 
     await Promise.all(
       cjsFiles.map(filePath =>
@@ -305,7 +308,7 @@ async function build({
   // move the package.json to dist
   await fse.writeFile(
     join(distPath, 'package.json'),
-    JSON.stringify(rewritePackageJson(pkg, typesOnly), null, 2),
+    JSON.stringify(rewritePackageJson(pkg), null, 2),
   );
 
   // move README.md and LICENSE and other specified files
@@ -327,7 +330,7 @@ async function build({
   reporter.success(`Built ${pkg.name}`);
 }
 
-function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
+function rewritePackageJson(pkg: Record<string, any>) {
   const newPkg: Record<string, any> = {};
   const fields = [
     'name',
@@ -360,14 +363,8 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
 
   const distDirStr = `${DIST_DIR}/`;
 
-  if (typesOnly) {
-    newPkg.main = '';
-    delete newPkg.module;
-    delete newPkg.type;
-  } else {
-    newPkg.main = newPkg.main.replace(distDirStr, '');
-    newPkg.module = newPkg.module.replace(distDirStr, '');
-  }
+  newPkg.main = newPkg.main.replace(distDirStr, '');
+  newPkg.module = newPkg.module.replace(distDirStr, '');
   newPkg.typings = newPkg.typings.replace(distDirStr, '');
   newPkg.typescript = {
     definition: newPkg.typescript.definition.replace(distDirStr, ''),
@@ -376,7 +373,7 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
   if (!pkg.exports) {
     newPkg.exports = presetFields.exports;
   }
-  newPkg.exports = rewriteExports(pkg.exports, DIST_DIR, typesOnly);
+  newPkg.exports = rewriteExports(pkg.exports, DIST_DIR);
 
   if (pkg.bin) {
     newPkg.bin = {};
@@ -392,7 +389,6 @@ function rewritePackageJson(pkg: Record<string, any>, typesOnly: boolean) {
 export function validatePackageJson(
   pkg: any,
   opts: {
-    typesOnly: boolean;
     includesCommonJS: boolean;
   },
 ) {
@@ -405,19 +401,6 @@ export function validatePackageJson(
       `${pkg.name}: "${key}" equals "${JSON.stringify(received)}"` +
         `, should be "${JSON.stringify(expected)}".`,
     );
-  }
-
-  // Type only packages have simpler rules (following the style of https://github.com/DefinitelyTyped/DefinitelyTyped packages)
-  if (opts.typesOnly) {
-    expect('main', '');
-    expect('module', undefined);
-    expect('typings', presetFields.typings);
-    expect('typescript.definition', presetFields.typescript.definition);
-    expect("exports['.'].default", {
-      // only the "types" field is required
-      types: presetFields.exports['.'].default.types,
-    });
-    return;
   }
 
   // If the package has NO binary we need to check the exports map.
