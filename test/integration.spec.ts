@@ -388,9 +388,8 @@ it('can build a types only project', async () => {
     }
   `);
 
-  await expect(
-    fse.readFile(path.resolve(baseDistPath, 'cjs', 'index.js'), 'utf8'),
-  ).resolves.toMatchInlineSnapshot(`
+  await expect(fse.readFile(path.resolve(baseDistPath, 'cjs', 'index.js'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
     "use strict";
     exports.__esModule = true;
   `);
