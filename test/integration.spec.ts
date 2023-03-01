@@ -112,6 +112,8 @@ it('can build a monorepo project', async () => {
       "package.json": path.resolve(baseDistBPath, "package.json"),
     },
     c: {
+      "cjs/index.js": path.resolve(baseDistCPath, "cjs", "index.js"),
+      "esm/index.js": path.resolve(baseDistCPath, "esm", "index.js"),
       "typings/index.d.ts": path.resolve(baseDistCPath, "typings", "index.d.ts"),
       "package.json": path.resolve(baseDistCPath, "package.json"),
     },
@@ -259,8 +261,8 @@ it('can build a monorepo project', async () => {
       }
     `);
 
-  expect(fse.existsSync(path.resolve(baseDistCPath, 'cjs'))).toBeFalsy();
-  expect(fse.existsSync(path.resolve(baseDistCPath, 'esm'))).toBeFalsy();
+  expect(await fse.readFile(files.c['cjs/index.js'], 'utf8')).toMatchInlineSnapshot('');
+  expect(await fse.readFile(files.c['esm/index.js'], 'utf8')).toMatchInlineSnapshot('');
   expect(await fse.readFile(files.c['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
     export type SomeType = 'type';
     export interface SomeInterface {
@@ -269,15 +271,25 @@ it('can build a monorepo project', async () => {
   expect(await fse.readFile(files.c['package.json'], 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "c",
-      "main": "",
+      "main": "cjs/index.js",
+      "module": "esm/index.js",
       "typings": "typings/index.d.ts",
       "typescript": {
         "definition": "typings/index.d.ts"
       },
       "exports": {
         ".": {
+          "require": {
+            "types": "./typings/index.d.cts",
+            "default": "./cjs/index.js"
+          },
+          "import": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          },
           "default": {
-            "types": "./typings/index.d.ts"
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
           }
         },
         "./package.json": "./package.json"
@@ -349,15 +361,26 @@ it('can build a types only project', async () => {
   expect(await fse.readFile(packageJsonFilePath, 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "simple-types-only",
-      "main": "",
+      "main": "cjs/index.js",
+      "module": "esm/index.js",
       "typings": "typings/index.d.ts",
       "typescript": {
         "definition": "typings/index.d.ts"
       },
+      "type": "module",
       "exports": {
         ".": {
+          "require": {
+            "types": "./typings/index.d.cts",
+            "default": "./cjs/index.js"
+          },
+          "import": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          },
           "default": {
-            "types": "./typings/index.d.ts"
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
           }
         },
         "./package.json": "./package.json"
@@ -365,11 +388,14 @@ it('can build a types only project', async () => {
     }
   `);
 
-  // no cjs or esm files
-  expect(fse.existsSync(path.resolve(baseDistPath, 'cjs'))).toBeFalsy();
-  expect(fse.existsSync(path.resolve(baseDistPath, 'esm'))).toBeFalsy();
-
-  // only types
+  await expect(fse.readFile(path.resolve(baseDistPath, 'cjs', 'index.js'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    "use strict";
+    exports.__esModule = true;
+  `);
+  await expect(
+    fse.readFile(path.resolve(baseDistPath, 'esm', 'index.js'), 'utf8'),
+  ).resolves.toMatchInlineSnapshot('');
   const indexDtsFilePath = path.resolve(baseDistPath, 'typings', 'index.d.ts');
   expect(await fse.readFile(indexDtsFilePath, 'utf8')).toMatchInlineSnapshot(`
     export type SomeType = 'type';
@@ -421,6 +447,8 @@ it('can build a monorepo pnpm project', async () => {
       "package.json": path.resolve(baseDistBPath, "package.json"),
     },
     c: {
+      "cjs/index.js": path.resolve(baseDistCPath, "cjs", "index.js"),
+      "esm/index.js": path.resolve(baseDistCPath, "esm", "index.js"),
       "typings/index.d.ts": path.resolve(baseDistCPath, "typings", "index.d.ts"),
       "package.json": path.resolve(baseDistCPath, "package.json"),
     },
@@ -568,8 +596,8 @@ it('can build a monorepo pnpm project', async () => {
       }
     `);
 
-  expect(fse.existsSync(path.resolve(baseDistCPath, 'cjs'))).toBeFalsy();
-  expect(fse.existsSync(path.resolve(baseDistCPath, 'esm'))).toBeFalsy();
+  expect(await fse.readFile(files.c['cjs/index.js'], 'utf8')).toMatchInlineSnapshot('');
+  expect(await fse.readFile(files.c['esm/index.js'], 'utf8')).toMatchInlineSnapshot('');
   expect(await fse.readFile(files.c['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
     export type SomeType = 'type';
     export interface SomeInterface {
@@ -578,15 +606,25 @@ it('can build a monorepo pnpm project', async () => {
   expect(await fse.readFile(files.c['package.json'], 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "c",
-      "main": "",
+      "main": "cjs/index.js",
+      "module": "esm/index.js",
       "typings": "typings/index.d.ts",
       "typescript": {
         "definition": "typings/index.d.ts"
       },
       "exports": {
         ".": {
+          "require": {
+            "types": "./typings/index.d.cts",
+            "default": "./cjs/index.js"
+          },
+          "import": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          },
           "default": {
-            "types": "./typings/index.d.ts"
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
           }
         },
         "./package.json": "./package.json"

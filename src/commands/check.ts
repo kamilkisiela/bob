@@ -28,19 +28,6 @@ const ExportsMapModel = zod.record(
   ]),
 );
 
-const TypesOnlyExportsMapEntry = zod.object({
-  types: zod.string(),
-});
-
-const TypesOnlyExportsMapModel = zod.record(
-  zod.union([
-    zod.string(),
-    zod.object({
-      default: TypesOnlyExportsMapEntry,
-    }),
-  ]),
-);
-
 const BinModel = zod.record(zod.string());
 
 export const checkCommand = createCommand<{}, {}>(api => {
@@ -105,9 +92,6 @@ export const checkCommand = createCommand<{}, {}>(api => {
                 packageJSON: distPackageJSON,
                 skipExports: new Set<string>(config?.check?.skip ?? []),
                 includesCommonJS: config?.commonjs ?? true,
-                // a tell for a types-only build is the lack of main import and presence of typings
-                typesOnly:
-                  distPackageJSON.main === '' && (distPackageJSON.typings || '').endsWith('d.ts'),
               });
             } catch (err) {
               api.reporter.error(`Integrity check of '${packageJSON.name}' failed.`);
@@ -135,37 +119,15 @@ async function checkExportsMapIntegrity(args: {
   };
   skipExports: Set<string>;
   includesCommonJS: boolean;
-  typesOnly: boolean;
 }) {
-  const exportsMapResult = (args.typesOnly ? TypesOnlyExportsMapModel : ExportsMapModel).safeParse(
-    args.packageJSON['exports'],
-  );
+  const exportsMapResult = ExportsMapModel.safeParse(args.packageJSON['exports']);
   if (exportsMapResult.success === false) {
     throw new Error(
       "Missing exports map within the 'package.json'.\n" +
         exportsMapResult.error.message +
         '\nCorrect Example:\n' +
-        JSON.stringify(
-          args.typesOnly
-            ? {
-                ...presetFields.exports,
-                '.': {
-                  default: {
-                    types: presetFields.exports['.'].default.types,
-                  },
-                },
-              }
-            : presetFields.exports,
-          null,
-          2,
-        ),
+        JSON.stringify(presetFields.exports, null, 2),
     );
-  }
-
-  // just check if the types under default exist
-  if (args.typesOnly) {
-    await fse.stat(path.join(args.cwd, (args.packageJSON.exports as any)?.['.']?.default?.types));
-    return;
   }
 
   const exportsMap = exportsMapResult['data'];
