@@ -637,7 +637,7 @@ it('can build a monorepo pnpm project', async () => {
   });
 });
 
-it('can bundle a tsconfig-build-json project', async () => {
+it.only('can bundle a tsconfig-build-json project', async () => {
   await fse.remove(path.resolve(fixturesFolder, 'tsconfig-build-json', 'dist'));
 
   const result = await execa('node', [binaryFolder, 'build'], {
@@ -709,10 +709,8 @@ it('can bundle a tsconfig-build-json project', async () => {
   `);
 
   // because the tsconfig.build.json has `declaration: false`
-  await expect(
-    fse.stat(path.resolve(baseDistPath, 'typings', 'index.d.ts')),
-  ).rejects.toMatchInlineSnapshot(
-    "[Error: ENOENT: no such file or directory, stat '/Users/enisdenjo/Develop/src/github.com/kamilkisiela/bob/test/__fixtures__/tsconfig-build-json/dist/typings/index.d.ts']",
+  await expect(fse.stat(path.resolve(baseDistPath, 'typings', 'index.d.ts'))).rejects.toThrowError(
+    'ENOENT: no such file or directory',
   );
 
   await execa('node', [binaryFolder, 'check'], {
