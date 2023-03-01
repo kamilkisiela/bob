@@ -637,7 +637,7 @@ it('can build a monorepo pnpm project', async () => {
   });
 });
 
-it.only('can bundle a tsconfig-build-json project', async () => {
+it('can bundle a tsconfig-build-json project', async () => {
   await fse.remove(path.resolve(fixturesFolder, 'tsconfig-build-json', 'dist'));
 
   const result = await execa('node', [binaryFolder, 'build'], {
