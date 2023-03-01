@@ -636,3 +636,84 @@ it('can build a monorepo pnpm project', async () => {
     cwd: path.resolve(fixturesFolder, 'simple-monorepo-pnpm'),
   });
 });
+
+it('can bundle a tsconfig-build-json project', async () => {
+  await fse.remove(path.resolve(fixturesFolder, 'tsconfig-build-json', 'dist'));
+
+  const result = await execa('node', [binaryFolder, 'build'], {
+    cwd: path.resolve(fixturesFolder, 'tsconfig-build-json'),
+  });
+  expect(result.exitCode).toEqual(0);
+
+  const baseDistPath = path.resolve(fixturesFolder, 'tsconfig-build-json', 'dist');
+  await expect(fse.readFile(path.resolve(baseDistPath, 'package.json'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    {
+      "name": "tsconfig-build-json",
+      "main": "cjs/index.js",
+      "module": "esm/index.js",
+      "typings": "typings/index.d.ts",
+      "typescript": {
+        "definition": "typings/index.d.ts"
+      },
+      "type": "module",
+      "exports": {
+        ".": {
+          "require": {
+            "types": "./typings/index.d.cts",
+            "default": "./cjs/index.js"
+          },
+          "import": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          },
+          "default": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          }
+        },
+        "./*": {
+          "require": {
+            "types": "./typings/*.d.cts",
+            "default": "./cjs/*.js"
+          },
+          "import": {
+            "types": "./typings/*.d.ts",
+            "default": "./esm/*.js"
+          },
+          "default": {
+            "types": "./typings/*.d.ts",
+            "default": "./esm/*.js"
+          }
+        },
+        "./package.json": "./package.json",
+        "./style.css": "./esm/style.css"
+      }
+    }
+  `);
+  await expect(
+    fse.readFile(path.resolve(baseDistPath, 'README.md'), 'utf8'),
+  ).resolves.toMatchInlineSnapshot('Hello!');
+  await expect(fse.readFile(path.resolve(baseDistPath, 'cjs', 'index.js'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    "use strict";
+    exports.__esModule = true;
+    exports.hello = void 0;
+    exports.hello = 1;
+    exports["default"] = 'there';
+  `);
+  await expect(fse.readFile(path.resolve(baseDistPath, 'esm', 'index.js'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    export var hello = 1;
+    export default 'there';
+  `);
+
+  // because the tsconfig.build.json has `declaration: false`
+  await expect(fse.stat(path.resolve(baseDistPath, 'typings', 'index.d.ts'))).rejects.toThrowError(
+    'ENOENT: no such file or directory',
+  );
+
+  await execa('node', [binaryFolder, 'check'], {
+    cwd: path.resolve(fixturesFolder, 'simple'),
+  });
+});
