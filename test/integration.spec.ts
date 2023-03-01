@@ -707,6 +707,8 @@ it('can bundle a tsconfig-build-json project', async () => {
     export var hello = 1;
     export default 'there';
   `);
+
+  // because the tsconfig.build.json has `declaration: false`
   await expect(
     fse.stat(path.resolve(baseDistPath, 'typings', 'index.d.ts')),
   ).rejects.toMatchInlineSnapshot(
