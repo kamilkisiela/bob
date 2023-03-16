@@ -1,5 +1,43 @@
 # Changelog
 
+## 6.0.0
+
+### Major Changes
+
+- [#202](https://github.com/kamilkisiela/bob/pull/202)
+  [`2236863`](https://github.com/kamilkisiela/bob/commit/223686314b011c54fd1930a2555eb6dab7ccd9b5)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Custom tsconfig path for the build command,
+  default to `tsconfig.build.json` and fallback to `tsconfig.json`.
+
+- [#203](https://github.com/kamilkisiela/bob/pull/203)
+  [`3b7efdc`](https://github.com/kamilkisiela/bob/commit/3b7efdc8cea6f01f9a4640f3bf7e90da5dac7d05)
+  Thanks [@ardatan](https://github.com/ardatan)! - **Breaking** `jest-resolver.js` renamed to
+  `jest-resolver.cjs` because Bob package is an ESM package.
+
+  Please make sure to adjust your `jest.config.js`.
+
+  ```diff
+  - resolver: 'bob-the-bundler/jest-resolver.js'
+  + resolver: 'bob-the-bundler/jest-resolver.cjs'
+  ```
+
+### Patch Changes
+
+- [#214](https://github.com/kamilkisiela/bob/pull/214)
+  [`1567b4d`](https://github.com/kamilkisiela/bob/commit/1567b4d8e667286adc388cb2fac78bb92dd2b053)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Include empty cjs/esm entry points for
+  types-only packages
+
+- [#37](https://github.com/kamilkisiela/bob/pull/37)
+  [`c912002`](https://github.com/kamilkisiela/bob/commit/c912002e6625d9fb5d56b7fb3dbd79ac80018aec)
+  Thanks [@kamilkisiela](https://github.com/kamilkisiela)! - better windows support for paths in the
+  runify command.
+
+- [#210](https://github.com/kamilkisiela/bob/pull/210)
+  [`ad9fb40`](https://github.com/kamilkisiela/bob/commit/ad9fb4044ac59c6962203f03f1dfbc0ec0df271f)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - exports field should exist in types-only
+  builds
+
 ## 5.0.1
 
 ### Patch Changes
@@ -222,16 +260,16 @@
           | false
           | {
               /** Files to copy from the package root to dist */
-              copy?: Array<string>
-            }
+              copy?: Array<string>;
+            };
         /** Whether the package should be checked. */
         check?:
           | false
           | {
               /** Exports within the package that should not be checked. */
-              skip?: Array<string>
-            }
-      }
+              skip?: Array<string>;
+            };
+      };
   ```
 
 ## 2.0.0
