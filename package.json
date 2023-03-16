@@ -73,7 +73,7 @@
     "@typescript-eslint/parser": "5.54.0",
     "eslint": "8.35.0",
     "eslint-plugin-import": "2.27.5",
-    "jest-resolve": "29.4.3",
+    "jest-resolve": "29.5.0",
     "jest-snapshot-serializer-raw": "1.2.0",
     "prettier": "2.8.4",
     "rimraf": "4.1.2",
