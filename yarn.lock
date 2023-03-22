@@ -2935,9 +2935,9 @@ mixme@^0.5.1:
   integrity sha512-3KYa4m4Vlqx98GPdOHghxSdNtTvcP8E0kkaJ5Dlh+h2DRzF7zpuVVcA8B0QpKd11YJeP9QQ7ASkKzOeu195Wzw==
 
 mkdirp@^2.0.0:
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-2.1.5.tgz#78d7eaf15e069ba7b6b47d76dd94cfadf7a4062f"
-  integrity sha512-jbjfql+shJtAPrFoKxHOXip4xS+kul9W3OzfzzrqueWK2QMGon2bFH2opl6W9EagBThjEz+iysyi/swOoVfB/w==
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-2.1.6.tgz#964fbcb12b2d8c5d6fbc62a963ac95a273e2cc19"
+  integrity sha512-+hEnITedc8LAtIP9u3HJDFIdcLV2vXP33sqLLIzkv1Db1zO/1OxbvYf0Y1OC/S/Qo5dxHXepofhmxL02PsKe+A==
 
 mlly@^1.0.0, mlly@^1.1.0:
   version "1.1.0"
