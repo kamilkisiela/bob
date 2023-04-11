@@ -260,16 +260,16 @@
           | false
           | {
               /** Files to copy from the package root to dist */
-              copy?: Array<string>;
-            };
+              copy?: Array<string>
+            }
         /** Whether the package should be checked. */
         check?:
           | false
           | {
               /** Exports within the package that should not be checked. */
-              skip?: Array<string>;
-            };
-      };
+              skip?: Array<string>
+            }
+      }
   ```
 
 ## 2.0.0
