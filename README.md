@@ -74,7 +74,4 @@ You can add a `bob` key to each `package.json`.
 ```bash
 $ bob build
 $ bob check
-
-# only use this command if you know the secret sauce
-$ bob runify
 ```
