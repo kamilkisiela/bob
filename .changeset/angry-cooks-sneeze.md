@@ -1,5 +1,5 @@
 ---
-'bob-the-bundler': minor
+'bob-the-bundler': major
 ---
 
-Breaking change but only for GraphQL Hive. Removes "runify" command
+Breaking change but only for GraphQL Hive (and n1ru4l). Removes "runify" command.
