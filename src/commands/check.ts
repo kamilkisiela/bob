@@ -28,6 +28,8 @@ const ExportsMapModel = zod.record(
   ]),
 );
 
+const EnginesModel = zod.record(zod.string(), zod.string());
+
 const BinModel = zod.record(zod.string());
 
 export const checkCommand = createCommand<{}, {}>(api => {
@@ -92,6 +94,9 @@ export const checkCommand = createCommand<{}, {}>(api => {
                 packageJSON: distPackageJSON,
                 skipExports: new Set<string>(config?.check?.skip ?? []),
                 includesCommonJS: config?.commonjs ?? true,
+              });
+              await checkEngines({
+                packageJSON: distPackageJSON,
               });
             } catch (err) {
               api.reporter.error(`Integrity check of '${packageJSON.name}' failed.`);
@@ -313,6 +318,19 @@ async function checkExportsMapIntegrity(args: {
         );
       }
     }
+  }
+}
+
+async function checkEngines(args: {
+  packageJSON: {
+    name: string;
+    engines: unknown;
+  };
+}) {
+  console.log(args.packageJSON);
+  const engines = EnginesModel.safeParse(args.packageJSON.engines);
+  if (engines.success === false || engines.data['node'] === undefined) {
+    throw new Error('Please specify the node engine version in your package.json.');
   }
 }
 

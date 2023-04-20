@@ -1,6 +1,9 @@
 {
   "name": "b",
   "type": "module",
+  "engines": {
+    "node": ">= 14.0.0"
+  },
   "bin": {
     "bbb": "dist/cjs/log-the-world.js"
   },

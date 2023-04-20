@@ -41,6 +41,9 @@ it('can bundle a simple project', async () => {
   expect(await fse.readFile(packageJsonFilePath, 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "simple",
+      "engines": {
+        "node": ">= 12.0.0"
+      },
       "main": "cjs/index.js",
       "module": "esm/index.js",
       "typings": "typings/index.d.ts",
@@ -132,48 +135,51 @@ it('can build a monorepo project', async () => {
     "export const a = 'WUP';",
   );
   expect(await fse.readFile(files.a['package.json'], 'utf8')).toMatchInlineSnapshot(`
-      {
-        "name": "a",
-        "main": "cjs/index.js",
-        "module": "esm/index.js",
-        "typings": "typings/index.d.ts",
-        "typescript": {
-          "definition": "typings/index.d.ts"
+    {
+      "name": "a",
+      "engines": {
+        "node": ">= 14.0.0"
+      },
+      "main": "cjs/index.js",
+      "module": "esm/index.js",
+      "typings": "typings/index.d.ts",
+      "typescript": {
+        "definition": "typings/index.d.ts"
+      },
+      "type": "module",
+      "exports": {
+        ".": {
+          "require": {
+            "types": "./typings/index.d.cts",
+            "default": "./cjs/index.js"
+          },
+          "import": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          },
+          "default": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          }
         },
-        "type": "module",
-        "exports": {
-          ".": {
-            "require": {
-              "types": "./typings/index.d.cts",
-              "default": "./cjs/index.js"
-            },
-            "import": {
-              "types": "./typings/index.d.ts",
-              "default": "./esm/index.js"
-            },
-            "default": {
-              "types": "./typings/index.d.ts",
-              "default": "./esm/index.js"
-            }
+        "./*": {
+          "require": {
+            "types": "./typings/*.d.cts",
+            "default": "./cjs/*.js"
           },
-          "./*": {
-            "require": {
-              "types": "./typings/*.d.cts",
-              "default": "./cjs/*.js"
-            },
-            "import": {
-              "types": "./typings/*.d.ts",
-              "default": "./esm/*.js"
-            },
-            "default": {
-              "types": "./typings/*.d.ts",
-              "default": "./esm/*.js"
-            }
+          "import": {
+            "types": "./typings/*.d.ts",
+            "default": "./esm/*.js"
           },
-          "./package.json": "./package.json"
-        }
+          "default": {
+            "types": "./typings/*.d.ts",
+            "default": "./esm/*.js"
+          }
+        },
+        "./package.json": "./package.json"
       }
-    `);
+    }
+  `);
 
   expect(await fse.readFile(files.b['cjs/index.js'], 'utf8')).toMatchInlineSnapshot(`
     "use strict";
@@ -215,51 +221,54 @@ it('can build a monorepo project', async () => {
     }
   `);
   expect(await fse.readFile(files.b['package.json'], 'utf8')).toMatchInlineSnapshot(`
-      {
-        "name": "b",
-        "main": "cjs/index.js",
-        "module": "esm/index.js",
-        "typings": "typings/index.d.ts",
-        "typescript": {
-          "definition": "typings/index.d.ts"
-        },
-        "type": "module",
-        "exports": {
-          ".": {
-            "require": {
-              "types": "./typings/index.d.cts",
-              "default": "./cjs/index.js"
-            },
-            "import": {
-              "types": "./typings/index.d.ts",
-              "default": "./esm/index.js"
-            },
-            "default": {
-              "types": "./typings/index.d.ts",
-              "default": "./esm/index.js"
-            }
+    {
+      "name": "b",
+      "engines": {
+        "node": ">= 14.0.0"
+      },
+      "main": "cjs/index.js",
+      "module": "esm/index.js",
+      "typings": "typings/index.d.ts",
+      "typescript": {
+        "definition": "typings/index.d.ts"
+      },
+      "type": "module",
+      "exports": {
+        ".": {
+          "require": {
+            "types": "./typings/index.d.cts",
+            "default": "./cjs/index.js"
           },
-          "./foo": {
-            "require": {
-              "types": "./typings/foo.d.cts",
-              "default": "./cjs/foo.js"
-            },
-            "import": {
-              "types": "./typings/foo.d.ts",
-              "default": "./esm/foo.js"
-            },
-            "default": {
-              "types": "./typings/foo.d.ts",
-              "default": "./esm/foo.js"
-            }
+          "import": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
           },
-          "./package.json": "./package.json"
+          "default": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          }
         },
-        "bin": {
-          "bbb": "cjs/log-the-world.js"
-        }
+        "./foo": {
+          "require": {
+            "types": "./typings/foo.d.cts",
+            "default": "./cjs/foo.js"
+          },
+          "import": {
+            "types": "./typings/foo.d.ts",
+            "default": "./esm/foo.js"
+          },
+          "default": {
+            "types": "./typings/foo.d.ts",
+            "default": "./esm/foo.js"
+          }
+        },
+        "./package.json": "./package.json"
+      },
+      "bin": {
+        "bbb": "cjs/log-the-world.js"
       }
-    `);
+    }
+  `);
 
   expect(await fse.readFile(files.c['cjs/index.js'], 'utf8')).toMatchInlineSnapshot('');
   expect(await fse.readFile(files.c['esm/index.js'], 'utf8')).toMatchInlineSnapshot('');
@@ -271,6 +280,9 @@ it('can build a monorepo project', async () => {
   expect(await fse.readFile(files.c['package.json'], 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "c",
+      "engines": {
+        "node": ">= 14.0.0"
+      },
       "main": "cjs/index.js",
       "module": "esm/index.js",
       "typings": "typings/index.d.ts",
@@ -316,6 +328,9 @@ it('can build an esm only project', async () => {
   expect(await fse.readFile(packageJsonFilePath, 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "simple-esm-only",
+      "engines": {
+        "node": ">= 14.0.0"
+      },
       "main": "esm/index.js",
       "module": "esm/index.js",
       "typings": "typings/index.d.ts",
@@ -361,6 +376,9 @@ it('can build a types only project', async () => {
   expect(await fse.readFile(packageJsonFilePath, 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "simple-types-only",
+      "engines": {
+        "node": ">= 14.0.0"
+      },
       "main": "cjs/index.js",
       "module": "esm/index.js",
       "typings": "typings/index.d.ts",
@@ -467,48 +485,51 @@ it('can build a monorepo pnpm project', async () => {
     "export const a = 'WUP';",
   );
   expect(await fse.readFile(files.a['package.json'], 'utf8')).toMatchInlineSnapshot(`
-      {
-        "name": "a",
-        "main": "cjs/index.js",
-        "module": "esm/index.js",
-        "typings": "typings/index.d.ts",
-        "typescript": {
-          "definition": "typings/index.d.ts"
+    {
+      "name": "a",
+      "engines": {
+        "node": ">= 14.0.0"
+      },
+      "main": "cjs/index.js",
+      "module": "esm/index.js",
+      "typings": "typings/index.d.ts",
+      "typescript": {
+        "definition": "typings/index.d.ts"
+      },
+      "type": "module",
+      "exports": {
+        ".": {
+          "require": {
+            "types": "./typings/index.d.cts",
+            "default": "./cjs/index.js"
+          },
+          "import": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          },
+          "default": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          }
         },
-        "type": "module",
-        "exports": {
-          ".": {
-            "require": {
-              "types": "./typings/index.d.cts",
-              "default": "./cjs/index.js"
-            },
-            "import": {
-              "types": "./typings/index.d.ts",
-              "default": "./esm/index.js"
-            },
-            "default": {
-              "types": "./typings/index.d.ts",
-              "default": "./esm/index.js"
-            }
+        "./*": {
+          "require": {
+            "types": "./typings/*.d.cts",
+            "default": "./cjs/*.js"
           },
-          "./*": {
-            "require": {
-              "types": "./typings/*.d.cts",
-              "default": "./cjs/*.js"
-            },
-            "import": {
-              "types": "./typings/*.d.ts",
-              "default": "./esm/*.js"
-            },
-            "default": {
-              "types": "./typings/*.d.ts",
-              "default": "./esm/*.js"
-            }
+          "import": {
+            "types": "./typings/*.d.ts",
+            "default": "./esm/*.js"
           },
-          "./package.json": "./package.json"
-        }
+          "default": {
+            "types": "./typings/*.d.ts",
+            "default": "./esm/*.js"
+          }
+        },
+        "./package.json": "./package.json"
       }
-    `);
+    }
+  `);
 
   expect(await fse.readFile(files.b['cjs/index.js'], 'utf8')).toMatchInlineSnapshot(`
     "use strict";
@@ -550,51 +571,54 @@ it('can build a monorepo pnpm project', async () => {
     }
   `);
   expect(await fse.readFile(files.b['package.json'], 'utf8')).toMatchInlineSnapshot(`
-      {
-        "name": "b",
-        "main": "cjs/index.js",
-        "module": "esm/index.js",
-        "typings": "typings/index.d.ts",
-        "typescript": {
-          "definition": "typings/index.d.ts"
-        },
-        "type": "module",
-        "exports": {
-          ".": {
-            "require": {
-              "types": "./typings/index.d.cts",
-              "default": "./cjs/index.js"
-            },
-            "import": {
-              "types": "./typings/index.d.ts",
-              "default": "./esm/index.js"
-            },
-            "default": {
-              "types": "./typings/index.d.ts",
-              "default": "./esm/index.js"
-            }
+    {
+      "name": "b",
+      "engines": {
+        "node": ">= 14.0.0"
+      },
+      "main": "cjs/index.js",
+      "module": "esm/index.js",
+      "typings": "typings/index.d.ts",
+      "typescript": {
+        "definition": "typings/index.d.ts"
+      },
+      "type": "module",
+      "exports": {
+        ".": {
+          "require": {
+            "types": "./typings/index.d.cts",
+            "default": "./cjs/index.js"
           },
-          "./foo": {
-            "require": {
-              "types": "./typings/foo.d.cts",
-              "default": "./cjs/foo.js"
-            },
-            "import": {
-              "types": "./typings/foo.d.ts",
-              "default": "./esm/foo.js"
-            },
-            "default": {
-              "types": "./typings/foo.d.ts",
-              "default": "./esm/foo.js"
-            }
+          "import": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
           },
-          "./package.json": "./package.json"
+          "default": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          }
         },
-        "bin": {
-          "bbb": "cjs/log-the-world.js"
-        }
+        "./foo": {
+          "require": {
+            "types": "./typings/foo.d.cts",
+            "default": "./cjs/foo.js"
+          },
+          "import": {
+            "types": "./typings/foo.d.ts",
+            "default": "./esm/foo.js"
+          },
+          "default": {
+            "types": "./typings/foo.d.ts",
+            "default": "./esm/foo.js"
+          }
+        },
+        "./package.json": "./package.json"
+      },
+      "bin": {
+        "bbb": "cjs/log-the-world.js"
       }
-    `);
+    }
+  `);
 
   expect(await fse.readFile(files.c['cjs/index.js'], 'utf8')).toMatchInlineSnapshot('');
   expect(await fse.readFile(files.c['esm/index.js'], 'utf8')).toMatchInlineSnapshot('');
@@ -606,6 +630,9 @@ it('can build a monorepo pnpm project', async () => {
   expect(await fse.readFile(files.c['package.json'], 'utf8')).toMatchInlineSnapshot(`
     {
       "name": "c",
+      "engines": {
+        "node": ">= 14.0.0"
+      },
       "main": "cjs/index.js",
       "module": "esm/index.js",
       "typings": "typings/index.d.ts",
@@ -650,6 +677,9 @@ it('can bundle a tsconfig-build-json project', async () => {
     .toMatchInlineSnapshot(`
     {
       "name": "tsconfig-build-json",
+      "engines": {
+        "node": ">= 14.0.0"
+      },
       "main": "cjs/index.js",
       "module": "esm/index.js",
       "typings": "typings/index.d.ts",
