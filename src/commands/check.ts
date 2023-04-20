@@ -327,7 +327,6 @@ async function checkEngines(args: {
     engines: unknown;
   };
 }) {
-  console.log(args.packageJSON);
   const engines = EnginesModel.safeParse(args.packageJSON.engines);
   if (engines.success === false || engines.data['node'] === undefined) {
     throw new Error('Please specify the node engine version in your package.json.');
