@@ -10,11 +10,7 @@ import { checkCommand } from './commands/check.js';
 async function main() {
   const root: Argv = yargs(hideBin(process.argv)).scriptName('bob').detectLocale(false).version();
 
-  const commands: CommandFactory<any, any>[] = [
-    buildCommand,
-    bootstrapCommand,
-    checkCommand,
-  ];
+  const commands: CommandFactory<any, any>[] = [buildCommand, bootstrapCommand, checkCommand];
 
   const reporter = consola.create({});
 
