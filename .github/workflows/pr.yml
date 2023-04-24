@@ -8,6 +8,7 @@ jobs:
   release:
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@main
     with:
+      packageManager: 'pnpm'
       npmTag: alpha
       buildScript: build
       nodeVersion: 18
@@ -17,5 +18,7 @@ jobs:
 
   dependencies:
     uses: the-guild-org/shared-config/.github/workflows/changesets-dependencies.yaml@main
+    with:
+      packageManager: 'pnpm'
     secrets:
       githubToken: ${{ secrets.GITHUB_TOKEN }}

@@ -8,7 +8,7 @@ on:
     branches:
       - master
 
-jobs:
+      jobs:
   unit:
     name: unit / ${{matrix.os}} / node v${{matrix.node_version}}
     runs-on: ${{matrix.os}}
@@ -24,20 +24,31 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: ${{ matrix.node_version }}
-      - name: Cache Yarn
-        uses: actions/cache@v3
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
         with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-${{matrix.node_version}}-yarn-${{ hashFiles('yarn.lock') }}
+          version: 8
+          run_install: false
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-${{matrix.node_version}}-yarn-
-      - name: Install Dependencies using Yarn
-        run: yarn
+            ${{ runner.os }}-pnpm-store-
+      - name: Install dependencies
+        run: pnpm install
       - name: Run Tests
-        run: yarn test
+        run: pnpm run test
       - name: Run TS Smoke Tests
-        run: yarn test:ts
+        run: pnpm run test:ts
       - name: Lint Prettier
-        run: yarn lint:prettier
+        run: pnpm run lint:prettier
       - name: Lint ESLint
-        run: yarn lint
+        run: pnpm run lint
