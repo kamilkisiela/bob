@@ -13,6 +13,10 @@
     "url": "https://github.com/kamilkisiela"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=14",
+    "pnpm": ">=8"
+  },
   "bin": {
     "bob": "dist/index.js"
   },
