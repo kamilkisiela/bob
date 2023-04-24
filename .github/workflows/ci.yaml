@@ -7,8 +7,7 @@ on:
   push:
     branches:
       - master
-
-      jobs:
+jobs:
   unit:
     name: unit / ${{matrix.os}} / node v${{matrix.node_version}}
     runs-on: ${{matrix.os}}
@@ -44,6 +43,8 @@ on:
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install
+      - name: Build dependencies
+        run: pnpm run build
       - name: Run Tests
         run: pnpm run test
       - name: Run TS Smoke Tests
