@@ -2,3 +2,4 @@ dist/
 .bob/
 test/ts-tests/fixture.js
 jest.resolver.cjs
+pnpm-lock.yaml
