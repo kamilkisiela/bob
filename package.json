@@ -71,7 +71,7 @@
     "@types/mkdirp": "1.0.2",
     "@types/node": "18.15.3",
     "@types/yargs": "17.0.24",
-    "@typescript-eslint/parser": "5.55.0",
+    "@typescript-eslint/parser": "5.59.6",
     "eslint": "8.40.0",
     "eslint-plugin-import": "2.27.5",
     "jest-resolve": "29.5.0",
