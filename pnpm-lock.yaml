@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   consola:
-    specifier: ^2.15.3
-    version: 2.15.3
+    specifier: ^3.0.0
+    version: 3.0.0
   execa:
     specifier: 6.1.0
     version: 6.1.0
@@ -1321,8 +1321,8 @@ packages:
       well-known-symbols: 2.0.0
     dev: true
 
-  /consola@2.15.3:
-    resolution: {integrity: sha512-9vAdYbHj6x2fLKC4+oPH0kFzY/orMZyG2Aj+kNylHxKGJ/Ed4dpNyAQYwJOdqO4zdM7XpVHmyejQDcQHrnuXbw==}
+  /consola@3.0.0:
+    resolution: {integrity: sha512-ed10+SGP/dL3u7fEDxDPb+68vS4JckVjivIMq2wg5to8od2Rki5AyetFivjuC3cE49+azquEVDSgHZ8qYrUxdQ==}
     dev: false
 
   /cross-spawn@5.1.0:
