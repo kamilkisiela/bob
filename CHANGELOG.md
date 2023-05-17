@@ -1,5 +1,61 @@
 # Changelog
 
+## 7.0.0
+
+### Major Changes
+
+- [#247](https://github.com/kamilkisiela/bob/pull/247)
+  [`0a5ff75`](https://github.com/kamilkisiela/bob/commit/0a5ff7507dfc6a569fc3721bc99db45330f46517)
+  Thanks [@kamilkisiela](https://github.com/kamilkisiela)! - Remove the `bob runify` command.
+
+- [`87da001`](https://github.com/kamilkisiela/bob/commit/87da00194ad616a31f4788c63a7ebca226a2b85f)
+  Thanks [@n1ru4l](https://github.com/n1ru4l)! - Require Node 16
+
+- [#248](https://github.com/kamilkisiela/bob/pull/248)
+  [`20117cd`](https://github.com/kamilkisiela/bob/commit/20117cd209400f1ab61c6df94c937c77bf8db7ef)
+  Thanks [@n1ru4l](https://github.com/n1ru4l)! - Require `engines.node` entry with `bob check`
+  command.
+
+- [#253](https://github.com/kamilkisiela/bob/pull/253)
+  [`f74688c`](https://github.com/kamilkisiela/bob/commit/f74688c024ab8bc6329a745a6c5c25114fdab454)
+  Thanks [@n1ru4l](https://github.com/n1ru4l)! - Drop support for typescript 4.
+
+### Patch Changes
+
+- [#201](https://github.com/kamilkisiela/bob/pull/201)
+  [`edf3301`](https://github.com/kamilkisiela/bob/commit/edf33014afa82c065ef4900ccbbc414cc864b1b4)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`execa@7.1.1` ↗︎](https://www.npmjs.com/package/execa/v/7.1.1) (from
+    `6.1.0`, in `dependencies`)
+
+- [#229](https://github.com/kamilkisiela/bob/pull/229)
+  [`2519f67`](https://github.com/kamilkisiela/bob/commit/2519f6784486d5451873f51940084773ff1dd768)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`typescript@^5.0.0` ↗︎](https://www.npmjs.com/package/typescript/v/4.7.4)
+    (from `^4.7.4`, in `peerDependencies`)
+
+- [#244](https://github.com/kamilkisiela/bob/pull/244)
+  [`f7b5824`](https://github.com/kamilkisiela/bob/commit/f7b58246e0aeb00f12b8238d30c986e00aa92891)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`consola@^3.0.0` ↗︎](https://www.npmjs.com/package/consola/v/3.0.0) (from
+    `^2.15.3`, in `dependencies`)
+
+- [#247](https://github.com/kamilkisiela/bob/pull/247)
+  [`0a5ff75`](https://github.com/kamilkisiela/bob/commit/0a5ff7507dfc6a569fc3721bc99db45330f46517)
+  Thanks [@kamilkisiela](https://github.com/kamilkisiela)! - dependencies updates:
+
+  - Removed dependency
+    [`@vercel/ncc@^0.36.0` ↗︎](https://www.npmjs.com/package/@vercel/ncc/v/0.36.0) (from
+    `dependencies`)
+  - Removed dependency
+    [`dependency-graph@^0.11.0` ↗︎](https://www.npmjs.com/package/dependency-graph/v/0.11.0) (from
+    `dependencies`)
+  - Removed dependency [`tsup@^6.5.0` ↗︎](https://www.npmjs.com/package/tsup/v/6.5.0) (from
+    `dependencies`)
+
 ## 6.0.0
 
 ### Major Changes
@@ -260,16 +316,16 @@
           | false
           | {
               /** Files to copy from the package root to dist */
-              copy?: Array<string>
-            }
+              copy?: Array<string>;
+            };
         /** Whether the package should be checked. */
         check?:
           | false
           | {
               /** Exports within the package that should not be checked. */
-              skip?: Array<string>
-            }
-      }
+              skip?: Array<string>;
+            };
+      };
   ```
 
 ## 2.0.0
