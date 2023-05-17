@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { dirname, join, resolve } from 'path';
-import { Consola } from 'consola';
+import { type ConsolaInstance } from 'consola';
 import { execa, ExecaReturnValue } from 'execa';
 import fse from 'fs-extra';
 import { globby } from 'globby';
@@ -211,7 +211,7 @@ async function build({
     bin?: Record<string, string>;
   };
   fullName: string;
-  reporter: Consola;
+  reporter: ConsolaInstance;
   getBuildPath: (target: 'esm' | 'cjs') => string;
   distPath: string;
 }) {

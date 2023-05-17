@@ -48,7 +48,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "consola": "^2.15.3",
+    "consola": "^3.0.0",
     "execa": "6.1.0",
     "fs-extra": "^11.1.0",
     "globby": "^13.1.3",
