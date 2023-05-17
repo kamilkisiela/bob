@@ -1,10 +1,10 @@
-import { Consola } from 'consola';
-import { CommandModule } from 'yargs';
+import { type ConsolaInstance } from 'consola';
+import { type CommandModule } from 'yargs';
 
 export { CommandModule as Command };
 
 export interface CommandAPI {
-  reporter: Consola;
+  reporter: ConsolaInstance;
 }
 
 export type CommandFactory<T = {}, U = {}> = (api: CommandAPI) => CommandModule<T, U>;

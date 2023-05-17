@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import consola from 'consola';
+import { createConsola } from 'consola';
 import yargs, { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { CommandFactory } from './command.js';
@@ -12,7 +12,7 @@ async function main() {
 
   const commands: CommandFactory<any, any>[] = [buildCommand, bootstrapCommand, checkCommand];
 
-  const reporter = consola.create({});
+  const reporter = createConsola({});
 
   commands
     .reduce((cli, cmd) => cli.command(cmd({ reporter })), root)
