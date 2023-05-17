@@ -5,7 +5,6 @@ import { execa, ExecaReturnValue } from 'execa';
 import fse from 'fs-extra';
 import { globby } from 'globby';
 import get from 'lodash.get';
-import mkdirp from 'mkdirp';
 import pLimit from 'p-limit';
 import { createCommand } from '../command.js';
 import { getBobConfig } from '../config.js';
@@ -467,7 +466,7 @@ export function validatePackageJson(
 }
 
 async function executeCopy(sourcePath: string, destPath: string) {
-  await mkdirp(dirname(destPath));
+  await fse.mkdirp(dirname(destPath));
   await fse.copyFile(sourcePath, destPath);
 }
 

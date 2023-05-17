@@ -19,9 +19,6 @@ dependencies:
   lodash.get:
     specifier: ^4.4.2
     version: 4.4.2
-  mkdirp:
-    specifier: ^2.0.0
-    version: 2.1.6
   p-limit:
     specifier: ^4.0.0
     version: 4.0.0
@@ -57,9 +54,6 @@ devDependencies:
   '@types/lodash.get':
     specifier: 4.4.7
     version: 4.4.7
-  '@types/mkdirp':
-    specifier: 1.0.2
-    version: 1.0.2
   '@types/node':
     specifier: 18.16.12
     version: 18.16.12
@@ -876,12 +870,6 @@ packages:
 
   /@types/minimist@1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
-    dev: true
-
-  /@types/mkdirp@1.0.2:
-    resolution: {integrity: sha512-o0K1tSO0Dx5X6xlU5F1D6625FawhC3dU3iqr25lluNv/+/QIVH8RLNEiVokgIZo+mz+87w/3Mkg/VvQS+J51fQ==}
-    dependencies:
-      '@types/node': 18.16.12
     dev: true
 
   /@types/node@12.20.55:
@@ -2760,12 +2748,6 @@ packages:
     resolution: {integrity: sha512-VC5fg6ySUscaWUpI4gxCBTQMH2RdUpNrk+MsbpCYtIvf9SBJdiUey4qE7BXviJsJR4nDQxCZ+3yaYNW3guz/Pw==}
     engines: {node: '>= 8.0.0'}
     dev: true
-
-  /mkdirp@2.1.6:
-    resolution: {integrity: sha512-+hEnITedc8LAtIP9u3HJDFIdcLV2vXP33sqLLIzkv1Db1zO/1OxbvYf0Y1OC/S/Qo5dxHXepofhmxL02PsKe+A==}
-    engines: {node: '>=10'}
-    hasBin: true
-    dev: false
 
   /mlly@1.2.0:
     resolution: {integrity: sha512-+c7A3CV0KGdKcylsI6khWyts/CYrGTrRVo4R/I7u/cUsy0Conxa6LUhiEzVKIw14lc2L5aiO4+SeVe4TeGRKww==}
