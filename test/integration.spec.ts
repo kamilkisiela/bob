@@ -22,10 +22,10 @@ it('can bundle a simple project', async () => {
 
   expect(await fse.readFile(indexJsFilePath, 'utf8')).toMatchInlineSnapshot(`
     "use strict";
-    exports.__esModule = true;
+    Object.defineProperty(exports, "__esModule", { value: true });
     exports.someNumber = void 0;
     exports.someNumber = 1;
-    exports["default"] = 'kek';
+    exports.default = 'kek';
   `);
   expect(await fse.readFile(indexDtsFilePath, 'utf8')).toMatchInlineSnapshot(`
     export declare const someNumber = 1;
@@ -406,11 +406,9 @@ it('can build a types only project', async () => {
     }
   `);
 
-  await expect(fse.readFile(path.resolve(baseDistPath, 'cjs', 'index.js'), 'utf8')).resolves
-    .toMatchInlineSnapshot(`
-    "use strict";
-    exports.__esModule = true;
-  `);
+  await expect(
+    fse.readFile(path.resolve(baseDistPath, 'cjs', 'index.js'), 'utf8'),
+  ).resolves.toMatchInlineSnapshot('');
   await expect(
     fse.readFile(path.resolve(baseDistPath, 'esm', 'index.js'), 'utf8'),
   ).resolves.toMatchInlineSnapshot('');
@@ -727,10 +725,10 @@ it('can bundle a tsconfig-build-json project', async () => {
   await expect(fse.readFile(path.resolve(baseDistPath, 'cjs', 'index.js'), 'utf8')).resolves
     .toMatchInlineSnapshot(`
     "use strict";
-    exports.__esModule = true;
+    Object.defineProperty(exports, "__esModule", { value: true });
     exports.hello = void 0;
     exports.hello = 1;
-    exports["default"] = 'there';
+    exports.default = 'there';
   `);
   await expect(fse.readFile(path.resolve(baseDistPath, 'esm', 'index.js'), 'utf8')).resolves
     .toMatchInlineSnapshot(`
