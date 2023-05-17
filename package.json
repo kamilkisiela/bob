@@ -45,7 +45,7 @@
     "test:ts": "node test/ts-tests/run-tests.mjs"
   },
   "peerDependencies": {
-    "typescript": "^4.7.4 || ^5.0.0"
+    "typescript": "^5.0.0"
   },
   "dependencies": {
     "consola": "^2.15.3",
