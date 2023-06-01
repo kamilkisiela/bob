@@ -42,7 +42,8 @@ it('can bundle a simple project', async () => {
     {
       "name": "simple",
       "engines": {
-        "node": ">= 12.0.0"
+        "node": ">= 12.0.0",
+        "pnpm": ">= 8.0.0"
       },
       "main": "cjs/index.js",
       "module": "esm/index.js",
