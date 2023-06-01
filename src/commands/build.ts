@@ -373,6 +373,15 @@ function rewritePackageJson(pkg: Record<string, any>) {
   fields.forEach(field => {
     if (pkg[field] !== undefined) {
       newPkg[field] = pkg[field];
+      if (field === 'engines') {
+        // remove all package managers from engines field
+        const ignoredPackageManagers = ['npm', 'yarn', 'pnpm'];
+        for (const pm of ignoredPackageManagers) {
+          if (newPkg[field][pm]) {
+            delete newPkg[field][pm];
+          }
+        }
+      }
     }
   });
 

@@ -94,18 +94,6 @@ async function applyPackageJSONPresetConfig(
   packageJSON: Record<string, unknown>,
 ) {
   Object.assign(packageJSON, presetFields);
-  // Clear package-manager specific fields
-  if ('engines' in packageJSON && packageJSON.engines && typeof packageJSON.engines === 'object') {
-    if ('pnpm' in packageJSON.engines) {
-      delete packageJSON.engines.pnpm;
-    }
-    if ('yarn' in packageJSON.engines) {
-      delete packageJSON.engines.yarn;
-    }
-    if ('npm' in packageJSON.engines) {
-      delete packageJSON.engines.npm;
-    }
-  }
   await fse.writeFile(packageJSONPath, JSON.stringify(packageJSON, null, 2));
 }
 
