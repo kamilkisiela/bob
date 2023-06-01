@@ -1,5 +1,14 @@
 # Changelog
 
+## 7.0.1
+
+### Patch Changes
+
+- [#261](https://github.com/kamilkisiela/bob/pull/261)
+  [`2af3e24`](https://github.com/kamilkisiela/bob/commit/2af3e24df964e7926fdea8182d70a09dc8b99e82)
+  Thanks [@gilgardosh](https://github.com/gilgardosh)! - Remove engines.pnpm/yarn/npm in the the
+  output package.json
+
 ## 7.0.0
 
 ### Major Changes
@@ -316,16 +325,16 @@
           | false
           | {
               /** Files to copy from the package root to dist */
-              copy?: Array<string>
-            }
+              copy?: Array<string>;
+            };
         /** Whether the package should be checked. */
         check?:
           | false
           | {
               /** Exports within the package that should not be checked. */
-              skip?: Array<string>
-            }
-      }
+              skip?: Array<string>;
+            };
+      };
   ```
 
 ## 2.0.0
