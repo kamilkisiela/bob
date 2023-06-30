@@ -745,3 +745,110 @@ it('can bundle a tsconfig-build-json project', async () => {
     cwd: path.resolve(fixturesFolder, 'simple'),
   });
 });
+
+it('can bundle a simple project with additional exports', async () => {
+  const proj = path.join(fixturesFolder, 'simple-exports');
+  const dist = path.join(proj, 'dist');
+
+  await fse.remove(dist);
+
+  await expect(execa('node', [binaryFolder, 'build'], { cwd: proj })).resolves.toEqual(
+    expect.objectContaining({
+      exitCode: 0,
+    }),
+  );
+
+  await expect(fse.readFile(path.join(dist, 'cjs', 'index.js'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.someLetter = void 0;
+    exports.someLetter = 'a';
+    exports.default = { b: 'c' };
+  `);
+  await expect(fse.readFile(path.join(dist, 'typings', 'index.d.ts'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    export declare const someLetter = "a";
+    declare const _default: {
+        b: string;
+    };
+    export default _default;
+  `);
+  await expect(fse.readFile(path.join(dist, 'esm', 'index.js'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    export var someLetter = 'a';
+    export default { b: 'c' };
+  `);
+
+  await expect(fse.readFile(path.join(dist, 'cjs', 'sub', 'index.js'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.someOtherLetter = void 0;
+    exports.someOtherLetter = 'd';
+    exports.default = { e: 'f' };
+  `);
+  await expect(fse.readFile(path.join(dist, 'typings', 'sub', 'index.d.ts'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    export declare const someOtherLetter = "d";
+    declare const _default: {
+        e: string;
+    };
+    export default _default;
+  `);
+  await expect(fse.readFile(path.join(dist, 'esm', 'sub', 'index.js'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    export var someOtherLetter = 'd';
+    export default { e: 'f' };
+  `);
+
+  await expect(fse.readFile(path.join(dist, 'package.json'), 'utf8')).resolves
+    .toMatchInlineSnapshot(`
+    {
+      "name": "simple-exports",
+      "engines": {
+        "node": ">= 12.0.0"
+      },
+      "main": "cjs/index.js",
+      "module": "esm/index.js",
+      "typings": "typings/index.d.ts",
+      "typescript": {
+        "definition": "typings/index.d.ts"
+      },
+      "type": "module",
+      "exports": {
+        ".": {
+          "require": {
+            "types": "./typings/index.d.cts",
+            "default": "./cjs/index.js"
+          },
+          "import": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          },
+          "default": {
+            "types": "./typings/index.d.ts",
+            "default": "./esm/index.js"
+          }
+        },
+        "./sub": {
+          "require": {
+            "types": "./typings/sub/index.d.cts",
+            "default": "./cjs/sub/index.js"
+          },
+          "import": {
+            "types": "./typings/sub/index.d.ts",
+            "default": "./esm/sub/index.js"
+          },
+          "default": {
+            "types": "./typings/sub/index.d.ts",
+            "default": "./esm/sub/index.js"
+          }
+        },
+        "./package.json": "./package.json"
+      }
+    }
+  `);
+
+  await execa('node', [binaryFolder, 'check'], { cwd: proj });
+});
