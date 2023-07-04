@@ -70,7 +70,7 @@
     "@types/node": "18.16.19",
     "@types/yargs": "17.0.24",
     "@typescript-eslint/parser": "5.61.0",
-    "eslint": "8.40.0",
+    "eslint": "8.44.0",
     "eslint-plugin-import": "2.27.5",
     "jest-resolve": "29.5.0",
     "jest-snapshot-serializer-raw": "1.2.0",
