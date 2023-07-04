@@ -7,7 +7,6 @@ Scope:
 
 - **Build**: Build ESM and CommonJS compatible npm packages
 - **Verify**: Ensure all ESM and CommonJS imports within an npm package are usable
-- **Bundle**: Build a single executable for an application (experimental)
 
 ## Requirements
 
