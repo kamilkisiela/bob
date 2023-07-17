@@ -170,6 +170,11 @@ async function checkExportsMapIntegrity(args: {
         const cjsFilePaths = await globby(cjsResult, {
           cwd: args.cwd,
         });
+        if (!cjsFilePaths.length) {
+          throw new Error(
+            `No files found matching the path '${cjsResult}' in '${key}' for '${args.packageJSON.name}'.`,
+          );
+        }
 
         const limit = pLimit(20);
         await Promise.all(
@@ -212,6 +217,11 @@ async function checkExportsMapIntegrity(args: {
       const esmFilePaths = await globby(esmResult, {
         cwd: args.cwd,
       });
+      if (!esmFilePaths.length) {
+        throw new Error(
+          `No files found matching the path '${esmResult}' in '${key}' for '${args.packageJSON.name}'.`,
+        );
+      }
 
       const limit = pLimit(20);
       await Promise.all(

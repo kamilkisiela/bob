@@ -1,0 +1,49 @@
+{
+  "name": "simple-exports",
+  "type": "module",
+  "engines": {
+    "node": ">= 12.0.0",
+    "pnpm": ">= 8.0.0"
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/typings/index.d.cts",
+        "default": "./dist/cjs/index.js"
+      },
+      "import": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "default": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      }
+    },
+    "./sub": {
+      "require": {
+        "types": "./dist/typings/sub/index.d.cts",
+        "default": "./dist/cjs/sub/index.js"
+      },
+      "import": {
+        "types": "./dist/typings/sub/index.d.ts",
+        "default": "./dist/esm/sub/index.js"
+      },
+      "default": {
+        "types": "./dist/typings/sub/index.d.ts",
+        "default": "./dist/esm/sub/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "typings": "dist/typings/index.d.ts",
+  "publishConfig": {
+    "directory": "dist",
+    "access": "public"
+  },
+  "typescript": {
+    "definition": "dist/typings/index.d.ts"
+  }
+}
