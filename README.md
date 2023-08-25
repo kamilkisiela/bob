@@ -1,4 +1,4 @@
-# Bob (The ~~Bundler~~ Butler)
+# Bob (The Compiler)
 
 Bob is the TypeScript build, bundle and verification tool used by almost all
 [The Guild](https://the-guild.dev) open source projects.
@@ -6,8 +6,7 @@ Bob is the TypeScript build, bundle and verification tool used by almost all
 Scope:
 
 - **Build**: Build ESM and CommonJS compatible npm packages
-- **Verify**: Ensure all ESM and CommonJS imports within a npm package are usable
-- **Bundle**: Build a single executable for an application (experimental)
+- **Verify**: Ensure all ESM and CommonJS imports within an npm package are usable
 
 ## Requirements
 
