@@ -53,8 +53,8 @@ devDependencies:
     specifier: 11.0.4
     version: 11.0.4
   '@types/js-yaml':
-    specifier: 4.0.5
-    version: 4.0.5
+    specifier: 4.0.9
+    version: 4.0.9
   '@types/lodash.get':
     specifier: 4.4.9
     version: 4.4.9
@@ -853,8 +853,8 @@ packages:
       '@types/istanbul-lib-report': 3.0.0
     dev: true
 
-  /@types/js-yaml@4.0.5:
-    resolution: {integrity: sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==}
+  /@types/js-yaml@4.0.9:
+    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
     dev: true
 
   /@types/json5@0.0.29:
