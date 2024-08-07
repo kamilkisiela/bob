@@ -1,5 +1,13 @@
 # Changelog
 
+## 7.0.2
+
+### Patch Changes
+
+- [#266](https://github.com/kamilkisiela/bob/pull/266)
+  [`6eab363`](https://github.com/kamilkisiela/bob/commit/6eab3631dbb71b7e10579316da373e74a13099b5)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Check whether package exports map files exist
+
 ## 7.0.1
 
 ### Patch Changes
@@ -325,16 +333,16 @@
           | false
           | {
               /** Files to copy from the package root to dist */
-              copy?: Array<string>
-            }
+              copy?: Array<string>;
+            };
         /** Whether the package should be checked. */
         check?:
           | false
           | {
               /** Exports within the package that should not be checked. */
-              skip?: Array<string>
-            }
-      }
+              skip?: Array<string>;
+            };
+      };
   ```
 
 ## 2.0.0
