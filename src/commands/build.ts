@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { dirname, join, resolve } from 'path';
 import { type ConsolaInstance } from 'consola';
-import { execa, ExecaReturnValue } from 'execa';
+import { execa } from 'execa';
 import fse from 'fs-extra';
 import { globby } from 'globby';
 import get from 'lodash.get';
@@ -58,10 +58,12 @@ function compilerOptionsToArgs(options: Record<string, unknown>): string[] {
   return Object.entries(options).flatMap(([key, value]) => [`--${key}`, `${value}`]);
 }
 
-function assertTypeScriptBuildResult(result: ExecaReturnValue) {
+function assertTypeScriptBuildResult(
+  result: Awaited<ReturnType<typeof execa>>,
+  reporter: ConsolaInstance,
+) {
   if (result.exitCode !== 0) {
-    console.log('TypeScript compiler exited with non-zero exit code.');
-    console.log(result.stdout);
+    reporter.error(result.stdout);
     throw new Error('TypeScript compiler exited with non-zero exit code.');
   }
 }
@@ -69,6 +71,7 @@ function assertTypeScriptBuildResult(result: ExecaReturnValue) {
 async function buildTypeScript(
   buildPath: string,
   options: { cwd: string; tsconfig?: string; incremental?: boolean },
+  reporter: ConsolaInstance,
 ) {
   let tsconfig = options.tsconfig;
   if (!tsconfig && (await fse.exists(join(options.cwd, DEFAULT_TS_BUILD_CONFIG)))) {
@@ -83,6 +86,7 @@ async function buildTypeScript(
       '--outDir',
       join(buildPath, 'esm'),
     ]),
+    reporter,
   );
 
   assertTypeScriptBuildResult(
@@ -94,6 +98,7 @@ async function buildTypeScript(
       '--outDir',
       join(buildPath, 'cjs'),
     ]),
+    reporter,
   );
 }
 
@@ -133,7 +138,7 @@ export const buildCommand = createCommand<
         if (!incremental) {
           await fse.remove(buildPath);
         }
-        await buildTypeScript(buildPath, { cwd, tsconfig, incremental });
+        await buildTypeScript(buildPath, { cwd, tsconfig, incremental }, reporter);
         const pkg = await fse.readJSON(resolve(cwd, 'package.json'));
         const fullName: string = pkg.name;
 
@@ -170,7 +175,7 @@ export const buildCommand = createCommand<
       if (!incremental) {
         await fse.remove(bobBuildPath);
       }
-      await buildTypeScript(bobBuildPath, { cwd, tsconfig, incremental });
+      await buildTypeScript(bobBuildPath, { cwd, tsconfig, incremental }, reporter);
 
       await Promise.all(
         packageInfoList.map(({ cwd, pkg, fullName }) =>
@@ -331,7 +336,7 @@ async function build({
 
   if (pkg.bin) {
     if (globalThis.process.platform === 'win32') {
-      console.warn(
+      reporter.warn(
         'Package includes bin files, but cannot set the executable bit on Windows.\n' +
           'Please manually set the executable bit on the bin files before publishing.',
       );
