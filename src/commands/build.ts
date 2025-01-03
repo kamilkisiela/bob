@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { dirname, join, resolve } from 'path';
 import { type ConsolaInstance } from 'consola';
-import { execa, ExecaReturnValue } from 'execa';
+import { execa } from 'execa';
 import fse from 'fs-extra';
 import { globby } from 'globby';
 import get from 'lodash.get';
@@ -58,7 +58,7 @@ function compilerOptionsToArgs(options: Record<string, unknown>): string[] {
   return Object.entries(options).flatMap(([key, value]) => [`--${key}`, `${value}`]);
 }
 
-function assertTypeScriptBuildResult(result: ExecaReturnValue) {
+function assertTypeScriptBuildResult(result: Awaited<ReturnType<typeof execa>>) {
   if (result.exitCode !== 0) {
     console.log('TypeScript compiler exited with non-zero exit code.');
     console.log(result.stdout);

@@ -1,5 +1,5 @@
 import path from 'path';
-import { execa, ExecaChildProcess } from 'execa';
+import { execa } from 'execa';
 import fse from 'fs-extra';
 import { globby } from 'globby';
 import pLimit from 'p-limit';
@@ -345,7 +345,7 @@ async function checkEngines(args: {
 
 const timeout = `;setTimeout(() => { throw new Error("The Node.js process hangs. There is probably some side-effects. All exports should be free of side effects.") }, 500).unref()`;
 
-function runRequireJSFileCommand(args: { cwd: string; path: string }): ExecaChildProcess {
+function runRequireJSFileCommand(args: { cwd: string; path: string }) {
   return execa('node', ['-e', `require('${args.path}')${timeout}`], {
     cwd: args.cwd,
     reject: false,
