@@ -35,7 +35,7 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
-    "lint": "eslint --cache --cache-location node_modules/.cache/.eslintcache --ignore-path .gitignore .",
+    "lint": "cross-env \"ESLINT_USE_FLAT_CONFIG=false\" eslint --cache --cache-location node_modules/.cache/.eslintcache --ignore-path .gitignore .",
     "lint:prettier": "prettier --cache --check .",
     "prepublish": "pnpm build",
     "prerelease": "pnpm build",
@@ -70,6 +70,7 @@
     "@types/node": "22.10.5",
     "@types/yargs": "17.0.33",
     "@typescript-eslint/parser": "8.19.0",
+    "cross-env": "7.0.3",
     "eslint": "9.17.0",
     "eslint-plugin-import": "2.27.5",
     "jest-resolve": "29.5.0",

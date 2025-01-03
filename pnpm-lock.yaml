@@ -67,6 +67,9 @@ devDependencies:
   '@typescript-eslint/parser':
     specifier: 8.19.0
     version: 8.19.0(eslint@9.17.0)(typescript@5.1.6)
+  cross-env:
+    specifier: 7.0.3
+    version: 7.0.3
   eslint:
     specifier: 9.17.0
     version: 9.17.0
@@ -1493,6 +1496,14 @@ packages:
   /consola@3.0.0:
     resolution: {integrity: sha512-ed10+SGP/dL3u7fEDxDPb+68vS4JckVjivIMq2wg5to8od2Rki5AyetFivjuC3cE49+azquEVDSgHZ8qYrUxdQ==}
     dev: false
+
+  /cross-env@7.0.3:
+    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
+    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.6
+    dev: true
 
   /cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
