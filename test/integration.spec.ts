@@ -198,14 +198,14 @@ it('can build a monorepo project', async () => {
         for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.foo = exports.b = void 0;
+    exports.b = void 0;
+    exports.foo = foo;
     const foo_js_1 = require("./foo.js");
     __exportStar(require("./foo.js"), exports);
     exports.b = 'SUP' + foo_js_1.b;
     function foo() {
         return Promise.resolve().then(() => require('./foo.js'));
     }
-    exports.foo = foo;
   `);
   expect(await fse.readFile(files.b['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
     export * from './foo.js';
@@ -546,14 +546,14 @@ it('can build a monorepo pnpm project', async () => {
         for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
     };
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.foo = exports.b = void 0;
+    exports.b = void 0;
+    exports.foo = foo;
     const foo_js_1 = require("./foo.js");
     __exportStar(require("./foo.js"), exports);
     exports.b = 'SUP' + foo_js_1.b;
     function foo() {
         return Promise.resolve().then(() => require('./foo.js'));
     }
-    exports.foo = foo;
   `);
   expect(await fse.readFile(files.b['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
     export * from './foo.js';

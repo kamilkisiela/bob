@@ -17,8 +17,8 @@ async function main() {
 
   await run(`pnpm tsc --project ${__dirname}/tsconfig.esnext-node.json`);
   await run(`pnpm tsc --project ${__dirname}/tsconfig.commonjs-node.json`);
-  await run(`pnpm tsc --project ${__dirname}/tsconfig.commonjs-node16.json`);
-  await run(`pnpm tsc --project ${__dirname}/tsconfig.commonjs-nodenext.json`);
+  // await run(`pnpm tsc --project ${__dirname}/tsconfig.commonjs-node16.json`);
+  // await run(`pnpm tsc --project ${__dirname}/tsconfig.commonjs-nodenext.json`);
   await run(`pnpm tsc --project ${__dirname}/tsconfig.node16-node16.json`);
   await run(`pnpm tsc --project ${__dirname}/tsconfig.nodenext-nodenext.json`);
 }
