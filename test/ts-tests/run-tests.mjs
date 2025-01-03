@@ -15,12 +15,12 @@ async function main() {
   await run(`mkdir -p ${__dirname}/node_modules`);
   await run(`ln -s ${__dirname}/../__fixtures__/simple/dist ${__dirname}/node_modules/simple`);
 
-  await run(`yarn tsc --project ${__dirname}/tsconfig.esnext-node.json`);
-  await run(`yarn tsc --project ${__dirname}/tsconfig.commonjs-node.json`);
-  await run(`yarn tsc --project ${__dirname}/tsconfig.commonjs-node16.json`);
-  await run(`yarn tsc --project ${__dirname}/tsconfig.commonjs-nodenext.json`);
-  await run(`yarn tsc --project ${__dirname}/tsconfig.node16-node16.json`);
-  await run(`yarn tsc --project ${__dirname}/tsconfig.nodenext-nodenext.json`);
+  await run(`pnpm tsc --project ${__dirname}/tsconfig.esnext-node.json`);
+  await run(`pnpm tsc --project ${__dirname}/tsconfig.commonjs-node.json`);
+  await run(`pnpm tsc --project ${__dirname}/tsconfig.commonjs-node16.json`);
+  await run(`pnpm tsc --project ${__dirname}/tsconfig.commonjs-nodenext.json`);
+  await run(`pnpm tsc --project ${__dirname}/tsconfig.node16-node16.json`);
+  await run(`pnpm tsc --project ${__dirname}/tsconfig.nodenext-nodenext.json`);
 }
 
 main();
