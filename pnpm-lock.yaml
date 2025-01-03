@@ -9,7 +9,7 @@ dependencies:
     specifier: ^3.0.0
     version: 3.3.3
   execa:
-    specifier: 7.2.0
+    specifier: ^7.2.0
     version: 7.2.0
   fs-extra:
     specifier: ^11.1.0
