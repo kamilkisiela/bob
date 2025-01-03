@@ -6,6 +6,7 @@ on:
 
 jobs:
   release:
+    if: ${{ github.actor != 'dependabot[bot]' && github.actor != 'dependabot' }}
     uses: the-guild-org/shared-config/.github/workflows/release-snapshot.yml@main
     with:
       packageManager: 'pnpm'
