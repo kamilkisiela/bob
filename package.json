@@ -13,7 +13,7 @@
     "url": "https://github.com/kamilkisiela"
   },
   "license": "MIT",
-  "packageManager": "pnpm@8.6.6",
+  "packageManager": "pnpm@8.15.9",
   "engines": {
     "node": ">=16",
     "pnpm": ">=8"
@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "consola": "^3.0.0",
-    "execa": "7.1.1",
+    "execa": "7.2.0",
     "fs-extra": "^11.1.0",
     "globby": "^14.0.0",
     "js-yaml": "^4.1.0",
@@ -61,23 +61,23 @@
     "zod": "^3.20.2"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "0.4.8",
+    "@changesets/changelog-github": "0.5.0",
     "@changesets/cli": "2.27.11",
     "@theguild/prettier-config": "3.0.0",
     "@types/fs-extra": "11.0.4",
-    "@types/js-yaml": "4.0.5",
+    "@types/js-yaml": "4.0.9",
     "@types/lodash.get": "4.4.9",
     "@types/node": "22.10.5",
     "@types/yargs": "17.0.33",
     "@typescript-eslint/parser": "8.19.0",
     "cross-env": "7.0.3",
     "eslint": "9.17.0",
-    "eslint-plugin-import": "2.27.5",
-    "jest-resolve": "29.5.0",
+    "eslint-plugin-import": "2.31.0",
+    "jest-resolve": "29.7.0",
     "jest-snapshot-serializer-raw": "2.0.0",
     "prettier": "3.4.2",
     "rimraf": "6.0.1",
-    "typescript": "5.1.6",
+    "typescript": "5.7.2",
     "vitest": "2.1.8"
   },
   "publishConfig": {
