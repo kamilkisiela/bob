@@ -41,23 +41,6 @@ const filesToExcludeFromDist = [
   '**/temp',
 ];
 
-const moduleMappings = {
-  esm: 'es2022',
-  cjs: 'nodenext',
-} as const;
-
-function typeScriptCompilerOptions(target: 'esm' | 'cjs'): Record<string, unknown> {
-  return {
-    module: moduleMappings[target],
-    sourceMap: false,
-    inlineSourceMap: false,
-  };
-}
-
-function compilerOptionsToArgs(options: Record<string, unknown>): string[] {
-  return Object.entries(options).flatMap(([key, value]) => [`--${key}`, `${value}`]);
-}
-
 function assertTypeScriptBuildResult(
   result: Awaited<ReturnType<typeof execa>>,
   reporter: ConsolaInstance,
@@ -77,31 +60,33 @@ async function buildTypeScript(
   if (!tsconfig && (await fse.exists(join(options.cwd, DEFAULT_TS_BUILD_CONFIG)))) {
     tsconfig = join(options.cwd, DEFAULT_TS_BUILD_CONFIG);
   }
-  assertTypeScriptBuildResult(
-    await execa('npx', [
-      'tsc',
-      ...(tsconfig ? ['--project', tsconfig] : []),
-      ...compilerOptionsToArgs(typeScriptCompilerOptions('esm')),
-      ...(options.incremental ? ['--incremental'] : []),
-      '--outDir',
-      join(buildPath, 'esm'),
-    ]),
-    reporter,
-  );
 
-  const revertPackageJsonsType = await setPackageJsonsType(options.cwd, 'commonjs');
-  try {
+  async function build(outDir: string) {
     assertTypeScriptBuildResult(
       await execa('npx', [
         'tsc',
         ...(tsconfig ? ['--project', tsconfig] : []),
-        ...compilerOptionsToArgs(typeScriptCompilerOptions('cjs')),
+        '--module node16', // not nodenext because this keeps up with latest node and we dont want to break something suddenly
+        '--sourceMap false',
+        '--inlineSourceMap false',
         ...(options.incremental ? ['--incremental'] : []),
         '--outDir',
-        join(buildPath, 'cjs'),
+        outDir,
       ]),
       reporter,
     );
+  }
+
+  let revertPackageJsonsType = await setPackageJsonsType(options.cwd, 'module');
+  try {
+    await build(join(buildPath, 'esm'));
+  } finally {
+    await revertPackageJsonsType();
+  }
+
+  revertPackageJsonsType = await setPackageJsonsType(options.cwd, 'commonjs');
+  try {
+    await build(join(buildPath, 'cjs'));
   } finally {
     await revertPackageJsonsType();
   }
