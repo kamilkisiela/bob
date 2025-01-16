@@ -84,7 +84,10 @@ async function buildTypeScript(
   }
 
   async function build(out: PackageJsonType) {
-    const revertPackageJsonsType = await setPackageJsonsType(options.cwd, out);
+    const revertPackageJsonsType = await setPackageJsonsType(
+      { cwd: options.cwd, ignore: [...filesToExcludeFromDist, ...(tsconfig?.exclude || [])] },
+      out,
+    );
     try {
       assertTypeScriptBuildResult(
         await execa('npx', [
@@ -501,7 +504,7 @@ type PackageJsonType = 'module' | 'commonjs';
  * @returns A revert function that reverts the original value of the `"type"` field.
  */
 async function setPackageJsonsType(
-  cwd: string,
+  { cwd, ignore }: { cwd: string; ignore: string[] },
   type: PackageJsonType,
 ): Promise<() => Promise<void>> {
   const rootPkgJsonPath = join(cwd, 'package.json');
@@ -519,7 +522,7 @@ async function setPackageJsonsType(
       ? []
       : await globby(
           workspaces.map((w: string) => w + '/package.json'),
-          { cwd, absolute: true },
+          { cwd, absolute: true, ignore },
         )),
   ]) {
     const contents =
