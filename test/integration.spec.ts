@@ -204,7 +204,7 @@ it('can build a monorepo project', async () => {
     __exportStar(require("./foo.js"), exports);
     exports.b = 'SUP' + foo_js_1.b;
     function foo() {
-        return Promise.resolve().then(() => require('./foo.js'));
+        return import('./foo.js');
     }
   `);
   expect(await fse.readFile(files.b['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
@@ -552,7 +552,7 @@ it('can build a monorepo pnpm project', async () => {
     __exportStar(require("./foo.js"), exports);
     exports.b = 'SUP' + foo_js_1.b;
     function foo() {
-        return Promise.resolve().then(() => require('./foo.js'));
+        return import('./foo.js');
     }
   `);
   expect(await fse.readFile(files.b['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`

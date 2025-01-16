@@ -499,55 +499,55 @@ async function setPackageJsonsType(
   const rootPkgJsonPath = join(cwd, 'package.json');
   const rootContents = await fse.readFile(rootPkgJsonPath, 'utf8');
   const rootPkg = JSON.parse(rootContents);
+  const workspaces = await getWorkspaces(rootPkg);
+  const isSinglePackage = workspaces === null;
 
   const reverts: (() => Promise<void>)[] = [];
 
-  if ('workspaces' in rootPkg) {
-    for (const pkgJsonPath of [
-      // we also want to modify the root package.json
-      // TODO: do we?
-      rootPkgJsonPath,
-      // get all package.jsons from the defined workspaces
-      ...(await globby(
-        rootPkg.workspaces.map((w: string) => w + '/package.json'),
-        { cwd, absolute: true },
-      )),
-    ]) {
-      const contents =
-        pkgJsonPath === rootPkgJsonPath
-          ? // no need to re-read the root package.json
-            rootContents
-          : await fse.readFile(pkgJsonPath, 'utf8');
-      const endsWithNewline = contents.endsWith('\n');
+  for (const pkgJsonPath of [
+    // we also want to modify the root package.json TODO: do we?
+    rootPkgJsonPath,
+    ...(isSinglePackage
+      ? []
+      : await globby(
+          workspaces.map((w: string) => w + '/package.json'),
+          { cwd, absolute: true },
+        )),
+  ]) {
+    const contents =
+      pkgJsonPath === rootPkgJsonPath
+        ? // no need to re-read the root package.json
+          rootContents
+        : await fse.readFile(pkgJsonPath, 'utf8');
+    const endsWithNewline = contents.endsWith('\n');
 
-      const pkg = JSON.parse(contents);
-      if (pkg.type != null && pkg.type !== 'commonjs' && pkg.type !== 'module') {
-        throw new Error(`Invalid "type" property value "${pkg.type}" in ${pkgJsonPath}`);
-      }
+    const pkg = JSON.parse(contents);
+    if (pkg.type != null && pkg.type !== 'commonjs' && pkg.type !== 'module') {
+      throw new Error(`Invalid "type" property value "${pkg.type}" in ${pkgJsonPath}`);
+    }
 
-      const originalType: PackageJsonType | undefined = pkg.type;
-      const differentType =
-        (pkg.type ||
-          // default when the type is not defined
-          'commonjs') !== type;
+    const originalType: PackageJsonType | undefined = pkg.type;
+    const differentType =
+      (pkg.type ||
+        // default when the type is not defined
+        'commonjs') !== type;
 
-      // change only if the provided type is different
-      if (differentType) {
-        pkg.type = type;
+    // change only if the provided type is different
+    if (differentType) {
+      pkg.type = type;
+      await fse.writeFile(
+        pkgJsonPath,
+        JSON.stringify(pkg, null, '  ') + (endsWithNewline ? '\n' : ''),
+      );
+
+      // revert change, of course only if we changed something
+      reverts.push(async () => {
+        pkg.type = originalType;
         await fse.writeFile(
           pkgJsonPath,
           JSON.stringify(pkg, null, '  ') + (endsWithNewline ? '\n' : ''),
         );
-
-        // revert change, of course only if we changed something
-        reverts.push(async () => {
-          pkg.type = originalType;
-          await fse.writeFile(
-            pkgJsonPath,
-            JSON.stringify(pkg, null, '  ') + (endsWithNewline ? '\n' : ''),
-          );
-        });
-      }
+      });
     }
   }
 
