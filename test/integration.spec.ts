@@ -33,7 +33,7 @@ it('can bundle a simple project', async () => {
     export default _default;
   `);
   expect(await fse.readFile(indexMjsFilePath, 'utf8')).toMatchInlineSnapshot(`
-    export const someNumber = 1;
+    export var someNumber = 1;
     export default 'kek';
   `);
   expect(await fse.readFile(readmeFilePath, 'utf8')).toMatchInlineSnapshot('Hello!');
@@ -355,7 +355,7 @@ it('can build an esm only project', async () => {
   `);
 
   expect(await fse.readFile(indexJsFilePath, 'utf8')).toMatchInlineSnapshot(
-    `export const someNumber = 1;`,
+    `export var someNumber = 1;`,
   );
   expect(await fse.readFile(indexDtsFilePath, 'utf8')).toMatchInlineSnapshot(
     'export declare const someNumber = 1;',
@@ -732,7 +732,7 @@ it('can bundle a tsconfig-build-json project', async () => {
   `);
   await expect(fse.readFile(path.resolve(baseDistPath, 'esm', 'index.js'), 'utf8')).resolves
     .toMatchInlineSnapshot(`
-    export const hello = 1;
+    export var hello = 1;
     export default 'there';
   `);
 
@@ -776,7 +776,7 @@ it('can bundle a simple project with additional exports', async () => {
   `);
   await expect(fse.readFile(path.join(dist, 'esm', 'index.js'), 'utf8')).resolves
     .toMatchInlineSnapshot(`
-    export const someLetter = 'a';
+    export var someLetter = 'a';
     export default { b: 'c' };
   `);
 
@@ -798,7 +798,7 @@ it('can bundle a simple project with additional exports', async () => {
   `);
   await expect(fse.readFile(path.join(dist, 'esm', 'sub', 'index.js'), 'utf8')).resolves
     .toMatchInlineSnapshot(`
-    export const someOtherLetter = 'd';
+    export var someOtherLetter = 'd';
     export default { e: 'f' };
   `);
 

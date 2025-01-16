@@ -3,6 +3,7 @@ import { dirname, join, resolve } from 'path';
 import { type ConsolaInstance } from 'consola';
 import { execa } from 'execa';
 import fse from 'fs-extra';
+import { getTsconfig, parseTsconfig } from 'get-tsconfig';
 import { globby } from 'globby';
 import get from 'lodash.get';
 import pLimit from 'p-limit';
@@ -59,44 +60,50 @@ function assertTypeScriptBuildResult(
 
 async function buildTypeScript(
   buildPath: string,
-  options: { cwd: string; tsconfig?: string; incremental?: boolean },
+  options: {
+    cwd: string;
+    tsconfig?: string;
+    incremental?: boolean;
+  },
   reporter: ConsolaInstance,
 ) {
-  let tsconfig = options.tsconfig;
-  if (!tsconfig && (await fse.exists(join(options.cwd, DEFAULT_TS_BUILD_CONFIG)))) {
-    tsconfig = join(options.cwd, DEFAULT_TS_BUILD_CONFIG);
+  let project = options.tsconfig;
+  if (!project && (await fse.exists(join(options.cwd, DEFAULT_TS_BUILD_CONFIG)))) {
+    project = join(options.cwd, DEFAULT_TS_BUILD_CONFIG);
   }
 
-  async function build(outDir: string) {
-    assertTypeScriptBuildResult(
-      await execa('npx', [
-        'tsc',
-        ...compilerOptionsToArgs({
-          project: tsconfig,
-          module: 'node16',
-          sourceMap: false,
-          inlineSourceMap: false,
-          incremental: options.incremental,
-          outDir,
-        }),
-      ]),
-      reporter,
-    );
+  const tsconfig = project ? parseTsconfig(project) : getTsconfig(options.cwd)?.config;
+  const moduleResolution = tsconfig?.compilerOptions?.moduleResolution || '';
+  const isModernNodeModuleResolution = ['node16', 'nodenext'].includes(moduleResolution);
+
+  async function build(out: PackageJsonType) {
+    const revertPackageJsonsType = await setPackageJsonsType(options.cwd, out);
+    try {
+      assertTypeScriptBuildResult(
+        await execa('npx', [
+          'tsc',
+          ...compilerOptionsToArgs({
+            project,
+            module: isModernNodeModuleResolution
+              ? moduleResolution // match module with moduleResolution for modern node (nodenext and node16)
+              : out === 'module'
+                ? 'es2022'
+                : 'node16', // modern commonjs
+            sourceMap: false,
+            inlineSourceMap: false,
+            incremental: options.incremental,
+            outDir: out === 'module' ? join(buildPath, 'esm') : join(buildPath, 'cjs'),
+          }),
+        ]),
+        reporter,
+      );
+    } finally {
+      await revertPackageJsonsType();
+    }
   }
 
-  let revertPackageJsonsType = await setPackageJsonsType(options.cwd, 'module');
-  try {
-    await build(join(buildPath, 'esm'));
-  } finally {
-    await revertPackageJsonsType();
-  }
-
-  revertPackageJsonsType = await setPackageJsonsType(options.cwd, 'commonjs');
-  try {
-    await build(join(buildPath, 'cjs'));
-  } finally {
-    await revertPackageJsonsType();
-  }
+  await build('module');
+  await build('commonjs');
 }
 
 export const buildCommand = createCommand<
