@@ -43,7 +43,7 @@ const filesToExcludeFromDist = [
 
 const moduleMappings = {
   esm: 'es2022',
-  cjs: 'commonjs',
+  cjs: 'nodenext',
 } as const;
 
 function typeScriptCompilerOptions(target: 'esm' | 'cjs'): Record<string, unknown> {
@@ -89,17 +89,22 @@ async function buildTypeScript(
     reporter,
   );
 
-  assertTypeScriptBuildResult(
-    await execa('npx', [
-      'tsc',
-      ...(tsconfig ? ['--project', tsconfig] : []),
-      ...compilerOptionsToArgs(typeScriptCompilerOptions('cjs')),
-      ...(options.incremental ? ['--incremental'] : []),
-      '--outDir',
-      join(buildPath, 'cjs'),
-    ]),
-    reporter,
-  );
+  const revertPackageJsonsType = await setPackageJsonsType(options.cwd, 'commonjs');
+  try {
+    assertTypeScriptBuildResult(
+      await execa('npx', [
+        'tsc',
+        ...(tsconfig ? ['--project', tsconfig] : []),
+        ...compilerOptionsToArgs(typeScriptCompilerOptions('cjs')),
+        ...(options.incremental ? ['--incremental'] : []),
+        '--outDir',
+        join(buildPath, 'cjs'),
+      ]),
+      reporter,
+    );
+  } finally {
+    await revertPackageJsonsType();
+  }
 }
 
 export const buildCommand = createCommand<
@@ -477,6 +482,78 @@ export function validatePackageJson(
       expect("exports['.']", presetFieldsESM.exports['.']);
     }
   }
+}
+
+type PackageJsonType = 'module' | 'commonjs';
+
+/**
+ * Sets the {@link filePath package.json} `"type"` field to the defined {@link type}
+ * returning a "revert" function which puts the original `"type"` back.
+ *
+ * @returns A revert function that reverts the original value of the `"type"` field.
+ */
+async function setPackageJsonsType(
+  cwd: string,
+  type: PackageJsonType,
+): Promise<() => Promise<void>> {
+  const rootPkgJsonPath = join(cwd, 'package.json');
+  const rootContents = await fse.readFile(rootPkgJsonPath, 'utf8');
+  const rootPkg = JSON.parse(rootContents);
+
+  const reverts: (() => Promise<void>)[] = [];
+
+  if ('workspaces' in rootPkg) {
+    for (const pkgJsonPath of [
+      // we also want to modify the root package.json
+      // TODO: do we?
+      rootPkgJsonPath,
+      // get all package.jsons from the defined workspaces
+      ...(await globby(
+        rootPkg.workspaces.map((w: string) => w + '/package.json'),
+        { cwd, absolute: true },
+      )),
+    ]) {
+      const contents =
+        pkgJsonPath === rootPkgJsonPath
+          ? // no need to re-read the root package.json
+            rootContents
+          : await fse.readFile(pkgJsonPath, 'utf8');
+      const endsWithNewline = contents.endsWith('\n');
+
+      const pkg = JSON.parse(contents);
+      if (pkg.type != null && pkg.type !== 'commonjs' && pkg.type !== 'module') {
+        throw new Error(`Invalid "type" property value "${pkg.type}" in ${pkgJsonPath}`);
+      }
+
+      const originalType: PackageJsonType | undefined = pkg.type;
+      const differentType =
+        (pkg.type ||
+          // default when the type is not defined
+          'commonjs') !== type;
+
+      // change only if the provided type is different
+      if (differentType) {
+        pkg.type = type;
+        await fse.writeFile(
+          pkgJsonPath,
+          JSON.stringify(pkg, null, '  ') + (endsWithNewline ? '\n' : ''),
+        );
+
+        // revert change, of course only if we changed something
+        reverts.push(async () => {
+          pkg.type = originalType;
+          await fse.writeFile(
+            pkgJsonPath,
+            JSON.stringify(pkg, null, '  ') + (endsWithNewline ? '\n' : ''),
+          );
+        });
+      }
+    }
+  }
+
+  return async function revert() {
+    await Promise.all(reverts.map(r => r()));
+  };
 }
 
 async function executeCopy(sourcePath: string, destPath: string) {
