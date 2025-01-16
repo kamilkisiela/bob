@@ -73,8 +73,15 @@ async function buildTypeScript(
   }
 
   const tsconfig = project ? parseTsconfig(project) : getTsconfig(options.cwd)?.config;
-  const moduleResolution = tsconfig?.compilerOptions?.moduleResolution || '';
+
+  const moduleResolution = (tsconfig?.compilerOptions?.moduleResolution || '').toLowerCase();
   const isModernNodeModuleResolution = ['node16', 'nodenext'].includes(moduleResolution);
+  const isOldNodeModuleResolution = ['classic', 'node', 'node10'].includes(moduleResolution);
+  if (moduleResolution && !isOldNodeModuleResolution && !isModernNodeModuleResolution) {
+    throw new Error(
+      `'moduleResolution' option '${moduleResolution}' cannot be used to build CommonJS"`,
+    );
+  }
 
   async function build(out: PackageJsonType) {
     const revertPackageJsonsType = await setPackageJsonsType(options.cwd, out);
@@ -88,7 +95,9 @@ async function buildTypeScript(
               ? moduleResolution // match module with moduleResolution for modern node (nodenext and node16)
               : out === 'module'
                 ? 'es2022'
-                : 'node16', // modern commonjs
+                : isOldNodeModuleResolution
+                  ? 'commonjs' // old commonjs
+                  : 'node16', // modern commonjs
             sourceMap: false,
             inlineSourceMap: false,
             incremental: options.incremental,
@@ -525,7 +534,7 @@ async function setPackageJsonsType(
       throw new Error(`Invalid "type" property value "${pkg.type}" in ${pkgJsonPath}`);
     }
 
-    const originalType: PackageJsonType | undefined = pkg.type;
+    const originalPkg = { ...pkg };
     const differentType =
       (pkg.type ||
         // default when the type is not defined
@@ -541,10 +550,9 @@ async function setPackageJsonsType(
 
       // revert change, of course only if we changed something
       reverts.push(async () => {
-        pkg.type = originalType;
         await fse.writeFile(
           pkgJsonPath,
-          JSON.stringify(pkg, null, '  ') + (endsWithNewline ? '\n' : ''),
+          JSON.stringify(originalPkg, null, '  ') + (endsWithNewline ? '\n' : ''),
         );
       });
     }
