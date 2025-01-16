@@ -505,7 +505,7 @@ async function setPackageJsonsType(
   const reverts: (() => Promise<void>)[] = [];
 
   for (const pkgJsonPath of [
-    // we also want to modify the root package.json TODO: do we?
+    // we also want to modify the root package.json TODO: do we in single package repos?
     rootPkgJsonPath,
     ...(isSinglePackage
       ? []
