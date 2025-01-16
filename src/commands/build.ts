@@ -41,6 +41,12 @@ const filesToExcludeFromDist = [
   '**/temp',
 ];
 
+function compilerOptionsToArgs(options: Record<string, unknown>): string[] {
+  return Object.entries(options)
+    .filter(([, value]) => !!value)
+    .flatMap(([key, value]) => [`--${key}`, `${value}`]);
+}
+
 function assertTypeScriptBuildResult(
   result: Awaited<ReturnType<typeof execa>>,
   reporter: ConsolaInstance,
@@ -65,13 +71,14 @@ async function buildTypeScript(
     assertTypeScriptBuildResult(
       await execa('npx', [
         'tsc',
-        ...(tsconfig ? ['--project', tsconfig] : []),
-        '--module node16', // not nodenext because this keeps up with latest node and we dont want to break something suddenly
-        '--sourceMap false',
-        '--inlineSourceMap false',
-        ...(options.incremental ? ['--incremental'] : []),
-        '--outDir',
-        outDir,
+        ...compilerOptionsToArgs({
+          project: tsconfig,
+          module: 'node16',
+          sourceMap: false,
+          inlineSourceMap: false,
+          incremental: options.incremental,
+          outDir,
+        }),
       ]),
       reporter,
     );
