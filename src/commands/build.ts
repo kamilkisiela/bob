@@ -487,7 +487,7 @@ export function validatePackageJson(
 type PackageJsonType = 'module' | 'commonjs';
 
 /**
- * Sets the {@link filePath package.json} `"type"` field to the defined {@link type}
+ * Sets the {@link cwd workspaces} package.json(s) `"type"` field to the defined {@link type}
  * returning a "revert" function which puts the original `"type"` back.
  *
  * @returns A revert function that reverts the original value of the `"type"` field.
