@@ -1,5 +1,40 @@
 # Changelog
 
+## 7.0.2
+
+### Patch Changes
+
+- [#299](https://github.com/kamilkisiela/bob/pull/299)
+  [`380347f`](https://github.com/kamilkisiela/bob/commit/380347ffe6bfa1ec6150c6d5db830ec789e30cbc)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`globby@^14.0.0` ↗︎](https://www.npmjs.com/package/globby/v/14.0.0) (from
+    `^13.1.3`, in `dependencies`)
+
+- [#320](https://github.com/kamilkisiela/bob/pull/320)
+  [`e20635c`](https://github.com/kamilkisiela/bob/commit/e20635c66b9f52fcfe93e3738ab4d346ae3eae8d)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`execa@^7.2.0` ↗︎](https://www.npmjs.com/package/execa/v/7.2.0) (from
+    `7.1.1`, in `dependencies`)
+
+- [`ea8df64`](https://github.com/kamilkisiela/bob/commit/ea8df64b4c251b446d5a7d8b3a5e8a678e8ea1bb)
+  Thanks [@renovate[bot]](https://github.com/renovate%5Bbot%5D)! - dependencies updates:
+
+  - Updated dependency [`execa@^9.0.0` ↗︎](https://www.npmjs.com/package/execa/v/9.0.0) (from
+    `^7.2.0`, in `dependencies`)
+
+- [#324](https://github.com/kamilkisiela/bob/pull/324)
+  [`9d3424f`](https://github.com/kamilkisiela/bob/commit/9d3424fa1d46c0211165faa51fe81cab480a5a92)
+  Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`p-limit@^6.0.0` ↗︎](https://www.npmjs.com/package/p-limit/v/6.0.0) (from
+    `^4.0.0`, in `dependencies`)
+
+- [#266](https://github.com/kamilkisiela/bob/pull/266)
+  [`6eab363`](https://github.com/kamilkisiela/bob/commit/6eab3631dbb71b7e10579316da373e74a13099b5)
+  Thanks [@enisdenjo](https://github.com/enisdenjo)! - Check whether package exports map files exist
+
 ## 7.0.1
 
 ### Patch Changes
