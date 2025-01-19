@@ -204,7 +204,7 @@ it('can build a monorepo project', async () => {
     __exportStar(require("./foo.js"), exports);
     exports.b = 'SUP' + foo_js_1.b;
     function foo() {
-        return Promise.resolve().then(() => require('./foo.js'));
+        return import('./foo.js');
     }
   `);
   expect(await fse.readFile(files.b['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
@@ -355,7 +355,7 @@ it('can build an esm only project', async () => {
   `);
 
   expect(await fse.readFile(indexJsFilePath, 'utf8')).toMatchInlineSnapshot(
-    'export var someNumber = 1;',
+    `export var someNumber = 1;`,
   );
   expect(await fse.readFile(indexDtsFilePath, 'utf8')).toMatchInlineSnapshot(
     'export declare const someNumber = 1;',
@@ -552,7 +552,7 @@ it('can build a monorepo pnpm project', async () => {
     __exportStar(require("./foo.js"), exports);
     exports.b = 'SUP' + foo_js_1.b;
     function foo() {
-        return Promise.resolve().then(() => require('./foo.js'));
+        return import('./foo.js');
     }
   `);
   expect(await fse.readFile(files.b['typings/index.d.ts'], 'utf8')).toMatchInlineSnapshot(`
