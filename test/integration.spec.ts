@@ -44,12 +44,8 @@ it('can bundle a simple project', async () => {
       "engines": {
         "node": ">= 12.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
       "type": "module",
       "exports": {
         ".": {
@@ -140,12 +136,8 @@ it('can build a monorepo project', async () => {
       "engines": {
         "node": ">= 14.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
       "type": "module",
       "exports": {
         ".": {
@@ -226,12 +218,8 @@ it('can build a monorepo project', async () => {
       "engines": {
         "node": ">= 14.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
       "type": "module",
       "exports": {
         ".": {
@@ -283,12 +271,9 @@ it('can build a monorepo project', async () => {
       "engines": {
         "node": ">= 14.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
+      "type": "module",
       "exports": {
         ".": {
           "require": {
@@ -332,11 +317,7 @@ it('can build an esm only project', async () => {
         "node": ">= 14.0.0"
       },
       "main": "esm/index.js",
-      "module": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
       "type": "module",
       "exports": {
         ".": {
@@ -379,12 +360,8 @@ it('can build a types only project', async () => {
       "engines": {
         "node": ">= 14.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
       "type": "module",
       "exports": {
         ".": {
@@ -488,12 +465,8 @@ it('can build a monorepo pnpm project', async () => {
       "engines": {
         "node": ">= 14.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
       "type": "module",
       "exports": {
         ".": {
@@ -574,12 +547,8 @@ it('can build a monorepo pnpm project', async () => {
       "engines": {
         "node": ">= 14.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
       "type": "module",
       "exports": {
         ".": {
@@ -631,12 +600,9 @@ it('can build a monorepo pnpm project', async () => {
       "engines": {
         "node": ">= 14.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
+      "type": "module",
       "exports": {
         ".": {
           "require": {
@@ -678,12 +644,8 @@ it('can bundle a tsconfig-build-json project', async () => {
       "engines": {
         "node": ">= 14.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
       "type": "module",
       "exports": {
         ".": {
@@ -809,12 +771,8 @@ it('can bundle a simple project with additional exports', async () => {
       "engines": {
         "node": ">= 12.0.0"
       },
-      "main": "cjs/index.js",
-      "module": "esm/index.js",
+      "main": "esm/index.js",
       "typings": "typings/index.d.ts",
-      "typescript": {
-        "definition": "typings/index.d.ts"
-      },
       "type": "module",
       "exports": {
         ".": {

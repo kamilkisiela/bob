@@ -10,7 +10,7 @@ import { getBobConfig } from '../config.js';
 import { getRootPackageJSON } from '../utils/get-root-package-json.js';
 import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
 import { getWorkspaces } from '../utils/get-workspaces.js';
-import { presetFields } from './bootstrap.js';
+import { presetFieldsDual } from './bootstrap.js';
 
 const ExportsMapEntry = zod.object({
   default: zod.string(),
@@ -131,7 +131,7 @@ async function checkExportsMapIntegrity(args: {
       "Missing exports map within the 'package.json'.\n" +
         exportsMapResult.error.message +
         '\nCorrect Example:\n' +
-        JSON.stringify(presetFields.exports, null, 2),
+        JSON.stringify(presetFieldsDual.exports, null, 2),
     );
   }
 

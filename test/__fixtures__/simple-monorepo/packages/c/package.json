@@ -1,9 +1,10 @@
 {
   "name": "c",
+  "type": "module",
   "engines": {
     "node": ">= 14.0.0"
   },
-  "main": "dist/cjs/index.js",
+  "main": "dist/esm/index.js",
   "exports": {
     ".": {
       "require": {

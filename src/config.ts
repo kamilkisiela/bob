@@ -5,9 +5,13 @@ const BobConfigModel = zod.optional(
     [
       zod.literal(false),
       zod.object({
-        commonjs: zod.optional(zod.literal(false), {
-          description: 'Omit CommonJS output.',
-        }),
+        commonjs: zod
+          .boolean({
+            description:
+              'Enable CommonJS output creating a dual output ESM+CJS. If set to `false`, will generate only ESM output.',
+          })
+          .optional()
+          .default(true),
         build: zod.union(
           [
             zod.literal(false),
