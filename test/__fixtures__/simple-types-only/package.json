@@ -4,8 +4,7 @@
   "engines": {
     "node": ">= 14.0.0"
   },
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "main": "dist/esm/index.js",
   "exports": {
     ".": {
       "require": {
@@ -40,8 +39,5 @@
         "./file-that-throws"
       ]
     }
-  },
-  "typescript": {
-    "definition": "dist/typings/index.d.ts"
   }
 }
