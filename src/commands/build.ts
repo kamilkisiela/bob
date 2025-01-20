@@ -440,14 +440,10 @@ export function validatePackageJson(
   if (Object.keys(pkg.bin ?? {}).length > 0) {
     if (opts.includesCommonJS === true) {
       expect('main', presetFields.main);
-      expect('module', presetFields.module);
       expect('typings', presetFields.typings);
-      expect('typescript.definition', presetFields.typescript.definition);
     } else {
       expect('main', presetFieldsESM.main);
-      expect('module', presetFieldsESM.module);
       expect('typings', presetFieldsESM.typings);
-      expect('typescript.definition', presetFieldsESM.typescript.definition);
     }
   } else if (
     pkg.main !== undefined ||
@@ -459,9 +455,7 @@ export function validatePackageJson(
     if (opts.includesCommonJS === true) {
       // if there is no bin property, we NEED to check the exports.
       expect('main', presetFields.main);
-      expect('module', presetFields.module);
       expect('typings', presetFields.typings);
-      expect('typescript.definition', presetFields.typescript.definition);
 
       // For now we enforce a top level exports property
       expect("exports['.'].require", presetFields.exports['.'].require);
@@ -469,9 +463,7 @@ export function validatePackageJson(
       expect("exports['.'].default", presetFields.exports['.'].default);
     } else {
       expect('main', presetFieldsESM.main);
-      expect('module', presetFieldsESM.module);
       expect('typings', presetFieldsESM.typings);
-      expect('typescript.definition', presetFieldsESM.typescript.definition);
 
       // For now, we enforce a top level exports property
       expect("exports['.']", presetFieldsESM.exports['.']);

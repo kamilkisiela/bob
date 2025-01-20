@@ -12,12 +12,8 @@ import { rewriteCodeImports } from '../utils/rewrite-code-imports.js';
 /** The default bob fields that should be within a package.json */
 export const presetFields = Object.freeze({
   type: 'module',
-  main: 'dist/cjs/index.js',
-  module: 'dist/esm/index.js',
+  main: 'dist/esm/index.js',
   typings: 'dist/typings/index.d.ts',
-  typescript: {
-    definition: 'dist/typings/index.d.ts',
-  },
   exports: {
     '.': {
       require: {
@@ -45,11 +41,7 @@ export const presetFields = Object.freeze({
 export const presetFieldsESM = {
   type: 'module',
   main: 'dist/esm/index.js',
-  module: 'dist/esm/index.js',
   typings: 'dist/typings/index.d.ts',
-  typescript: {
-    definition: 'dist/typings/index.d.ts',
-  },
   exports: {
     '.': {
       import: {
