@@ -86,6 +86,7 @@ async function buildTypeScript(
   if (Math.random()) {
     throw JSON.stringify(
       {
+        project,
         tsconfig,
         moduleResolution,
         isModernNodeModuleResolution,
