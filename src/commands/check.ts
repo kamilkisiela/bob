@@ -10,7 +10,7 @@ import { getBobConfig } from '../config.js';
 import { getRootPackageJSON } from '../utils/get-root-package-json.js';
 import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
 import { getWorkspaces } from '../utils/get-workspaces.js';
-import { presetFields } from './bootstrap.js';
+import { presetFieldsDual } from './bootstrap.js';
 
 const ExportsMapEntry = zod.object({
   default: zod.string(),
@@ -93,7 +93,7 @@ export const checkCommand = createCommand<{}, {}>(api => {
                 cwd: path.join(cwd, 'dist'),
                 packageJSON: distPackageJSON,
                 skipExports: new Set<string>(config?.check?.skip ?? []),
-                includesCommonJS: config?.commonjs ?? true,
+                dual: config?.commonjs ?? true,
               });
               await checkEngines({
                 packageJSON: distPackageJSON,
@@ -119,11 +119,11 @@ async function checkExportsMapIntegrity(args: {
   cwd: string;
   packageJSON: {
     name: string;
-    exports: unknown;
+    exports: any;
     bin: unknown;
   };
   skipExports: Set<string>;
-  includesCommonJS: boolean;
+  dual: boolean;
 }) {
   const exportsMapResult = ExportsMapModel.safeParse(args.packageJSON['exports']);
   if (exportsMapResult.success === false) {
@@ -131,7 +131,7 @@ async function checkExportsMapIntegrity(args: {
       "Missing exports map within the 'package.json'.\n" +
         exportsMapResult.error.message +
         '\nCorrect Example:\n' +
-        JSON.stringify(presetFields.exports, null, 2),
+        JSON.stringify(presetFieldsDual.exports, null, 2),
     );
   }
 
@@ -140,7 +140,7 @@ async function checkExportsMapIntegrity(args: {
   const cjsSkipExports = new Set<string>();
   const esmSkipExports = new Set<string>();
   for (const definedExport of args.skipExports) {
-    if (args.includesCommonJS) {
+    if (args.dual) {
       const cjsResult = resolve.resolve(args.packageJSON, definedExport, {
         require: true,
       })?.[0];
@@ -155,7 +155,7 @@ async function checkExportsMapIntegrity(args: {
   }
 
   for (const key of Object.keys(exportsMap)) {
-    if (args.includesCommonJS) {
+    if (args.dual) {
       const cjsResult = resolve.resolve(args.packageJSON, key, {
         require: true,
       })?.[0];
@@ -208,9 +208,8 @@ async function checkExportsMapIntegrity(args: {
     }
 
     const esmResult = resolve.resolve({ exports: exportsMap }, key)?.[0];
-
     if (!esmResult) {
-      throw new Error(`Could not resolve CommonJS import '${key}' for '${args.packageJSON.name}'.`);
+      throw new Error(`Could not resolve export '${key}' in '${args.packageJSON.name}'.`);
     }
 
     if (esmResult.match(/.(js|mjs)$/)) {
@@ -247,40 +246,38 @@ async function checkExportsMapIntegrity(args: {
     }
   }
 
-  const legacyRequire = resolve.legacy(args.packageJSON, {
-    fields: ['main'],
-  });
-  if (!legacyRequire || typeof legacyRequire !== 'string') {
-    throw new Error(`Could not resolve legacy CommonJS entrypoint.`);
+  const exportsRequirePath = resolve.resolve({ exports: exportsMap }, '.', { require: true })?.[0];
+  if (!exportsRequirePath || typeof exportsRequirePath !== 'string') {
+    throw new Error('Could not resolve default CommonJS entrypoint in a Module project.');
   }
 
-  if (args.includesCommonJS) {
-    const legacyRequireResult = await runRequireJSFileCommand({
-      path: legacyRequire,
+  if (args.dual) {
+    const requireResult = await runRequireJSFileCommand({
+      path: exportsRequirePath,
       cwd: args.cwd,
     });
 
-    if (legacyRequireResult.exitCode !== 0) {
+    if (requireResult.exitCode !== 0) {
       throw new Error(
-        `Require of file '${legacyRequire}' failed with error:\n` + legacyRequireResult.stderr,
+        `Require of file '${exportsRequirePath}' failed with error:\n` + requireResult.stderr,
       );
     }
   } else {
-    const legacyRequireResult = await runImportJSFileCommand({
-      path: legacyRequire,
+    const importResult = await runImportJSFileCommand({
+      path: exportsRequirePath,
       cwd: args.cwd,
     });
 
-    if (legacyRequireResult.exitCode !== 0) {
+    if (importResult.exitCode !== 0) {
       throw new Error(
-        `Require of file '${legacyRequire}' failed with error:\n` + legacyRequireResult.stderr,
+        `Import of file '${exportsRequirePath}' failed with error:\n` + importResult.stderr,
       );
     }
   }
 
   const legacyImport = resolve.legacy(args.packageJSON);
   if (!legacyImport || typeof legacyImport !== 'string') {
-    throw new Error(`Could not resolve legacy ESM entrypoint.`);
+    throw new Error('Could not resolve default ESM entrypoint.');
   }
   const legacyImportResult = await runImportJSFileCommand({
     path: legacyImport,
@@ -288,7 +285,7 @@ async function checkExportsMapIntegrity(args: {
   });
   if (legacyImportResult.exitCode !== 0) {
     throw new Error(
-      `Require of file '${legacyRequire}' failed with error:\n` + legacyImportResult.stderr,
+      `Require of file '${exportsRequirePath}' failed with error:\n` + legacyImportResult.stderr,
     );
   }
 

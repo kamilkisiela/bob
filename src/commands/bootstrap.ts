@@ -10,14 +10,10 @@ import { getWorkspaces } from '../utils/get-workspaces.js';
 import { rewriteCodeImports } from '../utils/rewrite-code-imports.js';
 
 /** The default bob fields that should be within a package.json */
-export const presetFields = Object.freeze({
+export const presetFieldsDual = Object.freeze({
   type: 'module',
-  main: 'dist/cjs/index.js',
-  module: 'dist/esm/index.js',
+  main: 'dist/esm/index.js',
   typings: 'dist/typings/index.d.ts',
-  typescript: {
-    definition: 'dist/typings/index.d.ts',
-  },
   exports: {
     '.': {
       require: {
@@ -42,14 +38,10 @@ export const presetFields = Object.freeze({
   },
 });
 
-export const presetFieldsESM = {
+export const presetFieldsOnlyESM = {
   type: 'module',
   main: 'dist/esm/index.js',
-  module: 'dist/esm/index.js',
   typings: 'dist/typings/index.d.ts',
-  typescript: {
-    definition: 'dist/typings/index.d.ts',
-  },
   exports: {
     '.': {
       import: {
@@ -93,7 +85,7 @@ async function applyPackageJSONPresetConfig(
   packageJSONPath: string,
   packageJSON: Record<string, unknown>,
 ) {
-  Object.assign(packageJSON, presetFields);
+  Object.assign(packageJSON, presetFieldsDual);
   await fse.writeFile(packageJSONPath, JSON.stringify(packageJSON, null, 2));
 }
 

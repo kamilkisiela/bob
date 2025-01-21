@@ -7,8 +7,7 @@
   "bin": {
     "bbb": "dist/cjs/log-the-world.js"
   },
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "main": "dist/esm/index.js",
   "exports": {
     ".": {
       "require": {
@@ -47,8 +46,5 @@
   },
   "buildOptions": {
     "input": "./src/index.ts"
-  },
-  "typescript": {
-    "definition": "dist/typings/index.d.ts"
   }
 }

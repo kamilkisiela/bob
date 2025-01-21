@@ -13,7 +13,7 @@ import { getRootPackageJSON } from '../utils/get-root-package-json.js';
 import { getWorkspacePackagePaths } from '../utils/get-workspace-package-paths.js';
 import { getWorkspaces } from '../utils/get-workspaces.js';
 import { rewriteExports } from '../utils/rewrite-exports.js';
-import { presetFields, presetFieldsESM } from './bootstrap.js';
+import { presetFieldsDual, presetFieldsOnlyESM } from './bootstrap.js';
 
 export const DIST_DIR = 'dist';
 
@@ -243,9 +243,9 @@ async function build({
     return;
   }
 
-  validatePackageJson(pkg, {
-    includesCommonJS: config?.commonjs ?? true,
-  });
+  const dual = config?.commonjs ?? true;
+
+  validatePackageJson(pkg, { dual });
 
   const declarations = await globby('**/*.d.ts', {
     cwd: getBuildPath('esm'),
@@ -285,7 +285,7 @@ async function build({
     ),
   );
 
-  if (config?.commonjs === undefined) {
+  if (dual) {
     // Transpile ESM to CJS and move CJS to dist/cjs only if there's something to transpile
     await fse.ensureDir(join(distPath, 'cjs'));
 
@@ -385,9 +385,7 @@ function rewritePackageJson(pkg: Record<string, any>) {
     'engines',
     'name',
     'main',
-    'module',
     'typings',
-    'typescript',
     'type',
   ];
 
@@ -409,14 +407,10 @@ function rewritePackageJson(pkg: Record<string, any>) {
   const distDirStr = `${DIST_DIR}/`;
 
   newPkg.main = newPkg.main.replace(distDirStr, '');
-  newPkg.module = newPkg.module.replace(distDirStr, '');
   newPkg.typings = newPkg.typings.replace(distDirStr, '');
-  newPkg.typescript = {
-    definition: newPkg.typescript.definition.replace(distDirStr, ''),
-  };
 
   if (!pkg.exports) {
-    newPkg.exports = presetFields.exports;
+    newPkg.exports = presetFieldsDual.exports;
   }
   newPkg.exports = rewriteExports(pkg.exports, DIST_DIR);
 
@@ -434,7 +428,7 @@ function rewritePackageJson(pkg: Record<string, any>) {
 export function validatePackageJson(
   pkg: any,
   opts: {
-    includesCommonJS: boolean;
+    dual: boolean;
   },
 ) {
   function expect(key: string, expected: unknown) {
@@ -454,43 +448,29 @@ export function validatePackageJson(
   // 2. have an exports property
   // 3. have an exports and bin property
   if (Object.keys(pkg.bin ?? {}).length > 0) {
-    if (opts.includesCommonJS === true) {
-      expect('main', presetFields.main);
-      expect('module', presetFields.module);
-      expect('typings', presetFields.typings);
-      expect('typescript.definition', presetFields.typescript.definition);
+    if (opts.dual === true) {
+      expect('main', presetFieldsDual.main);
+      expect('typings', presetFieldsDual.typings);
     } else {
-      expect('main', presetFieldsESM.main);
-      expect('module', presetFieldsESM.module);
-      expect('typings', presetFieldsESM.typings);
-      expect('typescript.definition', presetFieldsESM.typescript.definition);
+      expect('main', presetFieldsOnlyESM.main);
+      expect('typings', presetFieldsOnlyESM.typings);
     }
-  } else if (
-    pkg.main !== undefined ||
-    pkg.module !== undefined ||
-    pkg.exports !== undefined ||
-    pkg.typings !== undefined ||
-    pkg.typescript !== undefined
-  ) {
-    if (opts.includesCommonJS === true) {
+  } else if (pkg.main !== undefined || pkg.exports !== undefined || pkg.typings !== undefined) {
+    if (opts.dual === true) {
       // if there is no bin property, we NEED to check the exports.
-      expect('main', presetFields.main);
-      expect('module', presetFields.module);
-      expect('typings', presetFields.typings);
-      expect('typescript.definition', presetFields.typescript.definition);
+      expect('main', presetFieldsDual.main);
+      expect('typings', presetFieldsDual.typings);
 
       // For now we enforce a top level exports property
-      expect("exports['.'].require", presetFields.exports['.'].require);
-      expect("exports['.'].import", presetFields.exports['.'].import);
-      expect("exports['.'].default", presetFields.exports['.'].default);
+      expect("exports['.'].require", presetFieldsDual.exports['.'].require);
+      expect("exports['.'].import", presetFieldsDual.exports['.'].import);
+      expect("exports['.'].default", presetFieldsDual.exports['.'].default);
     } else {
-      expect('main', presetFieldsESM.main);
-      expect('module', presetFieldsESM.module);
-      expect('typings', presetFieldsESM.typings);
-      expect('typescript.definition', presetFieldsESM.typescript.definition);
+      expect('main', presetFieldsOnlyESM.main);
+      expect('typings', presetFieldsOnlyESM.typings);
 
       // For now, we enforce a top level exports property
-      expect("exports['.']", presetFieldsESM.exports['.']);
+      expect("exports['.']", presetFieldsOnlyESM.exports['.']);
     }
   }
 }

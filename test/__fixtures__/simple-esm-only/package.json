@@ -5,7 +5,6 @@
     "node": ">= 14.0.0"
   },
   "main": "dist/esm/index.js",
-  "module": "dist/esm/index.js",
   "exports": {
     ".": {
       "import": {
@@ -26,8 +25,5 @@
   },
   "bob": {
     "commonjs": false
-  },
-  "typescript": {
-    "definition": "dist/typings/index.d.ts"
   }
 }
