@@ -3,6 +3,7 @@ import { dirname, join, resolve } from 'path';
 import { type ConsolaInstance } from 'consola';
 import { execa } from 'execa';
 import fse from 'fs-extra';
+import { getTsconfig, parseTsconfig } from 'get-tsconfig';
 import { globby } from 'globby';
 import get from 'lodash.get';
 import pLimit from 'p-limit';
@@ -41,21 +42,10 @@ const filesToExcludeFromDist = [
   '**/temp',
 ];
 
-const moduleMappings = {
-  esm: 'es2022',
-  cjs: 'commonjs',
-} as const;
-
-function typeScriptCompilerOptions(target: 'esm' | 'cjs'): Record<string, unknown> {
-  return {
-    module: moduleMappings[target],
-    sourceMap: false,
-    inlineSourceMap: false,
-  };
-}
-
 function compilerOptionsToArgs(options: Record<string, unknown>): string[] {
-  return Object.entries(options).flatMap(([key, value]) => [`--${key}`, `${value}`]);
+  return Object.entries(options)
+    .filter(([, value]) => !!value)
+    .flatMap(([key, value]) => [`--${key}`, `${value}`]);
 }
 
 function assertTypeScriptBuildResult(
@@ -70,36 +60,62 @@ function assertTypeScriptBuildResult(
 
 async function buildTypeScript(
   buildPath: string,
-  options: { cwd: string; tsconfig?: string; incremental?: boolean },
+  options: {
+    cwd: string;
+    tsconfig?: string;
+    incremental?: boolean;
+  },
   reporter: ConsolaInstance,
 ) {
-  let tsconfig = options.tsconfig;
-  if (!tsconfig && (await fse.exists(join(options.cwd, DEFAULT_TS_BUILD_CONFIG)))) {
-    tsconfig = join(options.cwd, DEFAULT_TS_BUILD_CONFIG);
+  let project = options.tsconfig;
+  if (!project && (await fse.exists(join(options.cwd, DEFAULT_TS_BUILD_CONFIG)))) {
+    project = join(options.cwd, DEFAULT_TS_BUILD_CONFIG);
   }
-  assertTypeScriptBuildResult(
-    await execa('npx', [
-      'tsc',
-      ...(tsconfig ? ['--project', tsconfig] : []),
-      ...compilerOptionsToArgs(typeScriptCompilerOptions('esm')),
-      ...(options.incremental ? ['--incremental'] : []),
-      '--outDir',
-      join(buildPath, 'esm'),
-    ]),
-    reporter,
-  );
 
-  assertTypeScriptBuildResult(
-    await execa('npx', [
-      'tsc',
-      ...(tsconfig ? ['--project', tsconfig] : []),
-      ...compilerOptionsToArgs(typeScriptCompilerOptions('cjs')),
-      ...(options.incremental ? ['--incremental'] : []),
-      '--outDir',
-      join(buildPath, 'cjs'),
-    ]),
-    reporter,
-  );
+  const tsconfig = project ? parseTsconfig(project) : getTsconfig(options.cwd)?.config;
+
+  const moduleResolution = (tsconfig?.compilerOptions?.moduleResolution || '').toLowerCase();
+  const isModernNodeModuleResolution = ['node16', 'nodenext'].includes(moduleResolution);
+  const isOldNodeModuleResolution = ['classic', 'node', 'node10'].includes(moduleResolution);
+  if (moduleResolution && !isOldNodeModuleResolution && !isModernNodeModuleResolution) {
+    throw new Error(
+      `'moduleResolution' option '${moduleResolution}' cannot be used to build CommonJS"`,
+    );
+  }
+
+  async function build(out: PackageJsonType) {
+    const revertPackageJsonsType = await setPackageJsonsType(
+      { cwd: options.cwd, ignore: [...filesToExcludeFromDist, ...(tsconfig?.exclude || [])] },
+      out,
+    );
+    try {
+      assertTypeScriptBuildResult(
+        await execa('npx', [
+          'tsc',
+          ...compilerOptionsToArgs({
+            project,
+            module: isModernNodeModuleResolution
+              ? moduleResolution // match module with moduleResolution for modern node (nodenext and node16)
+              : out === 'module'
+                ? 'es2022'
+                : isOldNodeModuleResolution
+                  ? 'commonjs' // old commonjs
+                  : 'node16', // modern commonjs
+            sourceMap: false,
+            inlineSourceMap: false,
+            incremental: options.incremental,
+            outDir: out === 'module' ? join(buildPath, 'esm') : join(buildPath, 'cjs'),
+          }),
+        ]),
+        reporter,
+      );
+    } finally {
+      await revertPackageJsonsType();
+    }
+  }
+
+  await build('module');
+  await build('commonjs');
 }
 
 export const buildCommand = createCommand<
@@ -477,6 +493,77 @@ export function validatePackageJson(
       expect("exports['.']", presetFieldsESM.exports['.']);
     }
   }
+}
+
+type PackageJsonType = 'module' | 'commonjs';
+
+/**
+ * Sets the {@link cwd workspaces} package.json(s) `"type"` field to the defined {@link type}
+ * returning a "revert" function which puts the original `"type"` back.
+ *
+ * @returns A revert function that reverts the original value of the `"type"` field.
+ */
+async function setPackageJsonsType(
+  { cwd, ignore }: { cwd: string; ignore: string[] },
+  type: PackageJsonType,
+): Promise<() => Promise<void>> {
+  const rootPkgJsonPath = join(cwd, 'package.json');
+  const rootContents = await fse.readFile(rootPkgJsonPath, 'utf8');
+  const rootPkg = JSON.parse(rootContents);
+  const workspaces = await getWorkspaces(rootPkg);
+  const isSinglePackage = workspaces === null;
+
+  const reverts: (() => Promise<void>)[] = [];
+
+  for (const pkgJsonPath of [
+    // we also want to modify the root package.json TODO: do we in single package repos?
+    rootPkgJsonPath,
+    ...(isSinglePackage
+      ? []
+      : await globby(
+          workspaces.map((w: string) => w + '/package.json'),
+          { cwd, absolute: true, ignore },
+        )),
+  ]) {
+    const contents =
+      pkgJsonPath === rootPkgJsonPath
+        ? // no need to re-read the root package.json
+          rootContents
+        : await fse.readFile(pkgJsonPath, 'utf8');
+    const endsWithNewline = contents.endsWith('\n');
+
+    const pkg = JSON.parse(contents);
+    if (pkg.type != null && pkg.type !== 'commonjs' && pkg.type !== 'module') {
+      throw new Error(`Invalid "type" property value "${pkg.type}" in ${pkgJsonPath}`);
+    }
+
+    const originalPkg = { ...pkg };
+    const differentType =
+      (pkg.type ||
+        // default when the type is not defined
+        'commonjs') !== type;
+
+    // change only if the provided type is different
+    if (differentType) {
+      pkg.type = type;
+      await fse.writeFile(
+        pkgJsonPath,
+        JSON.stringify(pkg, null, '  ') + (endsWithNewline ? '\n' : ''),
+      );
+
+      // revert change, of course only if we changed something
+      reverts.push(async () => {
+        await fse.writeFile(
+          pkgJsonPath,
+          JSON.stringify(originalPkg, null, '  ') + (endsWithNewline ? '\n' : ''),
+        );
+      });
+    }
+  }
+
+  return async function revert() {
+    await Promise.all(reverts.map(r => r()));
+  };
 }
 
 async function executeCopy(sourcePath: string, destPath: string) {
