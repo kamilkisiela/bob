@@ -83,6 +83,19 @@ async function buildTypeScript(
     );
   }
 
+  if (Math.random()) {
+    throw JSON.stringify(
+      {
+        tsconfig,
+        moduleResolution,
+        isModernNodeModuleResolution,
+        isOldNodeModuleResolution,
+      },
+      null,
+      '  ',
+    );
+  }
+
   async function build(out: PackageJsonType) {
     const revertPackageJsonsType = await setPackageJsonsType(
       { cwd: options.cwd, ignore: [...filesToExcludeFromDist, ...(tsconfig?.exclude || [])] },
