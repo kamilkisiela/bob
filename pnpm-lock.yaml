@@ -53,7 +53,7 @@ importers:
         version: 2.27.12
       '@theguild/prettier-config':
         specifier: 3.0.0
-        version: 3.0.0(prettier@3.5.0)
+        version: 3.0.0(prettier@3.5.1)
       '@types/fs-extra':
         specifier: 11.0.4
         version: 11.0.4
@@ -88,8 +88,8 @@ importers:
         specifier: 2.0.0
         version: 2.0.0
       prettier:
-        specifier: 3.5.0
-        version: 3.5.0
+        specifier: 3.5.1
+        version: 3.5.1
       rimraf:
         specifier: 6.0.1
         version: 6.0.1
@@ -1763,8 +1763,8 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.5.0:
-    resolution: {integrity: sha512-quyMrVt6svPS7CjQ9gKb3GLEX/rl3BCL2oa/QkNcXv4YNVBC9olt3s+H7ukto06q7B1Qz46PbrKLO34PR6vXcA==}
+  prettier@3.5.1:
+    resolution: {integrity: sha512-hPpFQvHwL3Qv5AdRvBFMhnKo4tYxp0ReXiPn2bxkiohEX6mBeBwEpBSQTkD458RaaDKQMYSp4hX4UtfUTA5wDw==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -2573,13 +2573,13 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.1': {}
 
-  '@ianvs/prettier-plugin-sort-imports@4.4.0(prettier@3.5.0)':
+  '@ianvs/prettier-plugin-sort-imports@4.4.0(prettier@3.5.1)':
     dependencies:
       '@babel/generator': 7.26.5
       '@babel/parser': 7.26.7
       '@babel/traverse': 7.26.7
       '@babel/types': 7.26.7
-      prettier: 3.5.0
+      prettier: 3.5.1
       semver: 7.7.0
     transitivePeerDependencies:
       - supports-color
@@ -2718,12 +2718,12 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@theguild/prettier-config@3.0.0(prettier@3.5.0)':
+  '@theguild/prettier-config@3.0.0(prettier@3.5.1)':
     dependencies:
-      '@ianvs/prettier-plugin-sort-imports': 4.4.0(prettier@3.5.0)
-      prettier: 3.5.0
-      prettier-plugin-pkg: 0.18.1(prettier@3.5.0)
-      prettier-plugin-sh: 0.14.0(prettier@3.5.0)
+      '@ianvs/prettier-plugin-sort-imports': 4.4.0(prettier@3.5.1)
+      prettier: 3.5.1
+      prettier-plugin-pkg: 0.18.1(prettier@3.5.1)
+      prettier-plugin-sh: 0.14.0(prettier@3.5.1)
     transitivePeerDependencies:
       - '@vue/compiler-sfc'
       - supports-color
@@ -4032,19 +4032,19 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-pkg@0.18.1(prettier@3.5.0):
+  prettier-plugin-pkg@0.18.1(prettier@3.5.1):
     dependencies:
-      prettier: 3.5.0
+      prettier: 3.5.1
 
-  prettier-plugin-sh@0.14.0(prettier@3.5.0):
+  prettier-plugin-sh@0.14.0(prettier@3.5.1):
     dependencies:
       mvdan-sh: 0.10.1
-      prettier: 3.5.0
+      prettier: 3.5.1
       sh-syntax: 0.4.2
 
   prettier@2.8.8: {}
 
-  prettier@3.5.0: {}
+  prettier@3.5.1: {}
 
   pretty-format@29.7.0:
     dependencies:
