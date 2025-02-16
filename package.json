@@ -13,7 +13,7 @@
     "url": "https://github.com/kamilkisiela"
   },
   "license": "MIT",
-  "packageManager": "pnpm@10.4.0",
+  "packageManager": "pnpm@10.4.1",
   "engines": {
     "node": ">=16",
     "pnpm": ">=8"
