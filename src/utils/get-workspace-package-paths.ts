@@ -7,7 +7,7 @@ export async function getWorkspacePackagePaths(workspaces: string[], cwd = proce
     workspaces
       /** We are only interested in workspaces that are packages (for now.) */
       .filter(workspacePattern => workspacePattern.startsWith('packages/'))
-      .map(workspacePattern => path.join(workspacePattern, 'package.json')),
+      .map(workspacePattern => path.posix.join(workspacePattern, 'package.json')),
     {
       cwd,
       ignore: ['**/node_modules/**', ...buildArtifactDirectories],
