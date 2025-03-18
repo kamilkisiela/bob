@@ -18,7 +18,7 @@ jobs:
         node_version: [18, 20, 22, 23]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Use Node ${{matrix.node_version}}
         uses: actions/setup-node@master
         with:
@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v4
+      - uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
         name: Setup pnpm cache
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
